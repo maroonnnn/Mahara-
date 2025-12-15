@@ -90,7 +90,7 @@ export default function SearchPage() {
   return (
     <>
       <Head>
-        <title>Search: {q || ''} | Fiverr Clone</title>
+        <title>Search: {q || ''} | Mahara</title>
       </Head>
 
       <DashboardLayout allowUnauthenticated={true}>

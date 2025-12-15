@@ -97,7 +97,7 @@ export default function AdminUsers() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'إدارة المستخدمين - Fiverr' : 'User Management - Fiverr'}</title>
+        <title>{language === 'ar' ? 'إدارة المستخدمين - Mahara' : 'User Management - Mahara'}</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">

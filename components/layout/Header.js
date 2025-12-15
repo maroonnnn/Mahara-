@@ -99,7 +99,7 @@ export default function Header() {
           {/* Logo */}
             <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center">
               <span className="text-3xl font-bold text-primary-500 lowercase">
-                fiverr<span className="text-primary-500">.</span>
+                mahara<span className="text-primary-500">.</span>
               </span>
             </Link>
 
@@ -188,7 +188,7 @@ export default function Header() {
                           </div>
                           <Link href="/pro" className="block py-2">
                             <span className="inline-block bg-primary-500 text-white px-3 py-1 rounded text-xs font-semibold">
-                              Fiverr Pro
+                              Mahara Pro
                             </span>
                           </Link>
                           <Link href="/team/invite" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
@@ -239,7 +239,7 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  {/* Fiverr Pro Dropdown */}
+                  {/* Mahara Pro Dropdown */}
                   <div className="relative" ref={proMenuRef}>
                     <button
                       onClick={() => {
@@ -249,13 +249,13 @@ export default function Header() {
                       }}
                       className="flex items-center gap-1 text-gray-700 hover:text-primary-500 text-sm font-medium transition-colors"
                     >
-                      Fiverr Pro
+                      Mahara Pro
                       <FaChevronDown className={`w-3 h-3 transition-transform ${proMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {proMenuOpen && (
                       <div className={`absolute mt-2 w-56 bg-white rounded-lg shadow-xl py-2 border border-gray-200 z-50 ${language === 'ar' ? 'left-0' : 'right-0'}`}>
                         <Link href="/pro" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
-                          Explore Fiverr Pro
+                          Explore Mahara Pro
                         </Link>
                         <Link href="/pro/sellers" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
                           Pro Services
@@ -299,7 +299,7 @@ export default function Header() {
                           Get Inspired
                 </Link>
                         <Link href="/learn" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
-                          Learn from Fiverr
+                          Learn from Mahara
                 </Link>
               </div>
                     )}

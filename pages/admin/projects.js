@@ -117,7 +117,7 @@ export default function AdminProjects() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'إدارة المشاريع - Fiverr' : 'Project Management - Fiverr'}</title>
+        <title>{language === 'ar' ? 'إدارة المشاريع - Mahara' : 'Project Management - Mahara'}</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">

@@ -141,7 +141,7 @@ export default function FreelancerProjectDetailsPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>تفاصيل المشروع | Fiverr Clone</title>
+          <title>تفاصيل المشروع | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -157,7 +157,7 @@ export default function FreelancerProjectDetailsPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>المشروع غير موجود | Fiverr Clone</title>
+          <title>المشروع غير موجود | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -177,7 +177,7 @@ export default function FreelancerProjectDetailsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>{project.title} | Fiverr Clone</title>
+        <title>{project.title} | Mahara</title>
         <meta name="description" content={project.description} />
       </Head>
 

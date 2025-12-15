@@ -125,7 +125,7 @@ export default function SubcategoryPage() {
   return (
     <PublicLayout>
       <Head>
-        <title>{subcategory.name} | {category.name} Services | Fiverr Clone</title>
+        <title>{subcategory.name} | {category.name} Services | Mahara</title>
         <meta name="description" content={`Find the best ${subcategory.name} services on our platform`} />
       </Head>
 
@@ -160,7 +160,7 @@ export default function SubcategoryPage() {
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
-              How Fiverr Works
+              How Mahara Works
             </button>
           </div>
         </div>
@@ -282,7 +282,7 @@ export default function SubcategoryPage() {
                           <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-semibold rounded">New</span>
                           <span className="text-xs text-gray-500">(7,303)</span>
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">Hire hourly for long-term projects, exclusively on Fiverr Pro</div>
+                        <div className="text-xs text-gray-500 mt-1">Hire hourly for long-term projects, exclusively on Mahara Pro</div>
                       </div>
                     </label>
                   </div>
@@ -317,7 +317,7 @@ export default function SubcategoryPage() {
                         />
                         <span className="text-sm text-gray-700">Hire hourly</span>
                       </label>
-                      <p className="text-xs text-gray-500 ml-7 -mt-2">Pay on an hourly basis, only on Fiverr Pro. <Link href="#" className="text-primary-500 hover:underline">Upgrade for free</Link></p>
+                      <p className="text-xs text-gray-500 ml-7 -mt-2">Pay on an hourly basis, only on Mahara Pro. <Link href="#" className="text-primary-500 hover:underline">Upgrade for free</Link></p>
                     </div>
                     <hr className="my-4 border-gray-200" />
                     <p className="text-xs text-gray-500 text-center mb-3">OR</p>

@@ -83,8 +83,8 @@ export default function BecomeSellerPage() {
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
       initial: 'J',
       text: language === 'ar' 
-        ? 'الناس يحبون شعارنا، ونحن نحب Fiverr.'
-        : 'People love our logo, and we love Fiverr.'
+        ? 'الناس يحبون شعارنا، ونحن نحب Mahara.'
+        : 'People love our logo, and we love Mahara.'
     },
     {
       name: 'Michael Chen',
@@ -92,8 +92,8 @@ export default function BecomeSellerPage() {
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
       initial: 'M',
       text: language === 'ar' 
-        ? 'Fiverr مورد رائع لأي شخص في مجال الشركات الناشئة.'
-        : 'Fiverr is an amazing resource for anyone in the startup space.'
+        ? 'Mahara مورد رائع لأي شخص في مجال الشركات الناشئة.'
+        : 'Mahara is an amazing resource for anyone in the startup space.'
     },
     {
       name: 'Emily Rodriguez',
@@ -101,8 +101,8 @@ export default function BecomeSellerPage() {
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
       initial: 'E',
       text: language === 'ar' 
-        ? 'Fiverr يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
-        : 'Fiverr enables me to quickly and efficiently get things done.'
+        ? 'Mahara يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
+        : 'Mahara enables me to quickly and efficiently get things done.'
     },
     {
       name: 'David Thompson',
@@ -119,8 +119,8 @@ export default function BecomeSellerPage() {
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
       initial: 'L',
       text: language === 'ar' 
-        ? 'Fiverr يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
-        : 'Fiverr enables me to quickly and efficiently get things done.'
+        ? 'Mahara يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
+        : 'Mahara enables me to quickly and efficiently get things done.'
     },
     {
       name: 'Robert Martinez',
@@ -128,16 +128,16 @@ export default function BecomeSellerPage() {
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
       initial: 'R',
       text: language === 'ar' 
-        ? 'Fiverr يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
-        : 'Fiverr enables me to quickly and efficiently get things done.'
+        ? 'Mahara يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
+        : 'Mahara enables me to quickly and efficiently get things done.'
     },
   ];
 
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'كن بائعاً - Fiverr' : 'Become a Seller - Fiverr'}</title>
-        <meta name="description" content={language === 'ar' ? 'ابدأ بيع خدماتك على Fiverr واكتسب المال من مهاراتك' : 'Start selling your services on Fiverr and make money from your skills'} />
+        <title>{language === 'ar' ? 'كن بائعاً - Mahara' : 'Become a Seller - Mahara'}</title>
+        <meta name="description" content={language === 'ar' ? 'ابدأ بيع خدماتك على Mahara واكتسب المال من مهاراتك' : 'Start selling your services on Mahara and make money from your skills'} />
       </Head>
 
       <PublicLayout>
@@ -270,7 +270,7 @@ export default function BecomeSellerPage() {
             </div>
           </div>
 
-          {/* Learn from Fiverr Section */}
+          {/* Learn from Mahara Section */}
           <div className="bg-gray-50 py-20">
             <div className="container-custom">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -289,8 +289,8 @@ export default function BecomeSellerPage() {
                   </h2>
                   <p className="text-gray-700 text-lg mb-8 leading-relaxed">
                     {language === 'ar' 
-                      ? 'كل ما يتطلبه الأمر لتصبح بائعاً من الطراز الأول على Fiverr مع دورات Learn from Fiverr المجانية التكميلية.'
-                      : 'Everything it takes to be a top-notch seller on Fiverr with free complementary Learn from Fiverr courses.'
+                      ? 'كل ما يتطلبه الأمر لتصبح بائعاً من الطراز الأول على Mahara مع دورات Learn from Mahara المجانية التكميلية.'
+                      : 'Everything it takes to be a top-notch seller on Mahara with free complementary Learn from Mahara courses.'
                     }
                   </p>
                   <Link 
@@ -322,7 +322,7 @@ export default function BecomeSellerPage() {
                           {language === 'ar' ? 'أساسيات العمل الحر عبر الإنترنت' : 'Online Freelancing Essentials'}
                         </p>
                         <p className="text-lg font-bold">
-                          {language === 'ar' ? 'كن بائع Fiverr ناجحاً' : 'Be A Successful Fiverr'}
+                          {language === 'ar' ? 'كن بائع Mahara ناجحاً' : 'Be A Successful Mahara'}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 text-white">

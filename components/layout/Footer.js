@@ -132,7 +132,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link href="/how-it-works" className="text-gray-600 hover:text-primary-500 text-sm transition-colors">
-                  How Fiverr Works
+                  How Mahara Works
                 </Link>
               </li>
               <li>
@@ -152,12 +152,12 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/guides" className="text-gray-600 hover:text-primary-500 text-sm transition-colors">
-                  Fiverr Guides
+                  Mahara Guides
                 </Link>
               </li>
               <li>
                 <Link href="/answers" className="text-gray-600 hover:text-primary-500 text-sm transition-colors">
-                  Fiverr Answers
+                  Mahara Answers
                 </Link>
               </li>
               <li>
@@ -174,7 +174,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link href="/become-seller" className="text-gray-600 hover:text-primary-500 text-sm transition-colors">
-                  Become a Fiverr Freelancer
+                  Become a Mahara Freelancer
                 </Link>
               </li>
               <li>
@@ -211,7 +211,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link href="/pro" className="text-gray-600 hover:text-primary-500 text-sm transition-colors">
-                  Fiverr Pro
+                  Mahara Pro
                 </Link>
               </li>
               <li>
@@ -241,7 +241,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/logo-maker" className="text-gray-600 hover:text-primary-500 text-sm transition-colors">
-                  Fiverr Logo Maker
+                  Mahara Logo Maker
                 </Link>
               </li>
               <li>
@@ -258,7 +258,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link href="/about" className="text-gray-600 hover:text-primary-500 text-sm transition-colors">
-                  About Fiverr
+                  About Mahara
                 </Link>
               </li>
               <li>
@@ -333,11 +333,11 @@ export default function Footer() {
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center">
               <span className="text-3xl font-bold text-primary-500 lowercase">
-                fiverr<span className="text-primary-500">.</span>
+                mahara<span className="text-primary-500">.</span>
               </span>
             </Link>
             <span className="text-gray-600 text-sm">
-              © Fiverr International Ltd. {currentYear}
+              © Mahara International Ltd. {currentYear}
             </span>
           </div>
 

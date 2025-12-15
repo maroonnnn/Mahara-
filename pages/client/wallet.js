@@ -13,7 +13,7 @@ export default function ClientWallet() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المحفظة | Fiverr Clone</title>
+        <title>المحفظة | Mahara</title>
       </Head>
 
       <div className="max-w-6xl mx-auto">

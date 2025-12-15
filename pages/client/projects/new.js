@@ -215,7 +215,7 @@ export default function NewProjectPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>مشروع جديد | Fiverr Clone</title>
+        <title>مشروع جديد | Mahara</title>
         <meta name="description" content="Create a new project brief" />
       </Head>
 

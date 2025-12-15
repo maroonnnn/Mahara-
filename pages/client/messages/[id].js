@@ -71,7 +71,7 @@ export default function ChatPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>الرسائل | Fiverr Clone</title>
+          <title>الرسائل | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -87,7 +87,7 @@ export default function ChatPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>الرسائل | Fiverr Clone</title>
+          <title>الرسائل | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -107,7 +107,7 @@ export default function ChatPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المحادثة | Fiverr Clone</title>
+        <title>المحادثة | Mahara</title>
         <meta name="description" content="Chat conversation" />
       </Head>
 

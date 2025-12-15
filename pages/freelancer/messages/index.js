@@ -149,7 +149,7 @@ export default function FreelancerMessagesPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>الرسائل | Fiverr Clone</title>
+        <title>الرسائل | Mahara</title>
         <meta name="description" content="Messages and conversations" />
       </Head>
 

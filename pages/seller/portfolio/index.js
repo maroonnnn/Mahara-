@@ -178,7 +178,7 @@ export default function SellerPortfolioPage() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'محفظة الأعمال - Fiverr' : 'Portfolio - Fiverr'}</title>
+        <title>{language === 'ar' ? 'محفظة الأعمال - Mahara' : 'Portfolio - Mahara'}</title>
       </Head>
 
       <DashboardLayout allowUnauthenticated={true}>

@@ -65,7 +65,7 @@ export default function FreelancerProfile() {
   return (
     <DashboardLayout>
       <Head>
-        <title>الملف الشخصي | Fiverr Clone</title>
+        <title>الملف الشخصي | Mahara</title>
       </Head>
 
       <div className="max-w-4xl mx-auto">

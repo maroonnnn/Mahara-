@@ -112,7 +112,7 @@ export default function FreelancerPortfolioPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>الحافظة | Fiverr Clone</title>
+        <title>الحافظة | Mahara</title>
         <meta name="description" content="Portfolio" />
       </Head>
 

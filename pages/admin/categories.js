@@ -102,7 +102,7 @@ export default function AdminCategories() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'إدارة الفئات - Fiverr' : 'Category Management - Fiverr'}</title>
+        <title>{language === 'ar' ? 'إدارة الفئات - Mahara' : 'Category Management - Mahara'}</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">

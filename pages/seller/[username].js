@@ -154,7 +154,7 @@ export default function SellerProfilePage() {
   return (
     <>
       <Head>
-        <title>{seller.name} - {language === 'ar' ? 'ملف البائع' : 'Seller Profile'} | Fiverr</title>
+        <title>{seller.name} - {language === 'ar' ? 'ملف البائع' : 'Seller Profile'} | Mahara</title>
         <meta name="description" content={seller.bio} />
       </Head>
 

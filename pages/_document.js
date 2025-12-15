@@ -7,7 +7,7 @@ export default function Document() {
       <Head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/favicon.ico" />
-        <meta name="description" content="Fiverr - Freelance Services Marketplace" />
+        <meta name="description" content="Mahara - Freelance Services Marketplace" />
       </Head>
       <body>
         <Main />

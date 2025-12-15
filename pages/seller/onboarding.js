@@ -279,7 +279,7 @@ export default function SellerOnboarding() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'انضم كبائع - Fiverr' : 'Become a Seller - Fiverr'}</title>
+        <title>{language === 'ar' ? 'انضم كبائع - Mahara' : 'Become a Seller - Mahara'}</title>
       </Head>
 
       <PublicLayout>
@@ -288,7 +288,7 @@ export default function SellerOnboarding() {
             {/* Logo and Progress Stepper */}
             <div className="mb-8">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-primary-500 mb-2">fiverr.</h1>
+                <h1 className="text-3xl font-bold text-primary-500 mb-2">mahara.</h1>
               </div>
 
               {/* Progress Stepper */}

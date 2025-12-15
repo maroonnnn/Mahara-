@@ -49,7 +49,7 @@ export default function FreelancerActiveProjectsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المشاريع النشطة | Fiverr Clone</title>
+        <title>المشاريع النشطة |Mahara</title>
         <meta name="description" content="Active projects" />
       </Head>
 

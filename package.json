@@ -1,7 +1,7 @@
 {
-  "name": "fiverr-clone-frontend",
+  "name": "mahara-frontend",
   "version": "1.0.0",
-  "description": "A comprehensive freelance marketplace platform built with Next.js",
+  "description": "Mahara – a comprehensive freelance marketplace platform built with Next.js",
   "private": true,
   "scripts": {
     "dev": "next dev",

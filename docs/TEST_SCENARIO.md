@@ -1,4 +1,4 @@
-# Complete Test Scenario - Fiverr Clone Platform
+# Complete Test Scenario - Mahara Platform
 
 ## Scenario Overview
 **Project Title:** "تصميم شعار احترافي لشركة تكنولوجيا"  
@@ -691,7 +691,7 @@ http://localhost:3000/switch-role
 
 ---
 
-**Created for:** Fiverr Clone Platform Testing  
+**Created for:** Mahara Platform Testing  
 **Last Updated:** December 2025  
 **Version:** 1.0
 

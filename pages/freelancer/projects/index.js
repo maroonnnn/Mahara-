@@ -326,7 +326,7 @@ export default function FreelancerProjectsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المشاريع المتاحة | Fiverr Clone</title>
+        <title>المشاريع المتاحة | Mahara</title>
         <meta name="description" content="Browse available projects" />
       </Head>
 

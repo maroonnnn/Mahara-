@@ -133,7 +133,7 @@ export default function AdminTransactions() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'إدارة المعاملات المالية - Fiverr' : 'Transaction Management - Fiverr'}</title>
+        <title>{language === 'ar' ? 'إدارة المعاملات المالية - Mahara' : 'Transaction Management - Mahara'}</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">

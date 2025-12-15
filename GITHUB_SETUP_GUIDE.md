@@ -14,8 +14,8 @@
 2. سجّل دخول إلى حسابك
 3. اضغط على زر **"+"** في الأعلى → **"New repository"**
 4. املأ المعلومات:
-   - **Repository name:** `freelance-marketplace-frontend` (أو أي اسم تريده)
-   - **Description:** `منصة لربط مزودي الخدمات مع العملاء - Frontend (React + Next.js)`
+   - **Repository name:** `mahara-frontend` (أو أي اسم تريده)
+   - **Description:** `Mahara - منصة لربط مزودي الخدمات مع العملاء - Frontend (React + Next.js)`
    - **اختر:** Public أو Private (حسب رغبتك)
    - **لا تضع علامة على:** Add README, .gitignore, أو license (لأنها موجودة بالفعل)
 5. اضغط **"Create repository"**
@@ -42,7 +42,7 @@ git add .
 
 #### **C. عمل أول Commit**
 ```powershell
-git commit -m "Initial commit: Freelance marketplace frontend with Next.js"
+git commit -m "Initial commit: Mahara freelance marketplace frontend with Next.js"
 ```
 
 #### **D. تغيير اسم Branch إلى main**
@@ -59,7 +59,7 @@ git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
 
 **مثال:**
 ```powershell
-git remote add origin https://github.com/ahmed123/freelance-marketplace-frontend.git
+git remote add origin https://github.com/ahmed123/mahara-frontend.git
 ```
 
 #### **F. رفع المشروع إلى GitHub**
@@ -79,7 +79,7 @@ git push -u origin main
 2. اضغط **Personal access tokens** → **Tokens (classic)**
 3. اضغط **Generate new token** → **Generate new token (classic)**
 4. املأ المعلومات:
-   - **Note:** `My Freelance Project`
+   - **Note:** `My Mahara Project`
    - **Expiration:** 90 days (أو حسب رغبتك)
    - **اختر Scopes:** `repo` (ضع علامة ✅)
 5. اضغط **Generate token**
@@ -101,7 +101,7 @@ git init
 git add .
 
 # 4. أول Commit
-git commit -m "Initial commit: Freelance marketplace frontend"
+git commit -m "Initial commit: Mahara freelance marketplace frontend"
 
 # 5. تغيير Branch إلى main
 git branch -M main

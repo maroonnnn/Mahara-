@@ -255,7 +255,7 @@ export default function FreelancerDashboard() {
   return (
     <DashboardLayout>
       <Head>
-        <title>لوحة التحكم | Fiverr Clone</title>
+        <title>لوحة التحكم | Mahara</title>
         <meta name="description" content="Freelancer Dashboard" />
       </Head>
 

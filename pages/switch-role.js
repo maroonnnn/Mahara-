@@ -73,7 +73,7 @@ export default function SwitchModePage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>Switch Mode | Fiverr Clone</title>
+        <title>Switch Mode | Mahara</title>
         <meta name="description" content="Switch between Client and Freelancer modes" />
       </Head>
 

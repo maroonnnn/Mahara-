@@ -155,7 +155,7 @@ export default function MyOffersPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>عروضي | Fiverr Clone</title>
+          <title>عروضي | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -170,7 +170,7 @@ export default function MyOffersPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>عروضي | Fiverr Clone</title>
+        <title>عروضي | Mahara</title>
         <meta name="description" content="My submitted offers" />
       </Head>
 

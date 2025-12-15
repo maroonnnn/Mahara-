@@ -278,5 +278,5 @@ The dashboard includes:
 
 ---
 
-**Need Help?** Check the individual page files for implementation details or refer to the Fiverr design patterns.
+**Need Help?** Check the individual page files for implementation details or refer to the Mahara design patterns.
 

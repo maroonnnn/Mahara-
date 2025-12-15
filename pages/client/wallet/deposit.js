@@ -120,7 +120,7 @@ export default function DepositPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>إيداع رصيد | Fiverr Clone</title>
+        <title>إيداع رصيد | Mahara</title>
       </Head>
 
       <div className="max-w-4xl mx-auto">

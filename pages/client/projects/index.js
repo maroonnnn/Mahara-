@@ -164,7 +164,7 @@ export default function ClientProjectsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>مشاريعي | Fiverr Clone</title>
+        <title>مشاريعي | Mahara</title>
         <meta name="description" content="My Projects" />
       </Head>
 

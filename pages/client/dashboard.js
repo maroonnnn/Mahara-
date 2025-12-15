@@ -38,7 +38,7 @@ export default function ClientDashboard() {
   return (
     <DashboardLayout>
       <Head>
-        <title>لوحة التحكم | Fiverr Clone</title>
+        <title>لوحة التحكم | Mahara</title>
       </Head>
 
       <div className="max-w-7xl mx-auto">

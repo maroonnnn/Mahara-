@@ -86,7 +86,7 @@ export default function AdminReports() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'التقارير والإحصائيات - Fiverr' : 'Reports & Analytics - Fiverr'}</title>
+        <title>{language === 'ar' ? 'التقارير والإحصائيات - Mahara' : 'Reports & Analytics - Mahara'}</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">

@@ -2,7 +2,7 @@
 
 ## 📋 Project Overview
 
-FreelanceHub is a comprehensive freelance marketplace platform similar to Fiverr, connecting service providers (freelancers) with clients seeking digital services.
+FreelanceHub is a comprehensive freelance marketplace platform similar to Mahara, connecting service providers (freelancers) with clients seeking digital services.
 
 ### Core Services Categories:
 1. **Programming & Technology** - Software development, web development, mobile apps

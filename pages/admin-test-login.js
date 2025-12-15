@@ -43,7 +43,7 @@ export default function AdminTestLogin() {
   return (
     <>
       <Head>
-        <title>Admin Test Login - Fiverr</title>
+        <title>Admin Test Login - Mahara</title>
       </Head>
 
       <PublicLayout>

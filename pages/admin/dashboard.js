@@ -78,7 +78,7 @@ export default function AdminDashboard() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'لوحة تحكم المدير - Fiverr' : 'Admin Dashboard - Fiverr'}</title>
+        <title>{language === 'ar' ? 'لوحة تحكم المدير - Mahara' : 'Admin Dashboard - Mahara'}</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
-import Head from 'next/head';
+import LandingPage from './landing';
 
 export default function HomePage() {
   const { user, isAuthenticated, loading, isClient, isFreelancer, isAdmin } = useAuth();
@@ -11,7 +11,7 @@ export default function HomePage() {
     // Wait for auth to load
     if (loading) return;
 
-    // Redirect based on user role
+    // Redirect based on user role if authenticated
     if (isAuthenticated && user) {
       if (isClient) {
         router.push('/client/dashboard');
@@ -22,25 +22,34 @@ export default function HomePage() {
       } else {
         router.push('/dashboard');
       }
-    } else {
-      // Not authenticated, redirect to login
-      router.push('/login');
     }
+    // If not authenticated, show landing page (no redirect)
   }, [loading, isAuthenticated, user, isClient, isFreelancer, isAdmin, router]);
 
-  // Show loading while redirecting
-  return (
-    <>
-      <Head>
-        <title>Fiverr Clone | Freelance Services Marketplace</title>
-      </Head>
+  // Show loading while checking auth
+  if (loading) {
+    return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-primary-500 mb-4"></div>
           <p className="text-xl font-semibold text-gray-700">جاري التحميل...</p>
-          <p className="text-sm text-gray-500 mt-2">Loading your dashboard...</p>
         </div>
       </div>
-    </>
-  );
+    );
+  }
+
+  // If authenticated, show loading while redirecting (handled by useEffect)
+  if (isAuthenticated && user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-primary-500 mb-4"></div>
+          <p className="text-xl font-semibold text-gray-700">جاري التوجيه...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated, show landing page
+  return <LandingPage />;
 }
