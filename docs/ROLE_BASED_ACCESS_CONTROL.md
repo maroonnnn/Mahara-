@@ -206,15 +206,14 @@ Try to Create Project (/client/projects/new) ❌ BLOCKED
 
 ---
 
-## 🔄 Role Switching
+## 🔄 Role Management
 
-If you want to switch roles:
-1. Go to `/switch-role` page
-2. Select new role
-3. System updates your permissions
-4. You're redirected to appropriate dashboard
+Each user has a fixed role assigned during registration:
+- **Clients** can only create projects and manage offers
+- **Freelancers** can only browse projects and submit offers
+- **Admins** have full system access
 
-**Note:** Role switching might require re-authentication depending on platform policy.
+**Note:** To use a different role, you need to register a new account with that role type.
 
 ---
 

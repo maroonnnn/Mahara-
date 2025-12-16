@@ -219,10 +219,7 @@ export default function Header() {
                           <Link href="/currency" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
                             $ USD
                     </Link>
-                          <Link href="/switch-role" className="block py-2 text-gray-700 hover:text-primary-500 text-sm font-semibold border-t border-gray-200 pt-3 mt-2">
-                            🔄 Switch Mode
-                          </Link>
-                          <Link href="/help" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
+                          <Link href="/help" className="block py-2 text-gray-700 hover:text-primary-500 text-sm border-t border-gray-200 pt-3 mt-2">
                             Help & support
                     </Link>
                     <button

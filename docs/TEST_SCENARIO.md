@@ -185,12 +185,7 @@
 ### Phase 4: Client Reviews & Accepts Offer
 
 #### Step 4.1: Switch Back to Client
-**For Testing:**
-1. Go to `http://localhost:3000/switch-role`
-2. Select **"Client (عميل)"**
-3. Click **"Switch to Client"**
-
-**OR Logout and Login:**
+**For Testing - Logout and Login:**
 1. Logout from freelancer account
 2. Login with client credentials:
    - Email: `abdalrhmn@example.com`
@@ -266,10 +261,11 @@
 ---
 
 #### Step 5.2: Freelancer Responds
-**Switch to Freelancer:**
-1. Go to `http://localhost:3000/switch-role`
-2. Select **"Freelancer (مستقل)"**
-3. Click **"Switch to Freelancer"**
+**For Testing - Logout and Login as Freelancer:**
+1. Logout from client account
+2. Login with freelancer credentials:
+   - Email: `freelancer@example.com`
+   - Password: `Test@1234`
 
 **Send Response:**
 1. From sidebar, click **"الرسائل"** (Messages)
@@ -316,7 +312,7 @@
 
 #### Step 5.4: Client Reviews & Provides Feedback
 **Switch to Client:**
-1. Switch role to Client
+1. Logout and login as Client
 2. Open conversation
 3. Download attached file
 4. Review concepts
@@ -660,9 +656,6 @@
 ```bash
 # Start development server
 npm run dev
-
-# Access role switcher
-http://localhost:3000/switch-role
 
 # Client endpoints
 /client/dashboard
