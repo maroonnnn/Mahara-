@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { translations } from '../locales/translations';
 
 const LanguageContext = createContext();
 
@@ -11,16 +12,16 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  // Initialize with 'en' to match server-side rendering
+  // Initialize with 'ar' for Arabic (default)
   // Only update after mount to prevent hydration mismatch
-  const [language, setLanguage] = useState('en');
-  const [isRTL, setIsRTL] = useState(false);
+  const [language, setLanguage] = useState('ar');
+  const [isRTL, setIsRTL] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   // Initialize language from localStorage only on client after mount
   useEffect(() => {
     setMounted(true);
-    const savedLanguage = localStorage.getItem('language') || 'en';
+    const savedLanguage = localStorage.getItem('language') || 'ar';
     setLanguage(savedLanguage);
     setIsRTL(savedLanguage === 'ar');
     
@@ -45,10 +46,24 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
+  // Translation function
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    
+    for (const k of keys) {
+      value = value?.[k];
+      if (!value) return key; // Return key if translation not found
+    }
+    
+    return value;
+  };
+
   const value = {
     language,
     isRTL,
     changeLanguage,
+    t, // Add translation function
   };
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

@@ -2,30 +2,32 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import PublicLayout from '../components/layout/PublicLayout';
+import { useLanguage } from '../contexts/LanguageContext';
 import { FaSearch, FaCheck, FaStar } from 'react-icons/fa';
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { t, language } = useLanguage();
 
   const popularServices = [
-    { title: 'Website Development', color: 'bg-green-700', image: '💻' },
-    { title: 'Logo Design', color: 'bg-orange-600', image: '🎨' },
-    { title: 'Video Editing', color: 'bg-pink-600', image: '🎬' },
-    { title: 'Software Development', color: 'bg-green-800', image: '⚙️' },
-    { title: 'Book Publishing', color: 'bg-yellow-700', image: '📚' },
-    { title: 'Architecture & Interior Design', color: 'bg-red-600', image: '🏛️' },
+    { key: 'websiteDevelopment', color: 'bg-green-700', image: '💻' },
+    { key: 'logoDesign', color: 'bg-orange-600', image: '🎨' },
+    { key: 'videoEditing', color: 'bg-pink-600', image: '🎬' },
+    { key: 'softwareDevelopment', color: 'bg-green-800', image: '⚙️' },
+    { key: 'bookPublishing', color: 'bg-yellow-700', image: '📚' },
+    { key: 'architectureInterior', color: 'bg-red-600', image: '🏛️' },
   ];
 
   const categories = [
-    { name: 'Programming & Tech', icon: '💻' },
-    { name: 'Graphics & Design', icon: '🎨' },
-    { name: 'Digital Marketing', icon: '📱' },
-    { name: 'Writing & Translation', icon: '✍️' },
-    { name: 'Video & Animation', icon: '🎥' },
-    { name: 'AI Services', icon: '🤖' },
-    { name: 'Music & Audio', icon: '🎵' },
-    { name: 'Business', icon: '💼' },
-    { name: 'Consulting', icon: '📊' },
+    { key: 'programmingTech', icon: '💻' },
+    { key: 'graphicsDesign', icon: '🎨' },
+    { key: 'digitalMarketing', icon: '📱' },
+    { key: 'writingTranslation', icon: '✍️' },
+    { key: 'videoAnimation', icon: '🎥' },
+    { key: 'aiServices', icon: '🤖' },
+    { key: 'musicAudio', icon: '🎵' },
+    { key: 'business', icon: '💼' },
+    { key: 'consulting', icon: '📊' },
   ];
 
   const trustedBy = [
@@ -42,8 +44,16 @@ export default function LandingPage() {
   return (
     <>
       <Head>
-        <title>Mahara | منصة الخدمات الحرة - اعثر على المواهب المناسبة</title>
-        <meta name="description" content="Mahara - منصة عربية لربط المستقلين بالعملاء. ابحث عن خدمات احترافية في البرمجة، التصميم، التسويق، والمزيد" />
+        <title>
+          {language === 'ar' 
+            ? 'Mahara | منصة الخدمات الحرة - اعثر على المواهب المناسبة'
+            : 'Mahara | Freelance Services Marketplace - Find the Right Talent'}
+        </title>
+        <meta name="description" content={
+          language === 'ar'
+            ? 'Mahara - منصة عربية لربط المستقلين بالعملاء. ابحث عن خدمات احترافية في البرمجة، التصميم، التسويق، والمزيد'
+            : 'Mahara - Arabic platform connecting freelancers with clients. Search for professional services in programming, design, marketing, and more'
+        } />
       </Head>
 
       <PublicLayout>
@@ -60,9 +70,9 @@ export default function LandingPage() {
           <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-32">
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                المستقلون لدينا
+                {t('landing.heroTitle')}
                 <br />
-                سيأخذونها من هنا
+                {t('landing.heroSubtitle')}
               </h1>
               
               {/* Search Bar */}
@@ -70,7 +80,7 @@ export default function LandingPage() {
                 <div className="flex items-center bg-white rounded-lg overflow-hidden shadow-2xl">
                   <input
                     type="text"
-                    placeholder="ابحث عن أي خدمة..."
+                    placeholder={t('landing.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="flex-1 px-6 py-4 text-gray-800 text-lg focus:outline-none"
@@ -86,16 +96,27 @@ export default function LandingPage() {
 
               {/* Popular Tags */}
               <div className="mt-6 flex flex-wrap gap-2">
-                <span className="text-white text-sm">شائع:</span>
-                {['تطوير المواقع', 'تصميم شعار', 'تحرير فيديو', 'WordPress', 'التسويق الرقمي'].map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/search?q=${encodeURIComponent(tag)}`}
-                    className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-1 rounded-full text-sm transition-colors"
-                  >
-                    {tag}
-                  </Link>
-                ))}
+                <span className="text-white text-sm">{t('landing.popular')}:</span>
+                {language === 'ar' 
+                  ? ['تطوير المواقع', 'تصميم شعار', 'تحرير فيديو', 'WordPress', 'التسويق الرقمي'].map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/search?q=${encodeURIComponent(tag)}`}
+                        className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-1 rounded-full text-sm transition-colors"
+                      >
+                        {tag}
+                      </Link>
+                    ))
+                  : ['Website Development', 'Logo Design', 'Video Editing', 'WordPress', 'Digital Marketing'].map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/search?q=${encodeURIComponent(tag)}`}
+                        className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-1 rounded-full text-sm transition-colors"
+                      >
+                        {tag}
+                      </Link>
+                    ))
+                }
               </div>
             </div>
           </div>
@@ -104,7 +125,7 @@ export default function LandingPage() {
           <div className="relative bg-white bg-opacity-10 backdrop-blur-sm border-t border-white border-opacity-20">
             <div className="max-w-7xl mx-auto px-4 py-6">
               <div className="flex items-center justify-center gap-8 flex-wrap">
-                <span className="text-white text-sm opacity-80">موثوق من قبل:</span>
+                <span className="text-white text-sm opacity-80">{t('landing.trustedBy')}:</span>
                 {trustedBy.map((company) => (
                   <span key={company} className="text-white font-semibold text-lg opacity-90">
                     {company}
@@ -121,15 +142,15 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {categories.map((category) => (
                 <Link
-                  key={category.name}
-                  href={`/categories/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  key={category.key}
+                  href={`/categories/${category.key.toLowerCase().replace(/([A-Z])/g, '-$1')}`}
                   className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center group"
                 >
                   <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
                     {category.icon}
                   </div>
                   <h3 className="text-sm font-medium text-gray-800 group-hover:text-primary-600">
-                    {category.name}
+                    {t(`categories.${category.key}`)}
                   </h3>
                 </Link>
               ))}
@@ -140,19 +161,19 @@ export default function LandingPage() {
         {/* Popular Services Section */}
         <div className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">الخدمات الشائعة</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">{t('landing.popularServices')}</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {popularServices.map((service) => (
                 <Link
-                  key={service.title}
-                  href={`/search?q=${encodeURIComponent(service.title)}`}
+                  key={service.key}
+                  href={`/search?q=${encodeURIComponent(t(`services.${service.key}`))}`}
                   className={`${service.color} rounded-lg p-6 text-white hover:opacity-90 transition-opacity group`}
                 >
                   <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">
                     {service.image}
                   </div>
-                  <h3 className="text-xl font-semibold">{service.title}</h3>
+                  <h3 className="text-xl font-semibold">{t(`services.${service.key}`)}</h3>
                 </Link>
               ))}
             </div>
@@ -163,7 +184,7 @@ export default function LandingPage() {
         <div className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
             <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-              كيف تعمل Mahara
+              {t('landing.howMaharaWorks')}
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -171,9 +192,9 @@ export default function LandingPage() {
                 <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FaSearch className="text-3xl text-primary-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">ابحث عن الخدمة المناسبة</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('landing.step1Title')}</h3>
                 <p className="text-gray-600">
-                  تصفح آلاف الخدمات الاحترافية واختر ما يناسب احتياجاتك
+                  {t('landing.step1Desc')}
                 </p>
               </div>
 
@@ -181,9 +202,9 @@ export default function LandingPage() {
                 <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FaCheck className="text-3xl text-primary-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">اطلب بثقة</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('landing.step2Title')}</h3>
                 <p className="text-gray-600">
-                  تواصل مع المستقل واطلب الخدمة بنظام دفع آمن ومحمي
+                  {t('landing.step2Desc')}
                 </p>
               </div>
 
@@ -191,9 +212,9 @@ export default function LandingPage() {
                 <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FaStar className="text-3xl text-primary-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">احصل على نتيجة ممتازة</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('landing.step3Title')}</h3>
                 <p className="text-gray-600">
-                  استلم عملك المنجز بجودة عالية في الوقت المحدد
+                  {t('landing.step3Desc')}
                 </p>
               </div>
             </div>
@@ -204,7 +225,7 @@ export default function LandingPage() {
         <div className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4">
             <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-              ماذا يقول عملاؤنا
+              {t('landing.whatClientsSay')}
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -215,9 +236,9 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-gray-700 mb-4 italic">
-                  "الناس يحبون شعارنا، ونحن نحب Mahara."
+                  "{t('landing.testimonial1')}"
                 </p>
-                <p className="text-sm text-gray-500">- مؤسس شركة ناشئة</p>
+                <p className="text-sm text-gray-500">- {language === 'ar' ? 'مؤسس شركة ناشئة' : 'Startup Founder'}</p>
               </div>
 
               <div className="bg-gray-50 p-8 rounded-lg">
@@ -227,9 +248,9 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-gray-700 mb-4 italic">
-                  "Mahara مورد رائع لأي شخص في مجال الشركات الناشئة."
+                  "{t('landing.testimonial2')}"
                 </p>
-                <p className="text-sm text-gray-500">- مدير تسويق</p>
+                <p className="text-sm text-gray-500">- {language === 'ar' ? 'مدير تسويق' : 'Marketing Manager'}</p>
               </div>
 
               <div className="bg-gray-50 p-8 rounded-lg">
@@ -239,9 +260,9 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-gray-700 mb-4 italic">
-                  "Mahara يمكّنني من إنجاز الأمور بسرعة وكفاءة."
+                  "{t('landing.testimonial3')}"
                 </p>
-                <p className="text-sm text-gray-500">- صاحب مشروع</p>
+                <p className="text-sm text-gray-500">- {language === 'ar' ? 'صاحب مشروع' : 'Project Owner'}</p>
               </div>
             </div>
           </div>
@@ -250,15 +271,15 @@ export default function LandingPage() {
         {/* CTA Section - Become a Seller */}
         <div className="py-16 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
-            <h2 className="text-4xl font-bold mb-4">انضم كمستقل الآن</h2>
+            <h2 className="text-4xl font-bold mb-4">{t('landing.becomeSellerTitle')}</h2>
             <p className="text-xl mb-8 opacity-90">
-              ابدأ في تقديم خدماتك واكسب المال من مهاراتك
+              {t('landing.becomeSellerDesc')}
             </p>
             <Link
               href="/become-seller"
               className="inline-block bg-white text-purple-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors"
             >
-              ابدأ البيع على Mahara
+              {t('landing.becomeSellerBtn')}
             </Link>
           </div>
         </div>
@@ -266,22 +287,22 @@ export default function LandingPage() {
         {/* Final CTA Section */}
         <div className="py-20 bg-gray-900 text-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
-            <h2 className="text-4xl font-bold mb-6">جاهز للبدء؟</h2>
+            <h2 className="text-4xl font-bold mb-6">{t('landing.readyToStart')}</h2>
             <p className="text-xl mb-8 text-gray-300">
-              انضم إلى آلاف المستخدمين واكتشف المواهب المناسبة لمشروعك
+              {t('landing.readyToStartDesc')}
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link
                 href="/register"
                 className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
               >
-                إنشاء حساب
+                {t('landing.createAccount')}
               </Link>
               <Link
                 href="/login"
                 className="bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
               >
-                تسجيل الدخول
+                {t('landing.signIn')}
               </Link>
             </div>
           </div>
