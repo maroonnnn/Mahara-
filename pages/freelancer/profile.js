@@ -14,8 +14,12 @@ import {
   FaLinkedin,
   FaGithub,
   FaBriefcase,
-  FaTimes
+  FaTimes,
+  FaExternalLinkAlt,
+  FaPlus,
+  FaFolderOpen
 } from 'react-icons/fa';
+import Link from 'next/link';
 
 export default function FreelancerProfile() {
   const { user } = useAuth();
@@ -39,6 +43,28 @@ export default function FreelancerProfile() {
     'Tailwind CSS', 'MongoDB', 'UI/UX Design'
   ]);
   const [newSkill, setNewSkill] = useState('');
+
+  // Featured projects for showcase
+  const [featuredProjects] = useState([
+    {
+      id: 1,
+      title: 'تطبيق التجارة الإلكترونية',
+      image: 'https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=300&fit=crop',
+      demo: 'https://demo.example.com',
+    },
+    {
+      id: 2,
+      title: 'تصميم هوية بصرية متكاملة',
+      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop',
+      demo: 'https://demo2.example.com',
+    },
+    {
+      id: 3,
+      title: 'لوحة تحكم إدارية',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
+      demo: 'https://demo3.example.com',
+    },
+  ]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -343,6 +369,80 @@ export default function FreelancerProfile() {
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Featured Projects Showcase */}
+          <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl shadow-sm border border-primary-200 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                  <FaFolderOpen className="text-primary-600" />
+                  معرض المشاريع المميزة
+                </h2>
+                <p className="text-sm text-gray-600">اعرض أفضل أعمالك للعملاء المحتملين</p>
+              </div>
+              <Link href="/freelancer/portfolio" className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold text-sm">
+                <FaPlus />
+                إدارة المشاريع
+              </Link>
+            </div>
+
+            {featuredProjects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {featuredProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
+                  >
+                    <div className="relative h-40 overflow-hidden">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <h3 className="text-white font-bold text-sm line-clamp-1">
+                          {project.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <a
+                        href={project.demo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-semibold"
+                      >
+                        <FaExternalLinkAlt className="w-3 h-3" />
+                        عرض المشروع
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg p-8 text-center">
+                <FaFolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-600 mb-4">لم تقم بإضافة مشاريع بعد</p>
+                <Link href="/freelancer/portfolio" className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold">
+                  <FaPlus />
+                  إضافة مشروع
+                </Link>
+              </div>
+            )}
+
+            <div className="mt-6 pt-6 border-t border-primary-200">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">
+                  <span className="font-semibold text-primary-600">{featuredProjects.length}</span> مشاريع مميزة
+                </p>
+                <Link href="/freelancer/portfolio" className="text-sm text-primary-600 hover:text-primary-700 font-semibold flex items-center gap-1">
+                  عرض جميع المشاريع
+                  <FaExternalLinkAlt className="w-3 h-3" />
+                </Link>
               </div>
             </div>
           </div>
