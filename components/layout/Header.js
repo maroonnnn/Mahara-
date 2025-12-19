@@ -340,9 +340,12 @@ export default function Header() {
                     )}
                   </div>
 
-                        <Link href="/become-seller" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
-                          Become a Seller
-                        </Link>
+                  {/* Hide "Become a Seller" button on landing page */}
+                  {router.pathname !== '/' && (
+                    <Link href="/become-seller" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
+                      Become a Seller
+                    </Link>
+                  )}
                   <Link href="/login" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
                     Sign In
                   </Link>
