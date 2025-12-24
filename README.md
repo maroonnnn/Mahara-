@@ -2,6 +2,10 @@
 
 منصة إلكترونية متكاملة لربط مزودي الخدمات الرقمية مع العملاء الباحثين عنها
 
+![CI](https://github.com/maroonnnn/Mahara-/workflows/CI%20-%20Test%20and%20Lint/badge.svg)
+![Deploy](https://github.com/maroonnnn/Mahara-/workflows/Deploy%20to%20Vercel/badge.svg)
+![Security](https://github.com/maroonnnn/Mahara-/workflows/Security%20Scan/badge.svg)
+
 ---
 
 ## 📋 **نظرة عامة**
@@ -57,6 +61,8 @@
 - 📡 **Axios** - للتعامل مع API
 - 🎉 **React Toastify** - الإشعارات
 - 🔐 **Role-Based Access Control (RBAC)**
+- 🚀 **GitHub Actions** - CI/CD Pipeline
+- ☁️ **Vercel** - Deployment Platform
 
 ### **Backend (قيد التطوير):**
 - 🚀 **Laravel 10** - PHP Framework
@@ -154,6 +160,7 @@ http://localhost:3000
 - 🧩 [دليل المكونات](COMPONENTS_GUIDE.md)
 - 🎨 [معرض المشاريع الإبداعي](docs/PORTFOLIO_SHOWCASE_FEATURES.md) ✨ جديد!
 - 📋 [ملخص ميزات المعرض](PORTFOLIO_FEATURES_SUMMARY.md)
+- 🔄 [إعداد CI/CD](docs/CI_CD_SETUP.md) ✨ جديد!
 
 ---
 
