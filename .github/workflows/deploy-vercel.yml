@@ -1,0 +1,57 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Check Vercel secrets
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ] || [ -z "${{ secrets.VERCEL_ORG_ID }}" ] || [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+            echo "secrets_configured=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Vercel secrets not configured. Skipping deployment."
+          else
+            echo "secrets_configured=true" >> $GITHUB_OUTPUT
+            echo "✅ Vercel secrets found. Proceeding with deployment."
+          fi
+
+      - name: Deploy to Vercel
+        if: steps.check-secrets.outputs.secrets_configured == 'true'
+        uses: vercel/action@v1
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+
+      - name: Skip Deployment Notice
+        if: steps.check-secrets.outputs.secrets_configured == 'false'
+        run: |
+          echo "ℹ️ Deployment skipped - Vercel secrets not configured"
+          echo "✅ Build completed successfully"
+          echo "📖 To enable auto-deployment, see: docs/CI_CD_SETUP.md"
+
