@@ -1,14 +1,20 @@
 import api from './api';
 
 export const portfolioService = {
-  // Get portfolio items for a seller
+  // Get portfolio items for a seller/freelancer
   getPortfolio: async (sellerId) => {
     try {
-      const response = await api.get(`/portfolio/seller/${sellerId}`);
+      const response = await api.get(`/freelancer/${sellerId}/portfolio`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching portfolio:', error);
-      throw error;
+      // Try alternative endpoint
+      try {
+        const response = await api.get(`/portfolio/seller/${sellerId}`);
+        return response.data;
+      } catch (err) {
+        console.error('Error fetching portfolio:', err);
+        throw err;
+      }
     }
   },
 
@@ -26,11 +32,18 @@ export const portfolioService = {
   // Create new portfolio item
   createPortfolioItem: async (data) => {
     try {
-      const response = await api.post('/portfolio', data);
+      // Try freelancer endpoint first
+      const response = await api.post('/freelancer/portfolio', data);
       return response.data;
     } catch (error) {
-      console.error('Error creating portfolio item:', error);
-      throw error;
+      // Try alternative endpoint
+      try {
+        const response = await api.post('/portfolio', data);
+        return response.data;
+      } catch (err) {
+        console.error('Error creating portfolio item:', err);
+        throw err;
+      }
     }
   },
 
@@ -56,14 +69,20 @@ export const portfolioService = {
     }
   },
 
-  // Get my portfolio (for authenticated seller)
+  // Get my portfolio (for authenticated freelancer)
   getMyPortfolio: async () => {
     try {
-      const response = await api.get('/portfolio/me');
+      const response = await api.get('/freelancer/portfolio');
       return response.data;
     } catch (error) {
-      console.error('Error fetching my portfolio:', error);
-      throw error;
+      // Try alternative endpoint
+      try {
+        const response = await api.get('/portfolio/me');
+        return response.data;
+      } catch (err) {
+        console.error('Error fetching my portfolio:', err);
+        throw err;
+      }
     }
   },
 };

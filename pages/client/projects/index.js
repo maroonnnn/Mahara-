@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { useAuth } from '../../../contexts/AuthContext';
+import projectService from '../../../services/projectService';
+import { toast } from 'react-toastify';
 import { 
   FaPlus, 
   FaClock, 
@@ -19,6 +21,7 @@ export default function ClientProjectsPage() {
   const { user, isClient, isFreelancer, isAuthenticated, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,25 +49,95 @@ export default function ClientProjectsPage() {
       return;
     }
 
-    loadProjects();
-  }, [authLoading, isAuthenticated, isClient, isFreelancer]);
+    if (user) {
+      loadProjects();
+    }
+  }, [authLoading, isAuthenticated, isClient, isFreelancer, user]);
 
-  const loadProjects = () => {
-    // Try to load from localStorage first (for development)
-    const savedProjects = JSON.parse(localStorage.getItem('myProjects') || '[]');
-    
-    if (savedProjects.length > 0) {
-      // Map localStorage projects to expected format
-      const mappedProjects = savedProjects.map(p => ({
-        ...p,
-        status: p.status || 'active',
-        proposals: p.proposals || 0,
-        views: p.views || 0,
-        createdAt: p.createdAt || new Date().toISOString()
-      }));
-      setProjects([...mappedProjects, ...mockProjects]);
-    } else {
-      setProjects(mockProjects);
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      
+      // Try to load from API first
+      try {
+        const response = await projectService.getMyProjects();
+        const projectsData = response.data?.data || response.data || [];
+        
+        // Handle paginated response
+        const projectsList = Array.isArray(projectsData) 
+          ? projectsData 
+          : (projectsData.data || []);
+        
+        // Map API projects to frontend format
+        const mappedProjects = projectsList.map(p => ({
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          category: p.category?.name || p.category_name || 'غير محدد',
+          subcategory: p.subcategory || '',
+          budget: parseFloat(p.budget || 0),
+          budgetType: p.budget_type || 'fixed',
+          deliveryTime: p.duration_days 
+            ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
+            : (p.delivery_time 
+              ? p.delivery_time
+                  .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} ${num === '1' ? 'يوم' : 'أيام'}`)
+                  .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} ${num === '1' ? 'أسبوع' : 'أسابيع'}`)
+                  .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} ${num === '1' ? 'شهر' : 'أشهر'}`)
+              : 'غير محدد'),
+          status: p.status || 'open',
+          proposals: p.offers_count || p.proposals || 0,
+          views: p.views || 0,
+          createdAt: p.created_at || p.createdAt,
+          client: p.client || {
+            id: user?.id,
+            name: user?.name
+          }
+        }));
+        
+        setProjects(mappedProjects);
+        setLoading(false);
+        return; // Exit early on success
+      } catch (apiError) {
+        console.error('API Error:', apiError);
+        // If API fails, try localStorage as fallback
+      }
+      
+      // Fallback: Load from localStorage (filtered by current user)
+      const savedProjects = JSON.parse(localStorage.getItem('myProjects') || '[]');
+      
+      // Filter projects by current user ID
+      const userProjects = savedProjects.filter(p => {
+        const projectClientId = p.client?.id || p.client_id;
+        return projectClientId === user?.id;
+      });
+      
+      if (userProjects.length > 0) {
+        const mappedProjects = userProjects.map(p => ({
+          ...p,
+          status: p.status || 'active',
+          proposals: p.proposals || 0,
+          views: p.views || 0,
+          createdAt: p.createdAt || new Date().toISOString(),
+          deliveryTime: p.deliveryTime 
+            ? p.deliveryTime
+                .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} ${num === '1' ? 'يوم' : 'أيام'}`)
+                .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} ${num === '1' ? 'أسبوع' : 'أسابيع'}`)
+                .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} ${num === '1' ? 'شهر' : 'أشهر'}`)
+            : (p.duration_days 
+              ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
+              : 'غير محدد')
+        }));
+        setProjects(mappedProjects);
+      } else {
+        setProjects([]);
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error);
+      toast.error('فشل تحميل المشاريع');
+      setProjects([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -132,12 +205,14 @@ export default function ClientProjectsPage() {
 
   const getStatusBadge = (status) => {
     const badges = {
+      open: { text: 'مفتوح', color: 'bg-blue-100 text-blue-700', icon: <FaClock /> },
       active: { text: 'نشط', color: 'bg-green-100 text-green-700', icon: <FaCheckCircle /> },
       in_progress: { text: 'قيد التنفيذ', color: 'bg-blue-100 text-blue-700', icon: <FaSpinner /> },
       completed: { text: 'مكتمل', color: 'bg-gray-100 text-gray-700', icon: <FaCheckCircle /> },
       cancelled: { text: 'ملغي', color: 'bg-red-100 text-red-700', icon: <FaTimesCircle /> },
+      done: { text: 'مكتمل', color: 'bg-gray-100 text-gray-700', icon: <FaCheckCircle /> },
     };
-    const badge = badges[status] || badges.active;
+    const badge = badges[status] || badges.open;
     return (
       <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${badge.color}`}>
         {badge.icon}
@@ -165,7 +240,7 @@ export default function ClientProjectsPage() {
     <DashboardLayout>
       <Head>
         <title>مشاريعي | Mahara</title>
-        <meta name="description" content="My Projects" />
+        <meta name="description" content="إدارة جميع مشاريعك في مكان واحد" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
@@ -261,7 +336,12 @@ export default function ClientProjectsPage() {
 
         {/* Projects List */}
         <div className="bg-white rounded-b-xl shadow-sm border border-gray-200">
-          {filteredProjects.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-16">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
+              <p className="text-gray-600">جاري التحميل...</p>
+            </div>
+          ) : filteredProjects.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaClock className="text-gray-400 text-3xl" />
@@ -307,7 +387,7 @@ export default function ClientProjectsPage() {
                       <div className="flex items-center gap-2">
                         <FaDollarSign className="text-green-600" />
                         <span className="font-semibold">
-                          ${project.budget} {project.budgetType === 'hourly' ? '/hr' : ''}
+                          ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">

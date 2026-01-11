@@ -38,7 +38,8 @@ export default function RegisterPage() {
     if (!formData.name) newErrors.name = 'الاسم مطلوب';
     if (!formData.email) newErrors.email = 'البريد الإلكتروني مطلوب';
     if (!formData.password) newErrors.password = 'كلمة المرور مطلوبة';
-    if (formData.password.length < 6) newErrors.password = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+    // Backend requires minimum 8 characters
+    if (formData.password.length < 8) newErrors.password = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
     if (formData.password !== formData.password_confirmation) {
       newErrors.password_confirmation = 'كلمة المرور غير متطابقة';
     }

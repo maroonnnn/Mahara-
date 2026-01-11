@@ -14,8 +14,10 @@ export default function ChatWindow({ conversationId, projectId, otherUser, curre
   const isUserScrolling = useRef(false);
 
   useEffect(() => {
+    if (projectId) {
     loadMessages();
-  }, []);
+    }
+  }, [projectId]);
 
   // Only auto-scroll if user is at bottom or new message is sent
   useEffect(() => {
@@ -53,49 +55,28 @@ export default function ChatWindow({ conversationId, projectId, otherUser, curre
 
   const loadMessages = async () => {
     try {
-      // Mock data - Replace with actual API call
-      const mockMessages = [
-        {
-          id: 1,
-          senderId: currentUserId,
-          text: 'مرحباً، أريد أن أبدأ العمل على المشروع',
-          timestamp: new Date(Date.now() - 2 * 60 * 60000),
-          isRead: true,
-          attachments: []
-        },
-        {
-          id: 2,
-          senderId: otherUser.id,
-          text: 'مرحباً! سأبدأ العمل فوراً. هل لديك أي متطلبات إضافية؟',
-          timestamp: new Date(Date.now() - 1 * 60 * 60000),
-          isRead: true,
-          attachments: []
-        },
-        {
-          id: 3,
-          senderId: currentUserId,
-          text: 'نعم، أريد أن يكون التصميم عصري وبسيط',
-          timestamp: new Date(Date.now() - 30 * 60000),
-          isRead: true,
-          attachments: []
-        },
-        {
-          id: 4,
-          senderId: otherUser.id,
-          text: 'ممتاز! سأرسل لك التصميم النهائي خلال ساعات',
-          timestamp: new Date(Date.now() - 5 * 60000),
-          isRead: false,
-          attachments: []
-        },
-      ];
-
-      setMessages(mockMessages);
-      setLoading(false);
+      setLoading(true);
       
-      // Mark conversation as read
-      if (conversationId) {
-        await messageService.markConversationAsRead(conversationId);
+      if (!projectId) {
+        setLoading(false);
+        return;
       }
+      
+      // Load messages from API
+      const response = await messageService.getProjectMessages(projectId);
+      const messagesData = response.data || [];
+      
+      // Map API messages to frontend format
+      const mappedMessages = messagesData.map(msg => ({
+        id: msg.id,
+        senderId: msg.sender_id || msg.senderId,
+        text: msg.content || msg.text || '',
+        timestamp: new Date(msg.created_at || msg.timestamp),
+        isRead: true, // TODO: Implement read status
+          attachments: []
+      }));
+
+      setMessages(mappedMessages);
       
       // Auto-scroll to bottom on initial load
       setTimeout(() => {
@@ -104,6 +85,8 @@ export default function ChatWindow({ conversationId, projectId, otherUser, curre
       }, 100);
     } catch (error) {
       console.error('Error loading messages:', error);
+      setMessages([]);
+    } finally {
       setLoading(false);
     }
   };
@@ -116,32 +99,26 @@ export default function ChatWindow({ conversationId, projectId, otherUser, curre
     setSending(true);
 
     try {
-      const messageData = {
-        projectId: projectId,
-        conversationId: conversationId,
-        receiverId: otherUser.id,
-        message: newMessage.trim(),
-        attachments: []
-      };
-
-      // Handle file uploads if any
-      if (fileInputRef.current?.files.length) {
-        // In real app, upload files first and get URLs
-        messageData.attachments = Array.from(fileInputRef.current.files).map(file => ({
-          name: file.name,
-          url: URL.createObjectURL(file), // Temporary URL
-          type: file.type
-        }));
+      if (!projectId) {
+        alert('خطأ: لا يمكن إرسال الرسالة بدون معرف المشروع');
+        return;
       }
 
-      // Mock - In real app, use messageService.sendMessage(messageData)
+      // Send message via API
+      const response = await messageService.sendMessage(projectId, {
+        content: newMessage.trim()
+      });
+      
+      const sentMessage = response.data?.data || response.data;
+      
+      // Add message to local state
       const newMsg = {
-        id: messages.length + 1,
+        id: sentMessage.id || messages.length + 1,
         senderId: currentUserId,
-        text: newMessage.trim(),
-        timestamp: new Date(),
+        text: sentMessage.content || newMessage.trim(),
+        timestamp: new Date(sentMessage.created_at || new Date()),
         isRead: false,
-        attachments: messageData.attachments
+        attachments: []
       };
 
       setMessages(prev => [...prev, newMsg]);
@@ -160,12 +137,21 @@ export default function ChatWindow({ conversationId, projectId, otherUser, curre
       if (onMessageSent) {
         onMessageSent(newMsg);
       }
-
-      // In real app, you would also emit to socket.io here
-      // socket.emit('sendMessage', messageData);
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('حدث خطأ أثناء إرسال الرسالة');
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        projectId: projectId
+      });
+      
+      // Show more detailed error message
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'خطأ غير معروف';
+      
+      alert(`حدث خطأ أثناء إرسال الرسالة.\n\n${errorMessage}\n\nيرجى المحاولة مرة أخرى.`);
     } finally {
       setSending(false);
     }

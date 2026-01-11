@@ -201,7 +201,7 @@ export default function FreelancerPortfolioPage() {
     <DashboardLayout>
       <Head>
         <title>الحافظة | Mahara</title>
-        <meta name="description" content="Portfolio" />
+        <meta name="description" content="معرض أعمالك ومشاريعك السابقة" />
       </Head>
 
       <div className="max-w-6xl mx-auto">

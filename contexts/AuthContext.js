@@ -35,13 +35,15 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authService.login(credentials);
-      const { user, token } = response.data;
+      // Laravel returns 'access_token' not 'token'
+      const { user, access_token, token } = response.data;
+      const authToken = access_token || token; // Support both formats
 
       setUser(user);
-      setToken(token);
+      setToken(authToken);
 
       // Store in localStorage
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', authToken);
       localStorage.setItem('user', JSON.stringify(user));
 
       toast.success('تم تسجيل الدخول بنجاح');
@@ -79,13 +81,15 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authService.register(userData);
-      const { user, token } = response.data;
+      // Laravel returns 'access_token' not 'token'
+      const { user, access_token, token } = response.data;
+      const authToken = access_token || token; // Support both formats
 
       setUser(user);
-      setToken(token);
+      setToken(authToken);
 
       // Store in localStorage
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', authToken);
       localStorage.setItem('user', JSON.stringify(user));
 
       toast.success('تم إنشاء الحساب بنجاح');
@@ -126,15 +130,15 @@ export const AuthProvider = ({ children }) => {
       } else if (error.response.data) {
         const data = error.response.data;
         
-        // Handle validation errors (usually in errors object)
-        if (data.errors && typeof data.errors === 'object') {
+        // Handle validation errors (Laravel returns errors object for 422)
+        if (error.response.status === 422 && data.errors && typeof data.errors === 'object') {
           fieldErrors = data.errors;
           // Get first error message as general message
           const firstErrorKey = Object.keys(data.errors)[0];
           const firstError = Array.isArray(data.errors[firstErrorKey]) 
             ? data.errors[firstErrorKey][0] 
             : data.errors[firstErrorKey];
-          message = firstError || message;
+          message = firstError || 'البيانات المدخلة غير صحيحة. يرجى التحقق من جميع الحقول.';
         } 
         // Handle error message
         else if (data.message) {
@@ -150,7 +154,7 @@ export const AuthProvider = ({ children }) => {
         } else if (error.response.status === 409) {
           message = 'البريد الإلكتروني أو اسم المستخدم موجود مسبقاً.';
         } else if (error.response.status === 500) {
-          message = 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
+          message = data.error || 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
         }
       }
 

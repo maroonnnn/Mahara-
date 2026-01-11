@@ -21,40 +21,87 @@ export default function FreelancerChatPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
+    if (id && user) {
       loadConversation();
     }
-  }, [id]);
+  }, [id, user]);
 
   const loadConversation = async () => {
     try {
-      // Mock data - Replace with actual API call
-      const mockConversation = {
-        id: parseInt(id),
-        projectId: 1,
-        project: {
-          id: 1,
-          title: 'تصميم شعار احترافي لشركتي',
-          budget: 500,
-          budgetType: 'fixed',
-          deliveryTime: '7 days',
-          status: 'in_progress',
-          category: 'Graphics & Design',
-          subcategory: 'Logo Design'
-        },
-        otherUser: {
-          id: 1,
-          name: 'Abdalrhmn bobes',
-          email: 'abdalrhmn@example.com',
-          avatar: null,
-          isOnline: true
+      setLoading(true);
+      const projectService = (await import('../../../services/projectService')).default;
+      
+      // id is actually projectId in this context
+      const projectId = id;
+      
+      // Load project details
+      try {
+        const projectResponse = await projectService.getProject(projectId);
+        const project = projectResponse.data?.data || projectResponse.data;
+        
+        if (!project) {
+          setLoading(false);
+          return;
         }
-      };
-
-      setConversation(mockConversation);
-      setLoading(false);
+        
+        // Determine other user based on current user role
+        let otherUser = null;
+        if (user.role === 'freelancer') {
+          // If current user is freelancer, other user is the client
+          otherUser = {
+            id: project.client?.id || project.client_id,
+            name: project.client?.name || 'عميل',
+            email: project.client?.email || '',
+            avatar: null,
+            isOnline: false
+          };
+        } else if (user.role === 'client') {
+          // If current user is client, other user is the freelancer from accepted offer
+          if (project.accepted_offer?.freelancer) {
+            otherUser = {
+              id: project.accepted_offer.freelancer.id,
+              name: project.accepted_offer.freelancer.name || 'مستقل',
+              email: project.accepted_offer.freelancer.email || '',
+              avatar: null,
+              isOnline: false
+            };
+          }
+        }
+        
+        const projectData = {
+          id: project.id,
+          title: project.title,
+          budget: parseFloat(project.budget || 0),
+          budgetType: project.budget_type || 'fixed',
+          deliveryTime: project.duration_days 
+            ? `${project.duration_days} ${project.duration_days === 1 ? 'يوم' : 'أيام'}` 
+            : (project.delivery_time || 'غير محدد'),
+          status: project.status || 'open',
+          category: project.category?.name || project.category_name || 'غير محدد',
+          subcategory: project.subcategory || ''
+        };
+        
+        setConversation({
+          id: projectId, // Use projectId as conversation ID
+          projectId: projectId,
+          project: projectData,
+          otherUser: otherUser || {
+            id: null,
+            name: user.role === 'freelancer' ? 'عميل' : 'مستقل',
+            email: '',
+            avatar: null,
+            isOnline: false
+          }
+        });
+      } catch (error) {
+        console.error('Error loading project:', error);
+        setLoading(false);
+        return;
+      }
     } catch (error) {
       console.error('Error loading conversation:', error);
+      setConversation(null);
+    } finally {
       setLoading(false);
     }
   };
@@ -104,7 +151,7 @@ export default function FreelancerChatPage() {
     <DashboardLayout>
       <Head>
         <title>المحادثة | Mahara</title>
-        <meta name="description" content="Chat conversation" />
+        <meta name="description" content="المحادثة مع العميل" />
       </Head>
 
       <div className="max-w-7xl mx-auto" style={{ height: 'calc(100vh - 200px)' }}>

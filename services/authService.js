@@ -3,7 +3,7 @@ import mockAuthService from './mockAuthService';
 
 // Set to true to use mock authentication (no backend required)
 // Set to false to use real API
-const USE_MOCK_AUTH = true;
+const USE_MOCK_AUTH = false;
 
 const authService = USE_MOCK_AUTH ? mockAuthService : {
   // Register new user

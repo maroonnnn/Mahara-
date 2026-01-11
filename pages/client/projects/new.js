@@ -18,6 +18,29 @@ export default function NewProjectPage() {
   const router = useRouter();
   const { user, isClient, isFreelancer, isAuthenticated, loading: authLoading } = useAuth();
   const [step, setStep] = useState(1);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Load categories from API
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const categoryService = (await import('../../../services/categoryService')).default;
+      const response = await categoryService.getCategories();
+      const categoriesData = response.data?.data || response.data || [];
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      // Fallback to empty array - user will see "no categories" message
+      setCategories([]);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
 
   // Role-based access control
   useEffect(() => {
@@ -59,39 +82,6 @@ export default function NewProjectPage() {
     attachments: [],
     additionalInfo: ''
   });
-
-  const categories = [
-    { 
-      id: 'graphics-design', 
-      name: 'Graphics & Design',
-      subcategories: ['Logo Design', 'Brand Style Guides', 'Web Design', 'Social Media Design', 'Illustration']
-    },
-    { 
-      id: 'digital-marketing', 
-      name: 'Digital Marketing',
-      subcategories: ['Social Media Marketing', 'SEO', 'Content Marketing', 'Email Marketing', 'Influencer Marketing']
-    },
-    { 
-      id: 'writing-translation', 
-      name: 'Writing & Translation',
-      subcategories: ['Content Writing', 'Copywriting', 'Translation', 'Proofreading', 'Resume Writing']
-    },
-    { 
-      id: 'video-animation', 
-      name: 'Video & Animation',
-      subcategories: ['Video Editing', 'Animation', 'Video Ads', 'Logo Animation', '3D Product Animation']
-    },
-    { 
-      id: 'programming-tech', 
-      name: 'Programming & Tech',
-      subcategories: ['Website Development', 'Mobile Apps', 'WordPress', 'E-commerce Development', 'API Development']
-    },
-    { 
-      id: 'music-audio', 
-      name: 'Music & Audio',
-      subcategories: ['Voice Over', 'Music Production', 'Audio Editing', 'Podcast Editing', 'Sound Design']
-    },
-  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -136,73 +126,190 @@ export default function NewProjectPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!formData.title || !formData.category || !formData.subcategory || !formData.description || !formData.budget || !formData.deliveryTime) {
-      alert('يرجى ملء جميع الحقول المطلوبة (المعلمة بعلامة *)');
+    // Validate required fields (check for empty strings and whitespace)
+    if (!formData.title || !formData.title.trim()) {
+      alert('يرجى إدخال عنوان المشروع');
       return;
     }
-
-    if (parseFloat(formData.budget) < 5) {
-      alert('الميزانية يجب أن تكون 5 دولار على الأقل');
+    if (!formData.category) {
+      alert('يرجى اختيار الفئة');
+      return;
+    }
+    if (!formData.subcategory || !formData.subcategory.trim()) {
+      alert('يرجى إدخال الفئة الفرعية');
+      return;
+    }
+    if (!formData.description || !formData.description.trim()) {
+      alert('يرجى إدخال وصف المشروع');
+      return;
+    }
+    if (!formData.budget || isNaN(parseFloat(formData.budget)) || parseFloat(formData.budget) < 5) {
+      alert('يرجى إدخال ميزانية صحيحة (5 دولار على الأقل)');
+      return;
+    }
+    if (!formData.deliveryTime || isNaN(parseInt(formData.deliveryTime)) || parseInt(formData.deliveryTime) < 1) {
+      alert('يرجى إدخال وقت التسليم المتوقع (رقم صحيح أكبر من صفر)');
       return;
     }
     
     try {
-      // Prepare project data for API
+      // Convert delivery time to days
+      let durationDays = 1;
+      if (formData.deliveryTime) {
+        const time = parseInt(formData.deliveryTime);
+        if (formData.deliveryUnit === 'days') {
+          durationDays = time;
+        } else if (formData.deliveryUnit === 'weeks') {
+          durationDays = time * 7;
+        } else if (formData.deliveryUnit === 'months') {
+          durationDays = time * 30;
+        }
+      }
+
+      // Get category ID from formData (already selected from dropdown)
+      const categoryId = parseInt(formData.category);
+
+      // Prepare project data for API (matching backend format)
       const projectData = {
         title: formData.title,
+        description: formData.description,
+        category_id: categoryId, // Backend expects category_id (integer)
+        budget: parseFloat(formData.budget),
+        duration_days: durationDays, // Backend expects duration_days (integer)
+        // Additional fields for frontend use (stored in localStorage)
         category: formData.category,
         subcategory: formData.subcategory,
-        description: formData.description,
         skills: formData.skills,
-        budget: parseFloat(formData.budget),
         budgetType: formData.budgetType,
         deliveryTime: `${formData.deliveryTime} ${formData.deliveryUnit}`,
         additionalInfo: formData.additionalInfo,
-        status: 'open' // Project starts as open for freelancers to view
+        status: 'open'
       };
       
       console.log('Submitting project:', projectData);
       
+      let projectCreated = false;
+      let createdProject = null;
+      
       try {
         // Try to call API to create project
         const projectService = (await import('../../../services/projectService')).default;
-        const response = await projectService.createProject(projectData);
+        const response = await projectService.createProject({
+          title: projectData.title,
+          description: projectData.description,
+          category_id: projectData.category_id,
+          budget: projectData.budget,
+          duration_days: projectData.duration_days
+        });
+        
         console.log('Project created via API:', response);
+        createdProject = response.data?.project || response.data;
+        projectCreated = true;
+        
+        // Show success message
+        alert('تم نشر المشروع بنجاح! 🎉\n\nسيتمكن المستقلون من رؤيته الآن وتقديم عروضهم.');
+        
+        // Get category slug to redirect to category page
+        const selectedCategoryObj = categories.find(cat => cat.id === categoryId);
+        const categorySlug = selectedCategoryObj?.slug || 'programming-tech';
+        
+        // Redirect to category page to see the new project
+        router.push(`/categories/${categorySlug}`);
+        return; // Exit early on success
       } catch (apiError) {
-        console.log('API not available, using mock mode:', apiError.message);
-        // If API fails, continue anyway (mock mode)
-      }
-      
-      // Show success message and redirect (works even without backend)
-      alert('تم نشر المشروع بنجاح! 🎉\n\nسيتمكن المستقلون من رؤيته الآن وتقديم عروضهم.\n\n(ملاحظة: في بيئة التطوير الحالية، المشروع محفوظ محلياً. قم بتشغيل الـ Backend لحفظ البيانات بشكل دائم)');
-      
-      // Save to localStorage as backup (for development)
-      const savedProjects = JSON.parse(localStorage.getItem('myProjects') || '[]');
-      savedProjects.push({
-        id: Date.now(),
-        ...projectData,
-        createdAt: new Date().toISOString(),
-        views: 0,
-        proposals: 0,
-        client: {
-          id: user?.id || 1,
-          name: user?.name || 'عميل',
-          rating: user?.rating || 5.0,
-          completedProjects: user?.completedProjects || 0
+        console.error('API Error:', apiError);
+        console.error('API Error Details:', {
+          status: apiError.response?.status,
+          data: apiError.response?.data,
+          message: apiError.message,
+          config: apiError.config
+        });
+        
+        const errorMessage = apiError.response?.data?.message || 
+                           apiError.response?.data?.errors || 
+                           apiError.message || 
+                           'Unknown error';
+        
+        // If it's a validation error, show specific errors
+        if (apiError.response?.status === 422) {
+          const errors = apiError.response.data.errors || {};
+          const errorText = Object.values(errors).flat().join('\n');
+          alert('خطأ في البيانات:\n' + errorText);
+          return;
         }
-      });
-      localStorage.setItem('myProjects', JSON.stringify(savedProjects));
-      
-      // Redirect to projects page
-      router.push('/client/projects');
+        
+        // If it's a network error (Backend not running)
+        if (apiError.response?.status === 0 || !apiError.response) {
+          alert('❌ خطأ في الاتصال بالخادم!\n\n' +
+                'يرجى التأكد من:\n' +
+                '1. أن Backend يعمل على http://127.0.0.1:8000\n' +
+                '2. تشغيل: cd Back-end && php artisan serve\n' +
+                '3. التحقق من ملف .env.local\n\n' +
+                'الخطأ: ' + errorMessage);
+          return;
+        }
+        
+        // If it's an authentication error
+        if (apiError.response?.status === 401) {
+          alert('❌ يجب تسجيل الدخول أولاً!\n\nيرجى تسجيل الدخول وإنشاء المشروع مرة أخرى.');
+          router.push('/login');
+          return;
+        }
+        
+        // For other errors, show the error message
+        alert('❌ حدث خطأ أثناء إنشاء المشروع!\n\n' +
+              'الخطأ: ' + errorMessage + '\n\n' +
+              'يرجى التحقق من:\n' +
+              '1. أن Backend يعمل\n' +
+              '2. أنك مسجل دخول\n' +
+              '3. أن البيانات صحيحة');
+      }
     } catch (error) {
       console.error('Error creating project:', error);
       alert('حدث خطأ أثناء نشر المشروع. يرجى المحاولة مرة أخرى.\n\nالخطأ: ' + error.message);
     }
   };
 
+  const validateStep = (stepNumber) => {
+    if (stepNumber === 1) {
+      // Validate step 1 fields
+      if (!formData.title || !formData.title.trim()) {
+        alert('يرجى إدخال عنوان المشروع');
+        return false;
+      }
+      if (!formData.category) {
+        alert('يرجى اختيار الفئة');
+        return false;
+      }
+      if (!formData.subcategory || !formData.subcategory.trim()) {
+        alert('يرجى إدخال الفئة الفرعية');
+        return false;
+      }
+      if (!formData.description || !formData.description.trim()) {
+        alert('يرجى إدخال وصف المشروع');
+        return false;
+      }
+      return true;
+    } else if (stepNumber === 2) {
+      // Validate step 2 fields
+      if (!formData.budget || isNaN(parseFloat(formData.budget)) || parseFloat(formData.budget) < 5) {
+        alert('يرجى إدخال ميزانية صحيحة (5 دولار على الأقل)');
+        return false;
+      }
+      if (!formData.deliveryTime || isNaN(parseInt(formData.deliveryTime)) || parseInt(formData.deliveryTime) < 1) {
+        alert('يرجى إدخال وقت التسليم المتوقع (رقم صحيح أكبر من صفر)');
+        return false;
+      }
+      return true;
+    }
+    return true;
+  };
+
   const nextStep = () => {
+    // Validate current step before moving to next
+    if (!validateStep(step)) {
+      return;
+    }
     if (step < 3) setStep(step + 1);
   };
 
@@ -210,13 +317,16 @@ export default function NewProjectPage() {
     if (step > 1) setStep(step - 1);
   };
 
-  const selectedCategory = categories.find(cat => cat.id === formData.category);
+  const selectedCategory = categories.find(cat => 
+    cat.id?.toString() === formData.category?.toString() || 
+    cat.id === parseInt(formData.category)
+  );
 
   return (
     <DashboardLayout>
       <Head>
         <title>مشروع جديد | Mahara</title>
-        <meta name="description" content="Create a new project brief" />
+        <meta name="description" content="إنشاء مشروع جديد والحصول على عروض من أفضل المستقلين" />
       </Head>
 
       <div className="max-w-4xl mx-auto">
@@ -254,7 +364,19 @@ export default function NewProjectPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <form 
+          onSubmit={(e) => {
+            // Only submit if we're on the final step
+            if (step === 3) {
+              handleSubmit(e);
+            } else {
+              e.preventDefault();
+              // Validate and move to next step
+              nextStep();
+            }
+          }} 
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-8"
+        >
           
           {/* Step 1: Project Details */}
           {step === 1 && (
@@ -286,18 +408,28 @@ export default function NewProjectPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   الفئة <span className="text-red-500">*</span>
                 </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleCategoryChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">اختر الفئة</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
+                {loadingCategories ? (
+                  <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                    جاري تحميل الفئات...
+                  </div>
+                ) : (
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleCategoryChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    required
+                    disabled={categories.length === 0}
+                  >
+                    <option value="">اختر الفئة</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                )}
+                {!loadingCategories && categories.length === 0 && (
+                  <p className="text-xs text-red-500 mt-1">لا توجد فئات متاحة. يرجى المحاولة لاحقاً.</p>
+                )}
               </div>
 
               {/* Subcategory */}
@@ -306,18 +438,16 @@ export default function NewProjectPage() {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     الفئة الفرعية <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <input
+                    type="text"
                     name="subcategory"
                     value={formData.subcategory}
                     onChange={handleInputChange}
+                    placeholder="مثال: تطوير مواقع، تصميم شعارات، الخ..."
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
-                  >
-                    <option value="">اختر الفئة الفرعية</option>
-                    {selectedCategory?.subcategories.map(subcat => (
-                      <option key={subcat} value={subcat}>{subcat}</option>
-                    ))}
-                  </select>
+                  />
+                  <p className="text-xs text-gray-500 mt-1">أدخل الفئة الفرعية للمشروع</p>
                 </div>
               )}
 
@@ -562,7 +692,7 @@ export default function NewProjectPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h3 className="text-sm font-semibold text-gray-500 mb-1">الفئة</h3>
-                    <p className="text-gray-900">{categories.find(c => c.id === formData.category)?.name || 'غير محدد'}</p>
+                    <p className="text-gray-900">{categories.find(c => c.id?.toString() === formData.category?.toString())?.name || 'غير محدد'}</p>
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-500 mb-1">الفئة الفرعية</h3>

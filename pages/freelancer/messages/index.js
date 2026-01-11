@@ -49,67 +49,62 @@ export default function FreelancerMessagesPage() {
       // Check if conversation exists for this project
       const existingConv = conversations.find(c => c.projectId === parseInt(projectId));
       if (existingConv) {
-        router.push(`/freelancer/messages/${existingConv.id}`);
+        // Redirect to project-based messages page
+        router.push(`/freelancer/messages/${existingConv.projectId}`);
       } else {
-        // Create new conversation
-        // In real app: await messageService.startConversation({ projectId, otherUserId: clientId })
-        // For now, show message and reload
-        alert('سيتم إنشاء محادثة جديدة. يرجى الانتظار...');
-        await loadConversations();
+        // Project doesn't have an accepted offer yet, so messaging is not available
+        alert('لا يمكن بدء المحادثة حتى يتم قبول عرض على هذا المشروع.');
+        router.push(`/freelancer/projects/${projectId}`);
       }
     } catch (error) {
       console.error('Error handling project conversation:', error);
+      alert('حدث خطأ أثناء فتح المحادثة.');
     }
   };
 
   const loadConversations = async () => {
     try {
-      // Mock data - Replace with actual API call
-      const mockConversations = [
-        {
-          id: 1,
-          projectId: 1,
-          projectTitle: 'تصميم شعار احترافي لشركتي',
-          otherUser: {
-            id: 1,
-            name: 'Abdalrhmn bobes',
-            avatar: null,
-            isOnline: true
-          },
-          lastMessage: {
-            text: 'شكراً لك! التصميم رائع',
-            timestamp: new Date(Date.now() - 10 * 60000), // 10 minutes ago
-            senderId: 1,
-            isRead: false
-          },
-          unreadCount: 1,
-          updatedAt: new Date(Date.now() - 10 * 60000)
+      setLoading(true);
+      const response = await messageService.getConversations();
+      const conversationsData = response.data?.data || response.data || [];
+      const conversationsList = Array.isArray(conversationsData) ? conversationsData : (conversationsData.data || []);
+      
+      // Map conversations to frontend format
+      const mappedConversations = conversationsList.map(conv => ({
+        id: conv.id,
+        projectId: conv.project_id || conv.projectId,
+        projectTitle: conv.project?.title || conv.project_title || 'مشروع',
+        otherUser: {
+          id: conv.other_user?.id || conv.other_user_id,
+          name: conv.other_user?.name || conv.other_user_name || 'عميل',
+          avatar: conv.other_user?.avatar || null,
+          isOnline: conv.other_user?.is_online || false
         },
-        {
-          id: 2,
-          projectId: 2,
-          projectTitle: 'تطوير موقع إلكتروني للتجارة الإلكترونية',
-          otherUser: {
-            id: 1,
-            name: 'Abdalrhmn bobes',
-            avatar: null,
-            isOnline: false
-          },
-          lastMessage: {
-            text: 'متى يمكنك البدء في المشروع؟',
-            timestamp: new Date(Date.now() - 3 * 60 * 60000), // 3 hours ago
-            senderId: 1,
-            isRead: true
-          },
-          unreadCount: 0,
-          updatedAt: new Date(Date.now() - 3 * 60 * 60000)
+        lastMessage: {
+          text: conv.last_message?.text || conv.last_message_text || '',
+          timestamp: conv.last_message?.timestamp 
+            ? (conv.last_message.timestamp instanceof Date 
+                ? conv.last_message.timestamp 
+                : new Date(conv.last_message.timestamp))
+            : (conv.last_message_timestamp 
+                ? new Date(conv.last_message_timestamp)
+                : new Date()),
+          senderId: conv.last_message?.sender_id || conv.last_message_sender_id,
+          isRead: conv.last_message?.is_read || conv.last_message_is_read || false
         },
-      ];
-
-      setConversations(mockConversations);
-      setLoading(false);
+        unreadCount: conv.unread_count || 0,
+        updatedAt: conv.updated_at 
+          ? (conv.updated_at instanceof Date ? conv.updated_at : new Date(conv.updated_at))
+          : (conv.updatedAt 
+              ? (conv.updatedAt instanceof Date ? conv.updatedAt : new Date(conv.updatedAt))
+              : new Date())
+      }));
+      
+      setConversations(mappedConversations);
     } catch (error) {
       console.error('Error loading conversations:', error);
+      setConversations([]);
+    } finally {
       setLoading(false);
     }
   };
@@ -124,8 +119,16 @@ export default function FreelancerMessagesPage() {
   };
 
   const formatTime = (date) => {
+    // Convert to Date object if it's a string
+    const dateObj = date instanceof Date ? date : new Date(date);
+    
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return 'تاريخ غير صحيح';
+    }
+    
     const now = new Date();
-    const diff = now - date;
+    const diff = now - dateObj;
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
@@ -134,7 +137,7 @@ export default function FreelancerMessagesPage() {
     if (minutes < 60) return `منذ ${minutes} دقيقة`;
     if (hours < 24) return `منذ ${hours} ساعة`;
     if (days < 7) return `منذ ${days} يوم`;
-    return date.toLocaleDateString('ar-SA');
+    return dateObj.toLocaleDateString('ar-SA');
   };
 
   const filteredConversations = conversations.filter(conv => {
@@ -150,7 +153,7 @@ export default function FreelancerMessagesPage() {
     <DashboardLayout>
       <Head>
         <title>الرسائل | Mahara</title>
-        <meta name="description" content="Messages and conversations" />
+        <meta name="description" content="الرسائل والمحادثات مع العملاء" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
@@ -208,7 +211,7 @@ export default function FreelancerMessagesPage() {
               {filteredConversations.map((conversation) => (
                 <Link
                   key={conversation.id}
-                  href={`/freelancer/messages/${conversation.id}`}
+                  href={`/freelancer/messages/${conversation.projectId}`}
                   className="block p-6 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-start gap-4">

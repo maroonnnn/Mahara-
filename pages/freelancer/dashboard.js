@@ -18,233 +18,206 @@ import {
 export default function FreelancerDashboard() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [stats, setStats] = useState({
+    totalProjects: 0,
+    myOffers: 0,
+    activeProjects: 0,
+    earnings: 0
+  });
+  const [availableProjects, setAvailableProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - Replace with actual API calls
-  const availableProjects = [
-    {
-      id: 1,
-      title: 'تصميم شعار احترافي لشركتي',
-      category: 'Graphics & Design',
-      subcategory: 'Logo Design',
-      budget: 500,
-      budgetType: 'fixed',
-      deliveryTime: '7 days',
-      proposals: 12,
-      views: 45,
-      createdAt: '2024-01-20',
-      description: 'أحتاج إلى تصميم شعار احترافي يعكس هوية شركتي في مجال التكنولوجيا...',
-      client: {
-        name: 'Abdalrhmn bobes',
-        rating: 4.8
-      }
-    },
-    {
-      id: 2,
-      title: 'تطوير موقع إلكتروني للتجارة الإلكترونية',
-      category: 'Programming & Tech',
-      subcategory: 'Website Development',
-      budget: 75,
-      budgetType: 'hourly',
-      deliveryTime: '1 month',
-      proposals: 8,
-      views: 32,
-      createdAt: '2024-01-19',
-      description: 'بحاجة لتطوير متجر إلكتروني متكامل باستخدام React وNode.js...',
-      client: {
-        name: 'Tech Company',
-        rating: 5.0
-      }
-    },
-    {
-      id: 3,
-      title: 'تصميم بنر إعلاني للسوشيال ميديا',
-      category: 'Graphics & Design',
-      subcategory: 'Social Media Design',
-      budget: 150,
-      budgetType: 'fixed',
-      deliveryTime: '3 days',
-      proposals: 20,
-      views: 89,
-      createdAt: '2024-01-18',
-      description: 'أحتاج إلى تصميم 10 بنرات إعلانية لحملة تسويقية على فيسبوك وإنستغرام...',
-      client: {
-        name: 'Digital Marketing Pro',
-        rating: 4.9
-      }
-    },
-    {
-      id: 4,
-      title: 'كتابة محتوى تسويقي لموقع الشركة',
-      category: 'Writing & Translation',
-      subcategory: 'Content Writing',
-      budget: 300,
-      budgetType: 'fixed',
-      deliveryTime: '5 days',
-      proposals: 15,
-      views: 67,
-      createdAt: '2024-01-17',
-      description: 'أبحث عن كاتب محتوى محترف لكتابة محتوى تسويقي جذاب...',
-      client: {
-        name: 'Marketing Agency',
-        rating: 4.9
-      }
-    },
-    {
-      id: 5,
-      title: 'تطوير تطبيق جوال iOS و Android',
-      category: 'Programming & Tech',
-      subcategory: 'Mobile Apps',
-      budget: 3500,
-      budgetType: 'fixed',
-      deliveryTime: '2 months',
-      proposals: 5,
-      views: 120,
-      createdAt: '2024-01-16',
-      description: 'مطلوب تطوير تطبيق جوال لحجز المواعيد الطبية باستخدام React Native...',
-      client: {
-        name: 'HealthCare Solutions',
-        rating: 4.6
-      }
-    },
-    {
-      id: 6,
-      title: 'تحرير فيديو ترويجي للمنتج',
-      category: 'Video & Animation',
-      subcategory: 'Video Editing',
-      budget: 400,
-      budgetType: 'fixed',
-      deliveryTime: '10 days',
-      proposals: 6,
-      views: 28,
-      createdAt: '2024-01-15',
-      description: 'أحتاج إلى محرر فيديو محترف لإنشاء فيديو ترويجي مدته دقيقتين...',
-      client: {
-        name: 'Media Company',
-        rating: 4.7
-      }
-    },
-    {
-      id: 7,
-      title: 'ترجمة محتوى من الإنجليزية للعربية',
-      category: 'Writing & Translation',
-      subcategory: 'Translation',
-      budget: 200,
-      budgetType: 'fixed',
-      deliveryTime: '7 days',
-      proposals: 18,
-      views: 56,
-      createdAt: '2024-01-14',
-      description: 'مطلوب ترجمة احترافية لمحتوى موقع تقني من الإنجليزية للعربية (5000 كلمة)...',
-      client: {
-        name: 'Global Content',
-        rating: 4.8
-      }
-    },
-    {
-      id: 8,
-      title: 'تصميم واجهة مستخدم UI/UX لتطبيق',
-      category: 'Graphics & Design',
-      subcategory: 'UI/UX Design',
-      budget: 800,
-      budgetType: 'fixed',
-      deliveryTime: '2 weeks',
-      proposals: 10,
-      views: 95,
-      createdAt: '2024-01-13',
-      description: 'بحاجة لتصميم واجهة مستخدم عصرية وجذابة لتطبيق توصيل طعام...',
-      client: {
-        name: 'Food Delivery Inc',
-        rating: 5.0
-      }
-    },
-    {
-      id: 9,
-      title: 'إنشاء حملة إعلانية على جوجل',
-      category: 'Digital Marketing',
-      subcategory: 'Google Ads',
-      budget: 600,
-      budgetType: 'fixed',
-      deliveryTime: '1 week',
-      proposals: 7,
-      views: 44,
-      createdAt: '2024-01-12',
-      description: 'أحتاج لمتخصص Google Ads لإنشاء وإدارة حملة إعلانية...',
-      client: {
-        name: 'E-commerce Store',
-        rating: 4.5
-      }
-    },
-    {
-      id: 10,
-      title: 'كتابة وتحسين SEO لموقع',
-      category: 'Digital Marketing',
-      subcategory: 'SEO',
-      budget: 450,
-      budgetType: 'fixed',
-      deliveryTime: '10 days',
-      proposals: 14,
-      views: 78,
-      createdAt: '2024-01-11',
-      description: 'مطلوب خبير SEO لتحسين محركات البحث وكتابة محتوى متوافق مع السيو...',
-      client: {
-        name: 'Online Business',
-        rating: 4.7
-      }
-    },
-    {
-      id: 11,
-      title: 'تطوير نظام إدارة محتوى CMS',
-      category: 'Programming & Tech',
-      subcategory: 'WordPress',
-      budget: 1200,
-      budgetType: 'fixed',
-      deliveryTime: '3 weeks',
-      proposals: 9,
-      views: 65,
-      createdAt: '2024-01-10',
-      description: 'بحاجة لتطوير نظام إدارة محتوى مخصص باستخدام WordPress مع إضافات خاصة...',
-      client: {
-        name: 'News Portal',
-        rating: 4.6
-      }
-    },
-    {
-      id: 12,
-      title: 'تصميم إنفوجرافيك احترافي',
-      category: 'Graphics & Design',
-      subcategory: 'Infographic Design',
-      budget: 180,
-      budgetType: 'fixed',
-      deliveryTime: '5 days',
-      proposals: 22,
-      views: 102,
-      createdAt: '2024-01-09',
-      description: 'أحتاج إلى تصميم 5 إنفوجرافيك احترافي لعرض إحصائيات ومعلومات...',
-      client: {
-        name: 'Research Institute',
-        rating: 4.9
-      }
-    },
-  ];
+  useEffect(() => {
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
 
-  const stats = {
-    totalProjects: availableProjects.length,
-    myOffers: 8,
-    activeProjects: 3,
-    earnings: 2850
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const projectService = (await import('../../services/projectService')).default;
+      const offerService = (await import('../../services/offerService')).default;
+      const walletService = (await import('../../services/walletService')).default;
+
+      // Load available projects
+      try {
+        const projectsResponse = await projectService.getOpenProjects();
+        console.log('Projects API Response:', projectsResponse);
+        console.log('Projects API Response Data:', projectsResponse.data);
+        
+        // Laravel pagination returns: { data: [...], current_page: 1, ... }
+        // Axios wraps it: { data: { data: [...], current_page: 1, ... } }
+        let projectsList = [];
+        
+        // Handle Axios response structure
+        const responseData = projectsResponse.data || projectsResponse;
+        
+        // Check if it's paginated response (Laravel pagination)
+        if (responseData && responseData.data && Array.isArray(responseData.data)) {
+          // Laravel paginated response: { data: [...], current_page: 1, ... }
+          projectsList = responseData.data;
+        } else if (Array.isArray(responseData)) {
+          // Direct array response
+          projectsList = responseData;
+        } else if (responseData && typeof responseData === 'object') {
+          // Try to find array in response
+          if (responseData.projects && Array.isArray(responseData.projects)) {
+            projectsList = responseData.projects;
+          } else if (responseData.items && Array.isArray(responseData.items)) {
+            projectsList = responseData.items;
+          } else {
+            console.warn('Unexpected response format:', responseData);
+            projectsList = [];
+          }
+        } else {
+          console.warn('Unexpected response format:', responseData);
+          projectsList = [];
+        }
+        
+        console.log('Projects List:', projectsList);
+        console.log('Projects Count:', projectsList.length);
+        
+        if (projectsList.length === 0) {
+          console.warn('No projects found. Response structure:', {
+            responseData,
+            hasData: !!responseData?.data,
+            isArray: Array.isArray(responseData),
+            keys: responseData ? Object.keys(responseData) : []
+          });
+        }
+        
+        // Map projects to frontend format
+        const mappedProjects = projectsList.map(p => ({
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          category: p.category?.name || p.category_name || 'غير محدد',
+          subcategory: p.subcategory || '',
+          budget: parseFloat(p.budget || 0),
+          budgetType: p.budget_type || 'fixed',
+          deliveryTime: p.duration_days 
+            ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
+            : (p.delivery_time || 'غير محدد'),
+          proposals: p.offers_count || 0,
+          views: p.views || 0,
+          createdAt: p.created_at || p.createdAt,
+          client: p.client || {
+            name: 'عميل',
+            rating: 5.0
+          }
+        }));
+        
+        setAvailableProjects(mappedProjects);
+        
+        // Load my offers
+        let myOffersCount = 0;
+        try {
+          const offersResponse = await offerService.getMyOffers();
+          const offersData = offersResponse.data?.data || offersResponse.data || [];
+          const offersList = Array.isArray(offersData) ? offersData : (offersData.data || []);
+          myOffersCount = offersList.length;
+        } catch (error) {
+          console.error('Error loading offers:', error);
+          myOffersCount = 0;
+        }
+
+        // Load active projects
+        let activeProjectsCount = 0;
+        try {
+          const activeResponse = await projectService.getActiveProjects();
+          const activeData = activeResponse.data?.data || activeResponse.data || [];
+          const activeList = Array.isArray(activeData) ? activeData : (activeData.data || []);
+          activeProjectsCount = activeList.length;
+        } catch (error) {
+          console.error('Error loading active projects:', error);
+          activeProjectsCount = 0;
+        }
+
+        // Load earnings
+        let earnings = 0;
+        try {
+          const walletResponse = await walletService.getWallet();
+          const walletData = walletResponse.data?.data || walletResponse.data || {};
+          earnings = parseFloat(walletData.balance || walletData.available || 0);
+        } catch (error) {
+          console.error('Error loading wallet:', error);
+          earnings = 0;
+        }
+
+        // Update stats (use the loaded projects count)
+        setStats({
+          totalProjects: mappedProjects.length,
+          myOffers: myOffersCount,
+          activeProjects: activeProjectsCount,
+          earnings: earnings
+        });
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        console.error('Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          config: error.config
+        });
+        setAvailableProjects([]);
+        
+        // Still try to load other stats even if projects fail
+        let myOffersCount = 0;
+        let activeProjectsCount = 0;
+        let earnings = 0;
+        
+        try {
+          const offersResponse = await offerService.getMyOffers();
+          const offersData = offersResponse.data?.data || offersResponse.data || [];
+          const offersList = Array.isArray(offersData) ? offersData : (offersData.data || []);
+          myOffersCount = offersList.length;
+        } catch (e) {
+          console.error('Error loading offers:', e);
+        }
+        
+        try {
+          const activeResponse = await projectService.getActiveProjects();
+          const activeData = activeResponse.data?.data || activeResponse.data || [];
+          const activeList = Array.isArray(activeData) ? activeData : (activeData.data || []);
+          activeProjectsCount = activeList.length;
+        } catch (e) {
+          console.error('Error loading active projects:', e);
+        }
+        
+        try {
+          const walletResponse = await walletService.getWallet();
+          const walletData = walletResponse.data?.data || walletResponse.data || {};
+          earnings = parseFloat(walletData.balance || walletData.available || 0);
+        } catch (e) {
+          console.error('Error loading wallet:', e);
+        }
+        
+        setStats({
+          totalProjects: 0,
+          myOffers: myOffersCount,
+          activeProjects: activeProjectsCount,
+          earnings: earnings
+        });
+      }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Sort projects by date (newest first)
+  // Sort and filter projects
   const sortedProjects = [...availableProjects].sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
+    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
   });
 
   const filteredProjects = sortedProjects.filter(project => {
     const searchLower = searchQuery.toLowerCase();
     return (
-      project.title.toLowerCase().includes(searchLower) ||
-      project.description.toLowerCase().includes(searchLower) ||
-      project.category.toLowerCase().includes(searchLower)
+      project.title?.toLowerCase().includes(searchLower) ||
+      project.description?.toLowerCase().includes(searchLower) ||
+      project.category?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -256,7 +229,7 @@ export default function FreelancerDashboard() {
     <DashboardLayout>
       <Head>
         <title>لوحة التحكم | Mahara</title>
-        <meta name="description" content="Freelancer Dashboard" />
+        <meta name="description" content="لوحة تحكم المستقل - تصفح المشاريع المتاحة وقدم عروضك" />
       </Head>
 
       <div className="max-w-7xl mx-auto">
@@ -274,7 +247,11 @@ export default function FreelancerDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm mb-1">المشاريع المتاحة</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalProjects}</p>
+                {loading ? (
+                  <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-3xl font-bold text-gray-900">{stats.totalProjects}</p>
+                )}
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <FaFileAlt className="text-blue-600 text-xl" />
@@ -286,7 +263,11 @@ export default function FreelancerDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm mb-1">عروضي</p>
-                <p className="text-3xl font-bold text-primary-600">{stats.myOffers}</p>
+                {loading ? (
+                  <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-3xl font-bold text-primary-600">{stats.myOffers}</p>
+                )}
               </div>
               <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
                 <FaPaperPlane className="text-primary-600 text-xl" />
@@ -298,7 +279,11 @@ export default function FreelancerDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm mb-1">المشاريع النشطة</p>
-                <p className="text-3xl font-bold text-green-600">{stats.activeProjects}</p>
+                {loading ? (
+                  <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-3xl font-bold text-green-600">{stats.activeProjects}</p>
+                )}
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <FaCheckCircle className="text-green-600 text-xl" />
@@ -310,7 +295,11 @@ export default function FreelancerDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm mb-1">الأرباح</p>
-                <p className="text-3xl font-bold text-gray-900">${stats.earnings}</p>
+                {loading ? (
+                  <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-3xl font-bold text-gray-900">${stats.earnings.toLocaleString()}</p>
+                )}
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <FaDollarSign className="text-green-600 text-xl" />
@@ -409,12 +398,12 @@ export default function FreelancerDashboard() {
                       <div className="flex items-center gap-1">
                         <FaDollarSign className="text-green-600" />
                         <span className="font-semibold">
-                          ${project.budget} {project.budgetType === 'hourly' ? '/hr' : ''}
+                          ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
                         <FaClock className="text-blue-600" />
-                        <span>{project.deliveryTime}</span>
+                        <span>{project.deliveryTime?.replace('days', 'أيام')?.replace('day', 'يوم')?.replace('weeks', 'أسابيع')?.replace('week', 'أسبوع')?.replace('months', 'أشهر')?.replace('month', 'شهر') || project.deliveryTime}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <FaUsers className="text-purple-600" />

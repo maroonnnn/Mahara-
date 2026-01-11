@@ -52,46 +52,63 @@ export default function FreelancerProjectsPage() {
 
   const loadProjects = async () => {
     try {
-      // Try to load from localStorage (for development)
-      const savedProjects = JSON.parse(localStorage.getItem('myProjects') || '[]');
+      setLoading(true);
+      const projectService = (await import('../../../services/projectService')).default;
+      const response = await projectService.getOpenProjects();
+      console.log('Projects API Response:', response);
       
-      // Ensure all projects have required fields
-      const normalizedSavedProjects = savedProjects.map(p => ({
-        ...p,
-        client: p.client || {
-          id: 1,
-          name: 'عميل',
-          rating: 5.0,
-          completedProjects: 0
-        },
-        proposals: p.proposals || 0,
-        views: p.views || 0
-      }));
+      // Laravel pagination returns: { data: [...], current_page: 1, ... }
+      // Axios wraps it: { data: { data: [...], current_page: 1, ... } }
+      let projectsList = [];
       
-      // Try to load from API
-      try {
-        const projectService = (await import('../../../services/projectService')).default;
-        const response = await projectService.getProjects({ status: 'open' });
-        
-        // Combine API projects with localStorage projects
-        const allProjects = [...(response.data || []), ...normalizedSavedProjects, ...mockProjects];
-        setProjects(allProjects);
-      } catch (apiError) {
-        console.log('API not available, using local data:', apiError.message);
-        // If API fails, use localStorage + mock data
-        setProjects([...normalizedSavedProjects, ...mockProjects]);
+      // Handle Axios response structure
+      const responseData = response.data || response;
+      
+      // Check if it's paginated response (Laravel pagination)
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        projectsList = responseData.data;
+      } else if (Array.isArray(responseData)) {
+        projectsList = responseData;
+      } else if (responseData && Array.isArray(responseData)) {
+        projectsList = responseData;
       }
       
-      setLoading(false);
+      console.log('Projects List:', projectsList);
+      console.log('Projects Count:', projectsList.length);
+      
+      // Map projects to frontend format
+      const mappedProjects = projectsList.map(p => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        category: p.category?.name || p.category_name || 'غير محدد',
+        subcategory: p.subcategory || '',
+        budget: parseFloat(p.budget || 0),
+        budgetType: p.budget_type || 'fixed',
+        deliveryTime: p.duration_days 
+          ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
+          : (p.delivery_time || 'غير محدد'),
+        status: p.status || 'open',
+        proposals: p.offers_count || 0,
+        views: p.views || 0,
+        createdAt: p.created_at || p.createdAt,
+        client: p.client || {
+          name: 'عميل',
+          rating: 5.0
+        }
+      }));
+      
+      setProjects(mappedProjects);
     } catch (error) {
       console.error('Error loading projects:', error);
-      // Fallback to mock data if everything fails
-      setProjects(mockProjects);
+      setProjects([]);
+    } finally {
       setLoading(false);
     }
   };
 
-  // Mock data - Fallback if API is not available yet (sorted by newest first)
+  // Removed mock data - using API only
+  /*
   const mockProjects = [
     {
       id: 1,
@@ -310,6 +327,7 @@ export default function FreelancerProjectsPage() {
       }
     },
   ];
+  */
 
   const categories = [
     'all', 'Graphics & Design', 'Programming & Tech', 
@@ -327,7 +345,7 @@ export default function FreelancerProjectsPage() {
     <DashboardLayout>
       <Head>
         <title>المشاريع المتاحة | Mahara</title>
-        <meta name="description" content="Browse available projects" />
+        <meta name="description" content="تصفح المشاريع المفتوحة وقدم عروضك للعملاء" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
@@ -412,12 +430,12 @@ export default function FreelancerProjectsPage() {
                     <div className="flex items-center gap-2">
                       <FaDollarSign className="text-green-600" />
                       <span className="font-semibold">
-                        ${project.budget} {project.budgetType === 'hourly' ? '/hr' : ''}
+                        ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <FaClock className="text-blue-600" />
-                      <span>{project.deliveryTime}</span>
+                      <span>{project.deliveryTime?.replace('days', 'أيام')?.replace('day', 'يوم')?.replace('weeks', 'أسابيع')?.replace('week', 'أسبوع')?.replace('months', 'أشهر')?.replace('month', 'شهر') || project.deliveryTime}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <FaUsers className="text-purple-600" />

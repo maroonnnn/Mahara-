@@ -1,7 +1,12 @@
 import api from './api';
 
 const projectService = {
-  // Get all projects (with filters)
+  // Get all open projects (for freelancers to browse)
+  getOpenProjects: (params) => {
+    return api.get('/projects/open', { params });
+  },
+
+  // Get all projects (with filters) - for admin or authenticated users
   getProjects: (params) => {
     return api.get('/projects', { params });
   },
@@ -11,7 +16,7 @@ const projectService = {
     return api.get(`/projects/${id}`);
   },
 
-  // Create new project
+  // Create new project (client only)
   createProject: (data) => {
     return api.post('/projects', data);
   },
@@ -27,13 +32,29 @@ const projectService = {
   },
 
   // Get client's projects
-  getMyProjects: () => {
-    return api.get('/my-projects');
+  getMyProjects: (params) => {
+    // Backend route is /client/projects (not /my-projects)
+    return api.get('/client/projects', { params });
   },
 
-  // Complete project
+  // Get freelancer's active projects
+  getActiveProjects: () => {
+    return api.get('/freelancer/active-projects');
+  },
+
+  // Get freelancer's completed projects (includes delivered and completed)
+  getCompletedProjects: (params) => {
+    return api.get('/freelancer/completed-projects', { params });
+  },
+
+  // Deliver project (freelancer)
+  deliverProject: (id) => {
+    return api.post(`/projects/${id}/deliver`);
+  },
+
+  // Complete project (client)
   completeProject: (id) => {
-    return api.put(`/projects/${id}/complete`);
+    return api.post(`/projects/${id}/complete`);
   },
 
   // Cancel project

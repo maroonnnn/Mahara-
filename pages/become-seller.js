@@ -5,17 +5,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useState } from 'react';
 import { 
-  FaFileAlt,
-  FaCog,
-  FaDollarSign,
-  FaPlay,
-  FaStar,
-  FaArrowRight,
-  FaPalette,
-  FaCode,
-  FaVideo,
-  FaMusic,
-  FaMicrophone
+  FaSearch,
+  FaHandshake,
+  FaCheckCircle
 } from 'react-icons/fa';
 
 export default function BecomeSellerPage() {
@@ -26,25 +18,25 @@ export default function BecomeSellerPage() {
 
   const steps = [
     {
-      icon: <FaFileAlt className="w-12 h-12" />,
-      title: language === 'ar' ? 'أنشئ خدمة' : 'Create a Gig',
+      icon: <FaSearch className="w-12 h-12" />,
+      title: language === 'ar' ? 'تصفح المشاريع' : 'Browse Projects',
       description: language === 'ar' 
-        ? 'قم بإعداد خدمتك المجانية، اذكر عملك وقدم خدماتك للمشترين.'
-        : 'Set up your free Gig, list your work and offer your services to buyers.'
+        ? 'استكشف المشاريع المتاحة من العملاء، ابحث عن المشاريع التي تناسب مهاراتك وخبرتك.'
+        : 'Explore available projects from clients, search for projects that match your skills and expertise.'
     },
     {
-      icon: <FaCog className="w-12 h-12" />,
-      title: language === 'ar' ? 'قدم عملاً رائعاً' : 'Deliver great work',
+      icon: <FaHandshake className="w-12 h-12" />,
+      title: language === 'ar' ? 'قدم عرضك' : 'Submit Your Offer',
       description: language === 'ar' 
-        ? 'احصل على إشعار عند تلقي طلب واستخدم نظامنا لمناقشة التفاصيل مع العملاء.'
-        : 'Get notified when you get an order and use our system to discuss details with customers.'
+        ? 'قدم عرضاً تنافسياً يتضمن السعر والوقت المطلوب. تواصل مع العملاء واجب على أسئلتهم.'
+        : 'Submit a competitive offer with your price and timeline. Communicate with clients and answer their questions.'
     },
     {
-      icon: <FaDollarSign className="w-12 h-12" />,
-      title: language === 'ar' ? 'احصل على الدفع' : 'Get paid',
+      icon: <FaCheckCircle className="w-12 h-12" />,
+      title: language === 'ar' ? 'أكمل المشروع واحصل على الدفع' : 'Complete & Get Paid',
       description: language === 'ar' 
-        ? 'احصل على الدفع في الوقت المحدد، في كل مرة. المدفوعات متاحة للسحب بمجرد مسح الطلب.'
-        : 'Get paid on time, every time. Payments are available for withdrawal once an order is cleared.'
+        ? 'بعد قبول عرضك، أكمل المشروع بجودة عالية. احصل على الدفع مباشرة في محفظتك بعد إتمام العمل.'
+        : 'After your offer is accepted, complete the project with high quality. Get paid directly to your wallet upon completion.'
     },
   ];
 
@@ -78,58 +70,58 @@ export default function BecomeSellerPage() {
 
   const buyerStories = [
     {
-      name: 'Jennifer Cara',
-      role: language === 'ar' ? 'الرئيس التنفيذي لشركة Welant' : 'CEO of Welant',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
-      initial: 'J',
+      name: language === 'ar' ? 'أحمد محمد' : 'Ahmed Mohamed',
+      role: language === 'ar' ? 'رائد أعمال' : 'Entrepreneur',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+      initial: 'A',
       text: language === 'ar' 
-        ? 'الناس يحبون شعارنا، ونحن نحب Mahara.'
-        : 'People love our logo, and we love Mahara.'
+        ? 'وجدت أفضل المطورين لمشروعي على Mahara. النظام سهل والدفع آمن.'
+        : 'Found the best developers for my project on Mahara. The system is easy and payments are secure.'
     },
     {
-      name: 'Michael Chen',
-      role: language === 'ar' ? 'مؤسس StartupHub' : 'Founder of StartupHub',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+      name: language === 'ar' ? 'سارة علي' : 'Sara Ali',
+      role: language === 'ar' ? 'مديرة تسويق' : 'Marketing Manager',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+      initial: 'S',
+      text: language === 'ar' 
+        ? 'استخدمت Mahara لتوظيف مصمم جرافيكي لعلامتنا التجارية. النتيجة كانت رائعة!'
+        : 'Used Mahara to hire a graphic designer for our brand. The result was amazing!'
+    },
+    {
+      name: language === 'ar' ? 'خالد حسن' : 'Khalid Hassan',
+      role: language === 'ar' ? 'مؤسس شركة ناشئة' : 'Startup Founder',
+      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop',
+      initial: 'K',
+      text: language === 'ar' 
+        ? 'Mahara ساعدني في إيجاد مواهب محترفة بأسعار معقولة. أنصح به بشدة.'
+        : 'Mahara helped me find professional talent at reasonable prices. Highly recommended.'
+    },
+    {
+      name: language === 'ar' ? 'فاطمة إبراهيم' : 'Fatima Ibrahim',
+      role: language === 'ar' ? 'مديرة مشروع' : 'Project Manager',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+      initial: 'F',
+      text: language === 'ar' 
+        ? 'التواصل مع المستقلين سلس وسريع. حصلت على ما أردته في الوقت المحدد.'
+        : 'Communication with freelancers is smooth and fast. Got exactly what I needed on time.'
+    },
+    {
+      name: language === 'ar' ? 'محمد عبدالله' : 'Mohammed Abdullah',
+      role: language === 'ar' ? 'رجل أعمال' : 'Business Owner',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
       initial: 'M',
       text: language === 'ar' 
-        ? 'Mahara مورد رائع لأي شخص في مجال الشركات الناشئة.'
-        : 'Mahara is an amazing resource for anyone in the startup space.'
+        ? 'منصة Mahara وفرت لي الوقت والجهد في البحث عن المواهب المناسبة لمشاريعي.'
+        : 'Mahara platform saved me time and effort in finding the right talent for my projects.'
     },
     {
-      name: 'Emily Rodriguez',
-      role: language === 'ar' ? 'مدير المشروع' : 'Project Manager',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
-      initial: 'E',
+      name: language === 'ar' ? 'نورا سالم' : 'Nora Salem',
+      role: language === 'ar' ? 'مستشارة أعمال' : 'Business Consultant',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop',
+      initial: 'N',
       text: language === 'ar' 
-        ? 'Mahara يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
-        : 'Mahara enables me to quickly and efficiently get things done.'
-    },
-    {
-      name: 'David Thompson',
-      role: language === 'ar' ? 'رائد أعمال' : 'Entrepreneur',
-      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop',
-      initial: 'D',
-      text: language === 'ar' 
-        ? 'هذه هي الطريقة التي يمكنني بها الحصول على عمل احترافي دون الحاجة إلى توظيف موظف بدوام كامل.'
-        : 'This is the way I could have professional work done without having to hire a full-time employee.'
-    },
-    {
-      name: 'Lisa Wang',
-      role: language === 'ar' ? 'مؤسس شركة ناشئة' : 'Startup Founder',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
-      initial: 'L',
-      text: language === 'ar' 
-        ? 'Mahara يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
-        : 'Mahara enables me to quickly and efficiently get things done.'
-    },
-    {
-      name: 'Robert Martinez',
-      role: language === 'ar' ? 'مدير التسويق' : 'Marketing Director',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-      initial: 'R',
-      text: language === 'ar' 
-        ? 'Mahara يمكّنني من إنجاز الأمور بسرعة وكفاءة.'
-        : 'Mahara enables me to quickly and efficiently get things done.'
+        ? 'جودة العمل المقدم من المستقلين على Mahara ممتازة. سأستخدمها دائماً.'
+        : 'The quality of work from freelancers on Mahara is excellent. I\'ll always use it.'
     },
   ];
 
@@ -267,77 +259,6 @@ export default function BecomeSellerPage() {
                   <p className="text-gray-700 text-lg leading-relaxed">{step.description}</p>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Learn from Mahara Section */}
-          <div className="bg-gray-50 py-20">
-            <div className="container-custom">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {/* Left Side - Content */}
-                <div>
-                  <div className="mb-6 flex items-center gap-3">
-                    <h3 className="text-4xl font-bold text-gray-900">learn.</h3>
-                    <span className="bg-primary-500 text-white px-3 py-1 rounded text-xs font-bold">NEW</span>
-                  </div>
-                  <p className="text-primary-500 font-semibold text-sm uppercase tracking-wide mb-4">FROM FIVERR</p>
-                  <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                    {language === 'ar' 
-                      ? 'دورات احترافية عند الطلب، يقودها الخبراء الرائدون في العالم.'
-                      : 'On-demand professional courses, led by the world\'s leading experts.'
-                    }
-                  </h2>
-                  <p className="text-gray-700 text-lg mb-8 leading-relaxed">
-                    {language === 'ar' 
-                      ? 'كل ما يتطلبه الأمر لتصبح بائعاً من الطراز الأول على Mahara مع دورات Learn from Mahara المجانية التكميلية.'
-                      : 'Everything it takes to be a top-notch seller on Mahara with free complementary Learn from Mahara courses.'
-                    }
-                  </p>
-                  <Link 
-                    href="/learn"
-                    className="inline-block bg-primary-500 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-600 transition-colors"
-                  >
-                    {language === 'ar' ? 'تعرف على المزيد' : 'Learn More'}
-                  </Link>
-                </div>
-
-                {/* Right Side - Video Card */}
-                <div className="relative">
-                  <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
-                    {/* Video Placeholder */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative w-full h-full">
-                        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900"></div>
-                        <button className="absolute inset-0 flex items-center justify-center group">
-                          <div className="w-20 h-20 rounded-full bg-white bg-opacity-90 flex items-center justify-center hover:bg-opacity-100 transition-all transform group-hover:scale-110">
-                            <FaPlay className="w-8 h-8 text-primary-500 ml-1" />
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                    {/* Course Info Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent flex flex-col justify-end p-6">
-                      <div className="text-white mb-2">
-                        <p className="text-sm font-medium mb-1">
-                          {language === 'ar' ? 'أساسيات العمل الحر عبر الإنترنت' : 'Online Freelancing Essentials'}
-                        </p>
-                        <p className="text-lg font-bold">
-                          {language === 'ar' ? 'كن بائع Mahara ناجحاً' : 'Be A Successful Mahara'}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 text-white">
-                        <FaStar className="text-yellow-400 w-4 h-4" />
-                        <span className="font-semibold">5.0</span>
-                        <span className="text-gray-300 text-sm">(100)</span>
-                      </div>
-                    </div>
-                    {/* FREE Badge */}
-                    <div className="absolute top-4 right-4 bg-primary-500 text-white px-3 py-1 rounded text-sm font-bold">
-                      FREE
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 

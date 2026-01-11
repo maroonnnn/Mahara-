@@ -1,7 +1,9 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useLanguage } from '../../contexts/LanguageContext';
+import adminService from '../../services/adminService';
+import { toast } from 'react-toastify';
 import { 
   FaPlus, 
   FaEdit, 
@@ -12,34 +14,48 @@ import {
 
 export default function AdminCategories() {
   const { language } = useLanguage();
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     icon: '',
-    active: true
+    is_active: true
   });
+  const [categories, setCategories] = useState([]);
 
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'Graphics & Design', description: 'Logo, brand identity, illustration', icon: '🎨', active: true, projects: 156 },
-    { id: 2, name: 'Programming & Tech', description: 'Websites, apps, software', icon: '💻', active: true, projects: 243 },
-    { id: 3, name: 'Digital Marketing', description: 'SEO, social media, ads', icon: '📈', active: true, projects: 189 },
-    { id: 4, name: 'Video & Animation', description: 'Video editing, animation, explainers', icon: '🎬', active: true, projects: 98 },
-    { id: 5, name: 'Writing & Translation', description: 'Content, copywriting, translation', icon: '✍️', active: true, projects: 134 },
-    { id: 6, name: 'Music & Audio', description: 'Voice over, music production, mixing', icon: '🎵', active: true, projects: 76 },
-    { id: 7, name: 'Business', description: 'Business plans, consulting, HR', icon: '💼', active: true, projects: 112 },
-    { id: 8, name: 'Data', description: 'Data entry, analysis, databases', icon: '📊', active: false, projects: 45 },
-  ]);
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await adminService.getCategories();
+      console.log('Categories API response:', response);
+      
+      const categoriesData = response.data || [];
+      const categoriesList = Array.isArray(categoriesData) ? categoriesData : [];
+      
+      setCategories(categoriesList);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      toast.error(language === 'ar' ? 'فشل تحميل الفئات' : 'Failed to load categories');
+      setCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenModal = (category = null) => {
     if (category) {
       setEditingCategory(category);
       setFormData({
         name: category.name,
-        description: category.description,
-        icon: category.icon,
-        active: category.active
+        description: category.description || '',
+        icon: category.icon || '',
+        is_active: category.is_active !== undefined ? category.is_active : true
       });
     } else {
       setEditingCategory(null);
@@ -47,7 +63,7 @@ export default function AdminCategories() {
         name: '',
         description: '',
         icon: '',
-        active: true
+        is_active: true
       });
     }
     setShowModal(true);
@@ -60,43 +76,61 @@ export default function AdminCategories() {
       name: '',
       description: '',
       icon: '',
-      active: true
+      is_active: true
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (editingCategory) {
-      // Update existing category
-      setCategories(categories.map(cat => 
-        cat.id === editingCategory.id 
-          ? { ...cat, ...formData }
-          : cat
-      ));
-    } else {
-      // Add new category
-      const newCategory = {
-        id: Math.max(...categories.map(c => c.id)) + 1,
-        ...formData,
-        projects: 0
-      };
-      setCategories([...categories, newCategory]);
+    try {
+      if (editingCategory) {
+        // Update existing category
+        await adminService.updateCategory(editingCategory.id, formData);
+        toast.success(language === 'ar' ? 'تم تحديث الفئة بنجاح' : 'Category updated successfully');
+      } else {
+        // Add new category
+        await adminService.createCategory(formData);
+        toast.success(language === 'ar' ? 'تم إضافة الفئة بنجاح' : 'Category created successfully');
+      }
+      
+      loadCategories();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error saving category:', error);
+      const message = error.response?.data?.message || (language === 'ar' ? 'حدث خطأ أثناء الحفظ' : 'Error saving category');
+      toast.error(message);
     }
-    
-    handleCloseModal();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه الفئة؟' : 'Are you sure you want to delete this category?')) {
-      setCategories(categories.filter(cat => cat.id !== id));
+      try {
+        await adminService.deleteCategory(id);
+        toast.success(language === 'ar' ? 'تم حذف الفئة بنجاح' : 'Category deleted successfully');
+        loadCategories();
+      } catch (error) {
+        console.error('Error deleting category:', error);
+        const message = error.response?.data?.message || (language === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error deleting category');
+        toast.error(message);
+      }
     }
   };
 
-  const handleToggleActive = (id) => {
-    setCategories(categories.map(cat => 
-      cat.id === id ? { ...cat, active: !cat.active } : cat
-    ));
+  const handleToggleActive = async (id) => {
+    const category = categories.find(cat => cat.id === id);
+    if (!category) return;
+
+    try {
+      await adminService.updateCategory(id, {
+        is_active: !category.is_active
+      });
+      toast.success(language === 'ar' ? 'تم تحديث حالة الفئة' : 'Category status updated');
+      loadCategories();
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast.error(language === 'ar' ? 'حدث خطأ أثناء التحديث' : 'Error updating category');
+    }
   };
 
   return (
@@ -134,15 +168,21 @@ export default function AdminCategories() {
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-gray-600 text-sm mb-2">{language === 'ar' ? 'الفئات النشطة' : 'Active Categories'}</h3>
-              <p className="text-3xl font-bold text-green-600">{categories.filter(c => c.active).length}</p>
+              <p className="text-3xl font-bold text-green-600">{categories.filter(c => c.is_active).length}</p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-gray-600 text-sm mb-2">{language === 'ar' ? 'إجمالي المشاريع' : 'Total Projects'}</h3>
-              <p className="text-3xl font-bold text-blue-600">{categories.reduce((sum, c) => sum + c.projects, 0)}</p>
+              <p className="text-3xl font-bold text-blue-600">{categories.reduce((sum, c) => sum + (c.projects_count || 0), 0)}</p>
             </div>
           </div>
 
           {/* Categories Grid */}
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
+              <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => (
               <div key={category.id} className={`bg-white rounded-lg shadow-md p-6 ${!category.active ? 'opacity-60' : ''}`}>
@@ -151,13 +191,13 @@ export default function AdminCategories() {
                     <div className="text-4xl">{category.icon}</div>
                     <div>
                       <h3 className="font-bold text-gray-900">{category.name}</h3>
-                      <p className="text-xs text-gray-500">{category.projects} {language === 'ar' ? 'مشاريع' : 'projects'}</p>
+                      <p className="text-xs text-gray-500">{category.projects_count || 0} {language === 'ar' ? 'مشاريع' : 'projects'}</p>
                     </div>
                   </div>
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    category.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    category.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {category.active ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'غير نشط' : 'Inactive')}
+                    {category.is_active ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'غير نشط' : 'Inactive')}
                   </span>
                 </div>
                 
@@ -167,12 +207,12 @@ export default function AdminCategories() {
                   <button
                     onClick={() => handleToggleActive(category.id)}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                      category.active 
+                      category.is_active 
                         ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         : 'bg-green-500 text-white hover:bg-green-600'
                     }`}
                   >
-                    {category.active ? (language === 'ar' ? 'تعطيل' : 'Deactivate') : (language === 'ar' ? 'تفعيل' : 'Activate')}
+                    {category.is_active ? (language === 'ar' ? 'تعطيل' : 'Deactivate') : (language === 'ar' ? 'تفعيل' : 'Activate')}
                   </button>
                   <button
                     onClick={() => handleOpenModal(category)}
@@ -190,6 +230,7 @@ export default function AdminCategories() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Modal */}
           {showModal && (
@@ -250,12 +291,12 @@ export default function AdminCategories() {
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      id="active"
-                      checked={formData.active}
-                      onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                      id="is_active"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                       className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                     />
-                    <label htmlFor="active" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
                       {language === 'ar' ? 'الفئة نشطة' : 'Category Active'}
                     </label>
                   </div>

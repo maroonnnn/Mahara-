@@ -1,56 +1,117 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardLayout from '../../components/layout/DashboardLayout';
+import { useAuth } from '../../contexts/AuthContext';
 import { 
   FaEnvelope,
   FaClock,
   FaDollarSign,
   FaCheckCircle,
-  FaFileAlt
+  FaFileAlt,
+  FaPaperPlane
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function FreelancerActiveProjectsPage() {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: 'تصميم شعار احترافي لشركتي',
-      client: {
-        id: 1,
-        name: 'Abdalrhmn bobes'
-      },
-      budget: 500,
-      budgetType: 'fixed',
-      deliveryTime: '7 days',
-      status: 'in_progress',
-      progress: 60,
-      startDate: '2024-01-15',
-      deadline: '2024-01-22',
-      conversationId: 1
-    },
-    {
-      id: 2,
-      title: 'تطوير موقع إلكتروني',
-      client: {
-        id: 2,
-        name: 'Tech Company'
-      },
-      budget: 75,
-      budgetType: 'hourly',
-      deliveryTime: '1 month',
-      status: 'in_progress',
-      progress: 30,
-      startDate: '2024-01-10',
-      deadline: '2024-02-10',
-      conversationId: 2
-    },
-  ]);
+  const { user } = useAuth();
+  const { language } = useLanguage();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [delivering, setDelivering] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      loadActiveProjects();
+    }
+  }, [user]);
+
+  const loadActiveProjects = async () => {
+    try {
+      setLoading(true);
+      const projectService = (await import('../../services/projectService')).default;
+      const response = await projectService.getActiveProjects();
+      
+      const projectsData = response.data || [];
+      const projectsList = Array.isArray(projectsData) ? projectsData : [];
+      
+      // Map projects to frontend format
+      const mappedProjects = projectsList.map(p => {
+        // Calculate deadline from start date and duration
+        let deadline = null;
+        if (p.created_at && p.duration_days) {
+          const startDate = new Date(p.created_at);
+          const deadlineDate = new Date(startDate);
+          deadlineDate.setDate(deadlineDate.getDate() + p.duration_days);
+          deadline = deadlineDate.toISOString().split('T')[0];
+        }
+        
+        // Calculate progress (mock for now - in real app, this would come from backend)
+        const progress = 0; // TODO: Add progress tracking in backend
+        
+        return {
+          id: p.id,
+          title: p.title,
+          client: {
+            id: p.client?.id || p.client_id,
+            name: p.client?.name || 'عميل'
+          },
+          budget: parseFloat(p.budget || 0),
+          budgetType: p.budget_type || 'fixed',
+          deliveryTime: p.duration_days 
+            ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
+            : 'غير محدد',
+          status: p.status || 'in_progress',
+          progress: progress,
+          startDate: p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : null,
+          deadline: deadline,
+          conversationId: p.id // Use project ID as conversation ID
+        };
+      });
+      
+      setProjects(mappedProjects);
+    } catch (error) {
+      console.error('Error loading active projects:', error);
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeliverProject = async (projectId) => {
+    if (!confirm(language === 'ar' 
+      ? 'هل أنت متأكد من تسليم هذا المشروع؟ سيتم إشعار العميل بانتظار موافقته.'
+      : 'Are you sure you want to deliver this project? The client will be notified and will need to approve.')) {
+      return;
+    }
+
+    try {
+      setDelivering(prev => ({ ...prev, [projectId]: true }));
+      const projectService = (await import('../../services/projectService')).default;
+      await projectService.deliverProject(projectId);
+      
+      toast.success(language === 'ar' 
+        ? 'تم تسليم المشروع بنجاح! سيتم إشعار العميل.'
+        : 'Project delivered successfully! The client will be notified.');
+      
+      // Reload projects to update status
+      loadActiveProjects();
+    } catch (error) {
+      console.error('Error delivering project:', error);
+      const message = error.response?.data?.message || 
+        (language === 'ar' ? 'حدث خطأ أثناء تسليم المشروع' : 'Error delivering project');
+      toast.error(message);
+    } finally {
+      setDelivering(prev => ({ ...prev, [projectId]: false }));
+    }
+  };
 
   return (
     <DashboardLayout>
       <Head>
         <title>المشاريع النشطة |Mahara</title>
-        <meta name="description" content="Active projects" />
+        <meta name="description" content="مشاريعك النشطة قيد التنفيذ" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
@@ -59,7 +120,12 @@ export default function FreelancerActiveProjectsPage() {
           <p className="text-gray-600">مشاريعك قيد التنفيذ</p>
         </div>
 
-        {projects.length === 0 ? (
+        {loading ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">جاري تحميل المشاريع النشطة...</p>
+          </div>
+        ) : projects.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <FaFileAlt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع نشطة</h3>
@@ -85,7 +151,7 @@ export default function FreelancerActiveProjectsPage() {
                       <div className="flex items-center gap-2">
                         <FaDollarSign className="text-green-600" />
                         <span className="font-semibold">
-                          ${project.budget} {project.budgetType === 'hourly' ? '/hr' : ''}
+                          ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -122,18 +188,37 @@ export default function FreelancerActiveProjectsPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
+                    {project.status === 'in_progress' && (
+                      <button
+                        onClick={() => handleDeliverProject(project.id)}
+                        disabled={delivering[project.id]}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        <FaPaperPlane />
+                        {delivering[project.id] 
+                          ? (language === 'ar' ? 'جاري التسليم...' : 'Delivering...')
+                          : (language === 'ar' ? 'تسليم المشروع' : 'Deliver Project')
+                        }
+                      </button>
+                    )}
+                    {project.status === 'delivered' && (
+                      <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold flex items-center gap-2">
+                        <FaCheckCircle />
+                        {language === 'ar' ? 'في انتظار موافقة العميل' : 'Awaiting Client Approval'}
+                      </div>
+                    )}
                     <Link
                       href={`/freelancer/messages/${project.conversationId}`}
                       className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center gap-2"
                     >
                       <FaEnvelope />
-                      فتح المحادثة
+                      {language === 'ar' ? 'فتح المحادثة' : 'Open Chat'}
                     </Link>
                     <Link
                       href={`/freelancer/projects/${project.id}`}
                       className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
                     >
-                      عرض التفاصيل
+                      {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
                     </Link>
                   </div>
                 </div>

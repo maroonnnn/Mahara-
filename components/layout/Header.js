@@ -157,15 +157,6 @@ export default function Header() {
                           <Link href={`/${user?.role}/profile`} className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
                             Profile
                           </Link>
-                          <Link href="/projects/new" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
-                            Post a project brief
-                          </Link>
-                          <Link href="/briefs" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
-                            Your briefs
-                          </Link>
-                          <Link href="/refer" className="block py-2 text-primary-500 hover:text-primary-600 text-sm font-medium">
-                            Refer a friend
-                          </Link>
                         </div>
 
                         {/* Account Management */}
@@ -181,26 +172,6 @@ export default function Header() {
                           </Link>
                         </div>
 
-                        {/* Exclusive Features */}
-                        <div className="px-4 py-2 border-b border-gray-100">
-                          <div className="text-xs text-gray-500 uppercase tracking-wide mb-2 px-2">
-                            Exclusive features
-                          </div>
-                          <Link href="/pro" className="block py-2">
-                            <span className="inline-block bg-primary-500 text-white px-3 py-1 rounded text-xs font-semibold">
-                              Mahara Pro
-                            </span>
-                          </Link>
-                          <Link href="/team/invite" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
-                            Invite your teammates
-                          </Link>
-                          <Link href="/find-freelancer" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
-                            Let us find your freelancer
-                          </Link>
-                          <Link href="/build-team" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
-                            Let us build a freelance team
-                    </Link>
-                        </div>
 
                         {/* Bottom Section */}
                         <div className="px-4 py-2">
@@ -216,9 +187,9 @@ export default function Header() {
                               {language === 'en' ? 'English' : 'العربية'}
                             </button>
                           </div>
-                          <Link href="/currency" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
+                          <div className="block py-2 text-gray-700 text-sm">
                             $ USD
-                    </Link>
+                          </div>
                           <Link href="/help" className="block py-2 text-gray-700 hover:text-primary-500 text-sm border-t border-gray-200 pt-3 mt-2">
                             Help & support
                     </Link>
@@ -342,9 +313,9 @@ export default function Header() {
 
                   {/* Hide "Become a Seller" button on landing page */}
                   {router.pathname !== '/' && (
-                    <Link href="/become-seller" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
-                      Become a Seller
-                    </Link>
+                        <Link href="/become-seller" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
+                          Become a Seller
+                        </Link>
                   )}
                   <Link href="/login" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
                     Sign In

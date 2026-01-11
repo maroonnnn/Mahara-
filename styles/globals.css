@@ -27,23 +27,26 @@ a {
   text-decoration: none;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Enhanced */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f1f5f9;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+  border-radius: 10px;
+  border: 2px solid #f1f5f9;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
 }
 
 /* Utility classes */
@@ -101,23 +104,23 @@ a {
 }
 
 .btn-primary {
-  @apply bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200 font-medium;
+  @apply bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 active:bg-primary-800 transition-all duration-300 font-medium transform hover:scale-105 active:scale-100 shadow-md hover:shadow-lg;
 }
 
 .btn-secondary {
-  @apply bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium;
+  @apply bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 active:bg-gray-400 transition-all duration-300 font-medium transform hover:scale-105 active:scale-100 shadow-sm hover:shadow-md;
 }
 
 .btn-outline {
-  @apply border-2 border-primary-600 text-primary-600 px-6 py-2 rounded-lg hover:bg-primary-50 transition-colors duration-200 font-medium;
+  @apply border-2 border-primary-600 text-primary-600 px-6 py-2 rounded-lg hover:bg-primary-50 active:bg-primary-100 transition-all duration-300 font-medium transform hover:scale-105 active:scale-100 hover:border-primary-700;
 }
 
 .card {
-  @apply bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200;
+  @apply bg-white rounded-lg shadow-soft p-6 hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1;
 }
 
 .input-field {
-  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 hover:border-gray-400 focus:shadow-glow;
 }
 
 .label {
@@ -226,17 +229,78 @@ a {
   display: block;
   opacity: 1;
   pointer-events: auto;
-  animation: fadeIn 0.15s ease-in;
+  animation: fadeInDown 0.3s ease-out;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+/* Enhanced Hover Effects */
+.hover-lift {
+  @apply transition-all duration-300 transform hover:-translate-y-1 hover:shadow-medium;
+}
+
+.hover-glow {
+  @apply transition-all duration-300 hover:shadow-glow;
+}
+
+.hover-scale {
+  @apply transition-transform duration-300 hover:scale-105;
+}
+
+.hover-brighten {
+  @apply transition-all duration-300 hover:brightness-110;
+}
+
+/* Smooth Transitions for Interactive Elements */
+a, button {
+  @apply transition-all duration-300;
+}
+
+/* Enhanced Focus States */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200;
+}
+
+/* Gradient Text */
+.gradient-text {
+  @apply bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent;
+}
+
+/* Glass Morphism Effect */
+.glass {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-soft;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced Link Hover */
+a:not(.no-hover) {
+  @apply transition-colors duration-300 hover:text-primary-600;
+}
+
+/* Button Press Effect */
+button:active {
+  transform: scale(0.98);
+}
+
+/* Card Hover Enhancements */
+.card-hover {
+  @apply transition-all duration-300 cursor-pointer;
+}
+
+.card-hover:hover {
+  @apply shadow-medium transform -translate-y-1;
+}
+
+/* Loading Animation */
+@keyframes spin {
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
 }
 

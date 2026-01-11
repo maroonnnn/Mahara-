@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import PublicLayout from '../components/layout/PublicLayout';
 import { useLanguage } from '../contexts/LanguageContext';
-import { FaSearch, FaCheck, FaStar } from 'react-icons/fa';
+import { FaSearch, FaCheck, FaStar, FaCode, FaPalette, FaVideo, FaPenNib } from 'react-icons/fa';
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,6 +32,76 @@ export default function LandingPage() {
 
   const trustedBy = [
     'Google', 'Netflix', 'Meta', 'PayPal', 'P&G'
+  ];
+
+  // What's done on Mahara section
+  const maharaProjects = [
+    {
+      id: 1,
+      title: language === 'ar' ? 'تطوير موقع إلكتروني متكامل' : 'Complete Website Development',
+      description: language === 'ar' 
+        ? 'موقع إلكتروني احترافي للتجارة الإلكترونية مع نظام إدارة محتوى متقدم'
+        : 'Professional e-commerce website with advanced content management system',
+      category: language === 'ar' ? 'برمجة وتطوير' : 'Programming & Development',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+      icon: <FaCode className="w-8 h-8" />,
+      color: 'bg-blue-500'
+    },
+    {
+      id: 2,
+      title: language === 'ar' ? 'تصميم هوية بصرية كاملة' : 'Complete Visual Identity Design',
+      description: language === 'ar' 
+        ? 'شعار احترافي وكتيب هوية بصرية مع دليل استخدام العلامة التجارية'
+        : 'Professional logo and brand identity guide with brand usage manual',
+      category: language === 'ar' ? 'تصميم جرافيكي' : 'Graphic Design',
+      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop',
+      icon: <FaPalette className="w-8 h-8" />,
+      color: 'bg-purple-500'
+    },
+    {
+      id: 3,
+      title: language === 'ar' ? 'إنتاج فيديو ترويجي احترافي' : 'Professional Promotional Video',
+      description: language === 'ar' 
+        ? 'فيديو ترويجي عالي الجودة مع مؤثرات بصرية وموسيقى تصويرية'
+        : 'High-quality promotional video with visual effects and background music',
+      category: language === 'ar' ? 'فيديو ورسوم متحركة' : 'Video & Animation',
+      image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&h=600&fit=crop',
+      icon: <FaVideo className="w-8 h-8" />,
+      color: 'bg-red-500'
+    },
+    {
+      id: 4,
+      title: language === 'ar' ? 'كتابة محتوى تسويقي احترافي' : 'Professional Marketing Content',
+      description: language === 'ar' 
+        ? 'محتوى تسويقي احترافي لوسائل التواصل الاجتماعي وحملات إعلانية'
+        : 'Professional marketing content for social media and advertising campaigns',
+      category: language === 'ar' ? 'كتابة وترجمة' : 'Writing & Translation',
+      image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&h=600&fit=crop',
+      icon: <FaPenNib className="w-8 h-8" />,
+      color: 'bg-green-500'
+    },
+    {
+      id: 5,
+      title: language === 'ar' ? 'تطوير تطبيق جوال متقدم' : 'Advanced Mobile App Development',
+      description: language === 'ar' 
+        ? 'تطبيق جوال متكامل لأنظمة iOS و Android مع واجهة مستخدم حديثة'
+        : 'Complete mobile app for iOS and Android with modern user interface',
+      category: language === 'ar' ? 'برمجة وتطوير' : 'Programming & Development',
+      image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop',
+      icon: <FaCode className="w-8 h-8" />,
+      color: 'bg-indigo-500'
+    },
+    {
+      id: 6,
+      title: language === 'ar' ? 'تصميم واجهة مستخدم احترافية' : 'Professional UI/UX Design',
+      description: language === 'ar' 
+        ? 'تصميم واجهة مستخدم تجريبية كاملة مع نماذج تفاعلية عالية الجودة'
+        : 'Complete user interface design with high-quality interactive prototypes',
+      category: language === 'ar' ? 'تصميم جرافيكي' : 'Graphic Design',
+      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop',
+      icon: <FaPalette className="w-8 h-8" />,
+      color: 'bg-pink-500'
+    },
   ];
 
   const handleSearch = (e) => {
@@ -217,6 +287,95 @@ export default function LandingPage() {
                 <p className="text-sm sm:text-base text-gray-600">
                   {t('landing.step3Desc')}
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* What's Done on Mahara Section */}
+        <div className="py-12 sm:py-16 bg-gradient-to-b from-gray-50 to-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                {language === 'ar' ? 'ماذا يُنجز على Mahara؟' : 'What\'s Done on Mahara?'}
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+                {language === 'ar' 
+                  ? 'اكتشف مجموعة من المشاريع الاحترافية التي تم إنجازها بنجاح على منصتنا'
+                  : 'Discover a collection of professional projects successfully completed on our platform'
+                }
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {maharaProjects.map((project) => (
+                <div 
+                  key={project.id} 
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                >
+                  {/* Project Image */}
+                  <div className="relative h-48 sm:h-56 overflow-hidden">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    />
+                    <div className={`absolute top-4 right-4 ${project.color} text-white p-3 rounded-full shadow-lg`}>
+                      {project.icon}
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                      <span className="text-white text-sm font-semibold bg-primary-500 px-3 py-1 rounded-full">
+                        {project.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Project Info */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {project.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Stats Section */}
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl font-bold text-primary-600 mb-2">
+                  10K+
+                </div>
+                <div className="text-gray-600 text-sm sm:text-base">
+                  {language === 'ar' ? 'مشروع مكتمل' : 'Completed Projects'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl font-bold text-primary-600 mb-2">
+                  5K+
+                </div>
+                <div className="text-gray-600 text-sm sm:text-base">
+                  {language === 'ar' ? 'مستقل محترف' : 'Professional Freelancers'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl font-bold text-primary-600 mb-2">
+                  8K+
+                </div>
+                <div className="text-gray-600 text-sm sm:text-base">
+                  {language === 'ar' ? 'عميل راضٍ' : 'Satisfied Clients'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl font-bold text-primary-600 mb-2">
+                  98%
+                </div>
+                <div className="text-gray-600 text-sm sm:text-base">
+                  {language === 'ar' ? 'معدل الرضا' : 'Satisfaction Rate'}
+                </div>
               </div>
             </div>
           </div>

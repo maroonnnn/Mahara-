@@ -14,6 +14,8 @@ import {
   FaEnvelope,
   FaPaperPlane
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 export default function FreelancerProjectDetailsPage() {
   const router = useRouter();
@@ -23,6 +25,8 @@ export default function FreelancerProjectDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [offerSubmitted, setOfferSubmitted] = useState(false);
   const [showOfferForm, setShowOfferForm] = useState(false);
+  const [delivering, setDelivering] = useState(false);
+  const { language } = useLanguage();
   const [offerData, setOfferData] = useState({
     amount: '',
     duration: '',
@@ -36,58 +40,55 @@ export default function FreelancerProjectDetailsPage() {
       return;
     }
 
-    // Role-based access control
-    if (!isAuthenticated) {
-      alert('يجب تسجيل الدخول أولاً');
-      router.push('/login');
-      return;
-    }
-
-    if (isClient) {
-      alert('❌ هذه الصفحة للمستقلين (البائعين) فقط.\n\nكعميل، يمكنك عرض مشروعك ومراجعة العروض من لوحة التحكم.');
-      router.push('/client/projects');
-      return;
-    }
-
-    if (!isFreelancer) {
-      alert('❌ فقط المستقلين يمكنهم تقديم عروض على المشاريع.');
-      router.push('/');
-      return;
-    }
-
+    // Load project regardless of authentication (projects are public)
     if (id) {
       loadProject();
-      checkExistingOffer();
+      
+      // Only check for existing offer if user is authenticated and is a freelancer
+      if (isAuthenticated && isFreelancer) {
+        checkExistingOffer();
+      }
     }
-  }, [authLoading, id, isAuthenticated, isClient, isFreelancer]);
+  }, [authLoading, id, isAuthenticated, isFreelancer]);
 
   const loadProject = async () => {
     try {
-      // Mock data - Replace with actual API call
-      const mockProject = {
-        id: parseInt(id),
-        title: 'تصميم شعار احترافي لشركتي',
-        category: 'Graphics & Design',
-        subcategory: 'Logo Design',
-        budget: 500,
-        budgetType: 'fixed',
-        deliveryTime: '7 days',
-        status: 'open',
-        description: 'أحتاج إلى تصميم شعار احترافي يعكس هوية شركتي في مجال التكنولوجيا. يجب أن يكون عصري وبسيط ويمكن استخدامه في مختلف الوسائط. أريد أن يكون الشعار قابلاً للتطبيق على الموقع الإلكتروني والبطاقات والمواد التسويقية.',
-        skills: ['Photoshop', 'Illustrator', 'Logo Design'],
-        createdAt: '2024-01-15',
-        client: {
-          id: 1,
-          name: 'Abdalrhmn bobes',
-          rating: 4.8,
-          completedProjects: 15
-        }
-      };
-
-      setProject(mockProject);
-      setLoading(false);
+      setLoading(true);
+      const projectService = (await import('../../../services/projectService')).default;
+      const response = await projectService.getProject(id);
+      const projectData = response.data?.data || response.data;
+      
+      if (projectData) {
+        // Map project data to frontend format
+        setProject({
+          id: projectData.id,
+          title: projectData.title,
+          description: projectData.description,
+          category: projectData.category?.name || projectData.category_name || 'غير محدد',
+          subcategory: projectData.subcategory || '',
+          budget: parseFloat(projectData.budget || 0),
+          budgetType: projectData.budget_type || 'fixed',
+          deliveryTime: projectData.duration_days 
+            ? `${projectData.duration_days} ${projectData.duration_days === 1 ? 'يوم' : 'أيام'}` 
+            : (projectData.delivery_time || 'غير محدد'),
+          status: projectData.status || 'open',
+          skills: projectData.skills || [],
+          createdAt: projectData.created_at || projectData.createdAt,
+          acceptedOffer: projectData.accepted_offer || projectData.acceptedOffer,
+          client: projectData.client || {
+            id: projectData.client_id,
+            name: projectData.client_name || 'عميل',
+            rating: projectData.client_rating || 5.0,
+            completedProjects: projectData.client_completed_projects || 0
+          }
+        });
+      } else {
+        setProject(null);
+      }
     } catch (error) {
       console.error('Error loading project:', error);
+      setProject(null);
+    } finally {
       setLoading(false);
     }
   };
@@ -101,39 +102,85 @@ export default function FreelancerProjectDetailsPage() {
   const handleSubmitOffer = async (e) => {
     e.preventDefault();
     
+    // Check authentication before submitting offer
+    if (!isAuthenticated) {
+      alert('يجب تسجيل الدخول أولاً لتقديم عرض');
+      router.push('/login');
+      return;
+    }
+    
+    if (!isFreelancer) {
+      alert('❌ فقط المستقلين يمكنهم تقديم عروض على المشاريع.');
+      if (isClient) {
+        router.push('/client/projects');
+      } else {
+        router.push('/');
+      }
+      return;
+    }
+    
     try {
       const offerService = (await import('../../../services/offerService')).default;
       
-      // Prepare offer data
+      // Convert duration to days (backend expects delivery_days as integer)
+      let deliveryDays = parseInt(offerData.duration) || 1;
+      if (offerData.durationUnit === 'weeks') {
+        deliveryDays = deliveryDays * 7;
+      } else if (offerData.durationUnit === 'months') {
+        deliveryDays = deliveryDays * 30;
+      }
+      
+      // Prepare offer data matching backend format
+      // Backend expects: amount (numeric), delivery_days (integer), cover_message (string)
       const offerPayload = {
-        project_id: parseInt(id),
         amount: parseFloat(offerData.amount),
-        duration: `${offerData.duration} ${offerData.durationUnit}`,
-        message: offerData.message,
-        status: 'pending'
+        delivery_days: deliveryDays,
+        cover_message: offerData.message || ''
       };
       
       console.log('Submitting offer:', offerPayload);
       
       // Submit offer to API
-      const response = await offerService.submitOffer(offerPayload);
+      const response = await offerService.submitOffer(id, offerPayload);
+      
+      console.log('Offer submitted successfully:', response);
       
       setOfferSubmitted(true);
       setShowOfferForm(false);
       alert('تم تقديم العرض بنجاح! سيتم إشعار العميل وسيتمكن من رؤية عرضك في صفحة العروض.');
     } catch (error) {
       console.error('Error submitting offer:', error);
-      alert('حدث خطأ أثناء تقديم العرض. يرجى المحاولة مرة أخرى.');
+      console.error('Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      
+      // Show more detailed error message
+      const errorMessage = error.response?.data?.message || 
+                          (error.response?.data?.errors ? JSON.stringify(error.response.data.errors) : null) ||
+                          error.message || 
+                          'خطأ غير معروف';
+      
+      alert(`حدث خطأ أثناء تقديم العرض.\n\n${errorMessage}\n\nيرجى المحاولة مرة أخرى.`);
     }
   };
 
   const startConversation = async () => {
+    // Check authentication before starting conversation
+    if (!isAuthenticated) {
+      alert('يجب تسجيل الدخول أولاً لإرسال رسالة');
+      router.push('/login');
+      return;
+    }
+    
     try {
-      // Check if conversation exists, if not create one
-      // Mock - In real app, call messageService.startConversation()
+      // Check if project has accepted offer (required for messaging)
+      // For now, just redirect to messages page - it will show error if no accepted offer
       router.push(`/freelancer/messages?projectId=${id}`);
     } catch (error) {
       console.error('Error starting conversation:', error);
+      alert('حدث خطأ أثناء فتح المحادثة. يرجى المحاولة مرة أخرى.');
     }
   };
 
@@ -222,7 +269,12 @@ export default function FreelancerProjectDetailsPage() {
             <div>
               <p className="text-xs text-gray-500 mb-1">الحالة</p>
               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                {project.status === 'open' ? 'مفتوح' : project.status}
+                {project.status === 'open' ? 'مفتوح' : 
+                 project.status === 'active' ? 'نشط' :
+                 project.status === 'in_progress' ? 'قيد التنفيذ' :
+                 project.status === 'delivered' ? 'تم التسليم - في انتظار الموافقة' :
+                 project.status === 'completed' ? 'مكتمل' :
+                 project.status === 'cancelled' ? 'ملغي' : project.status}
               </span>
             </div>
             <div>
@@ -365,22 +417,67 @@ export default function FreelancerProjectDetailsPage() {
                 </button>
               </div>
             </form>
-          ) : (
-            <div className="flex gap-3">
+          ) : hasAcceptedOffer && project.status === 'in_progress' ? (
+            <div className="space-y-4">
               <button
-                onClick={() => setShowOfferForm(true)}
-                className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                onClick={handleDeliverProject}
+                disabled={delivering}
+                className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 <FaPaperPlane />
-                تقديم عرض
+                {delivering 
+                  ? (language === 'ar' ? 'جاري التسليم...' : 'Delivering...')
+                  : (language === 'ar' ? 'تسليم المشروع' : 'Deliver Project')
+                }
               </button>
               <button
                 onClick={startConversation}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center gap-2"
+                className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center justify-center gap-2"
               >
                 <FaEnvelope />
-                إرسال رسالة
+                {language === 'ar' ? 'فتح المحادثة' : 'Open Chat'}
               </button>
+            </div>
+          ) : project.status === 'delivered' ? (
+            <div className="text-center p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <FaCheckCircle className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {language === 'ar' ? 'تم تسليم المشروع' : 'Project Delivered'}
+              </h3>
+              <p className="text-gray-600">
+                {language === 'ar' 
+                  ? 'في انتظار موافقة العميل على التسليم'
+                  : 'Waiting for client approval'}
+              </p>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              {isAuthenticated && isFreelancer ? (
+                <>
+                  <button
+                    onClick={() => setShowOfferForm(true)}
+                    className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                  >
+                    <FaPaperPlane />
+                    {language === 'ar' ? 'تقديم عرض' : 'Submit Offer'}
+                  </button>
+                  <button
+                    onClick={startConversation}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center gap-2"
+                  >
+                    <FaEnvelope />
+                    {language === 'ar' ? 'إرسال رسالة' : 'Send Message'}
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                >
+                  <FaPaperPlane />
+                  {language === 'ar' ? 'تسجيل الدخول لتقديم عرض' : 'Login to Submit Offer'}
+                </Link>
+              )}
             </div>
           )}
         </div>

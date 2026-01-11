@@ -1,14 +1,9 @@
 import api from './api';
 
 const reviewService = {
-  // Create review
-  createReview: (data) => {
-    return api.post('/reviews', data);
-  },
-
-  // Get reviews for a user
-  getUserReviews: (userId) => {
-    return api.get(`/users/${userId}/reviews`);
+  // Create review for a project
+  createReview: (projectId, data) => {
+    return api.post(`/projects/${projectId}/reviews`, data);
   },
 
   // Get review for a project
@@ -16,14 +11,26 @@ const reviewService = {
     return api.get(`/projects/${projectId}/review`);
   },
 
+  // Check if can review a project
+  canReview: (projectId) => {
+    return api.get(`/projects/${projectId}/can-review`);
+  },
+
+  // Get reviews for a freelancer
+  getFreelancerReviews: (freelancerId, page = 1) => {
+    return api.get(`/freelancers/${freelancerId}/reviews`, {
+      params: { page }
+    });
+  },
+
   // Update review
-  updateReview: (id, data) => {
-    return api.put(`/reviews/${id}`, data);
+  updateReview: (reviewId, data) => {
+    return api.put(`/reviews/${reviewId}`, data);
   },
 
   // Delete review
-  deleteReview: (id) => {
-    return api.delete(`/reviews/${id}`);
+  deleteReview: (reviewId) => {
+    return api.delete(`/reviews/${reviewId}`);
   },
 };
 

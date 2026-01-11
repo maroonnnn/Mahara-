@@ -1,7 +1,9 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useLanguage } from '../../contexts/LanguageContext';
+import adminService from '../../services/adminService';
+import { toast } from 'react-toastify';
 import { 
   FaSearch, 
   FaEye, 
@@ -14,78 +16,78 @@ import Link from 'next/link';
 
 export default function AdminProjects() {
   const { language } = useLanguage();
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [projects, setProjects] = useState([]);
 
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: 'E-commerce Website Development',
-      client: 'John Doe',
-      freelancer: 'Sarah Smith',
-      budget: 5000,
-      status: 'active',
-      deadline: '2024-12-01',
-      category: 'Web Development'
-    },
-    {
-      id: 2,
-      title: 'Logo Design for Startup',
-      client: 'Mike Johnson',
-      freelancer: 'Emily Brown',
-      budget: 500,
-      status: 'completed',
-      deadline: '2024-10-15',
-      category: 'Graphic Design'
-    },
-    {
-      id: 3,
-      title: 'Mobile App UI/UX Design',
-      client: 'David Wilson',
-      freelancer: 'John Doe',
-      budget: 3000,
-      status: 'active',
-      deadline: '2024-11-20',
-      category: 'UI/UX Design'
-    },
-    {
-      id: 4,
-      title: 'SEO Optimization Service',
-      client: 'Sarah Smith',
-      freelancer: 'Mike Johnson',
-      budget: 1200,
-      status: 'pending',
-      deadline: '2024-11-10',
-      category: 'Digital Marketing'
-    },
-    {
-      id: 5,
-      title: 'Video Editing for YouTube',
-      client: 'Emily Brown',
-      freelancer: 'David Wilson',
-      budget: 800,
-      status: 'active',
-      deadline: '2024-10-25',
-      category: 'Video & Animation'
-    },
-  ]);
+  useEffect(() => {
+    loadProjects();
+  }, [filterStatus]);
 
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+      if (filterStatus !== 'all') {
+        params.status = filterStatus;
+      }
+      
+      const response = await adminService.getProjects(params);
+      console.log('Projects API response:', response);
+      
+      const projectsData = response.data?.data || response.data || [];
+      const projectsList = Array.isArray(projectsData) ? projectsData : (projectsData.data || []);
+      
+      // Transform projects to match frontend format
+      const formattedProjects = projectsList.map(project => ({
+        id: project.id,
+        title: project.title,
+        client: project.client?.name || 'N/A',
+        freelancer: project.accepted_offer?.freelancer?.name || project.acceptedOffer?.freelancer?.name || '-',
+        budget: parseFloat(project.budget || 0),
+        status: project.status,
+        deadline: project.deadline ? new Date(project.deadline).toLocaleDateString('ar-SA') : '-',
+        category: project.category?.name || 'N/A'
+      }));
+      
+      setProjects(formattedProjects);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+      toast.error(language === 'ar' ? 'فشل تحميل المشاريع' : 'Failed to load projects');
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm) {
+        loadProjects();
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Client-side filtering for search term only (status is filtered by API)
   const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.freelancer.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || project.status === filterStatus;
-    
-    return matchesSearch && matchesStatus;
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return project.title.toLowerCase().includes(search) ||
+           project.client.toLowerCase().includes(search) ||
+           project.freelancer.toLowerCase().includes(search);
   });
 
   const getStatusBadge = (status) => {
     switch(status) {
-      case 'active':
+      case 'in_progress':
         return {
           icon: <FaClock />,
           classes: 'bg-blue-100 text-blue-800',
-          text: language === 'ar' ? 'نشط' : 'Active'
+          text: language === 'ar' ? 'قيد التنفيذ' : 'In Progress'
         };
       case 'completed':
         return {
@@ -93,17 +95,24 @@ export default function AdminProjects() {
           classes: 'bg-green-100 text-green-800',
           text: language === 'ar' ? 'مكتمل' : 'Completed'
         };
-      case 'pending':
+      case 'open':
         return {
           icon: <FaClock />,
           classes: 'bg-yellow-100 text-yellow-800',
-          text: language === 'ar' ? 'معلق' : 'Pending'
+          text: language === 'ar' ? 'مفتوح' : 'Open'
         };
       case 'cancelled':
         return {
           icon: <FaTimesCircle />,
           classes: 'bg-red-100 text-red-800',
           text: language === 'ar' ? 'ملغى' : 'Cancelled'
+        };
+      case 'active':
+      case 'pending':
+        return {
+          icon: <FaClock />,
+          classes: 'bg-blue-100 text-blue-800',
+          text: language === 'ar' ? 'نشط' : 'Active'
         };
       default:
         return {
@@ -148,7 +157,7 @@ export default function AdminProjects() {
                 <div>
                   <p className="text-gray-600 text-sm">{language === 'ar' ? 'المشاريع النشطة' : 'Active'}</p>
                   <p className="text-2xl font-bold text-blue-600">
-                    {projects.filter(p => p.status === 'active').length}
+                    {projects.filter(p => p.status === 'in_progress' || p.status === 'active').length}
                   </p>
                 </div>
                 <FaClock className="text-blue-400 w-8 h-8" />
@@ -198,10 +207,10 @@ export default function AdminProjects() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="all">{language === 'ar' ? 'جميع الحالات' : 'All Status'}</option>
-                  <option value="active">{language === 'ar' ? 'نشط' : 'Active'}</option>
+                  <option value="open">{language === 'ar' ? 'مفتوح' : 'Open'}</option>
+                  <option value="in_progress">{language === 'ar' ? 'قيد التنفيذ' : 'In Progress'}</option>
                   <option value="completed">{language === 'ar' ? 'مكتمل' : 'Completed'}</option>
-                  <option value="pending">{language === 'ar' ? 'معلق' : 'Pending'}</option>
-                  <option value="cancelled">{language === 'ar' ? 'ملغى' : 'Cancelled'}</option>
+                  <option value="cancelled">{language === 'ar' ? 'ملغي' : 'Cancelled'}</option>
                 </select>
               </div>
             </div>
@@ -209,6 +218,16 @@ export default function AdminProjects() {
 
           {/* Projects Table */}
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            {loading ? (
+              <div className="p-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
+                <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+              </div>
+            ) : filteredProjects.length === 0 ? (
+              <div className="p-12 text-center">
+                <p className="text-gray-500">{language === 'ar' ? 'لا توجد مشاريع' : 'No projects found'}</p>
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
@@ -281,11 +300,6 @@ export default function AdminProjects() {
                 </tbody>
               </table>
             </div>
-
-            {filteredProjects.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500">{language === 'ar' ? 'لا توجد مشاريع' : 'No projects found'}</p>
-              </div>
             )}
           </div>
         </div>

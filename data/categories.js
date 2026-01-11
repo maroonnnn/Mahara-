@@ -83,7 +83,6 @@ export const categories = [
     subCategories: [
       { name: 'Social Media Marketing', slug: 'social-media-marketing', href: '/categories/digital-marketing/social-media-marketing' },
       { name: 'Social Media Advertising', slug: 'social-media-advertising', href: '/categories/digital-marketing/social-media-advertising' },
-      { name: 'SEO', slug: 'seo', href: '/categories/digital-marketing/seo' },
       { name: 'Local SEO', slug: 'local-seo', href: '/categories/digital-marketing/local-seo' },
       { name: 'Content Marketing', slug: 'content-marketing', href: '/categories/digital-marketing/content-marketing' },
       { name: 'Email Marketing', slug: 'email-marketing', href: '/categories/digital-marketing/email-marketing' },
@@ -248,6 +247,7 @@ export const getCategoryBySlug = (slug) => {
 
 // Helper function to get all subcategories from a category
 export const getSubcategoriesFromCategory = (category) => {
+  if (!category) return [];
   return category.subCategories || [];
 };
 

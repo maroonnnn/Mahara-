@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { 
@@ -16,66 +16,96 @@ export default function FreelancerWallet() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
 
-  // Mock data
-  const balance = {
-    available: 2850,
-    pending: 450,
-    total: 3300
-  };
+  const [balance, setBalance] = useState({
+    available: 0,
+    pending: 0,
+    total: 0
+  });
+  const [transactions, setTransactions] = useState([]);
+  const [stats, setStats] = useState({
+    totalEarnings: 0,
+    thisMonth: 0,
+    projectsCompleted: 0,
+    averagePerProject: 0
+  });
+  const [loading, setLoading] = useState(true);
 
-  const transactions = [
-    { 
-      id: 1, 
-      type: 'earning', 
-      amount: 500, 
-      description: 'أرباح من المشروع: تصميم شعار احترافي', 
-      date: '2024-01-15', 
-      status: 'completed',
-      projectId: '#1234'
-    },
-    { 
-      id: 2, 
-      type: 'withdrawal', 
-      amount: -300, 
-      description: 'سحب إلى الحساب البنكي', 
-      date: '2024-01-12', 
-      status: 'completed',
-      method: 'Bank Transfer'
-    },
-    { 
-      id: 3, 
-      type: 'earning', 
-      amount: 750, 
-      description: 'أرباح من المشروع: تطوير موقع إلكتروني', 
-      date: '2024-01-10', 
-      status: 'completed',
-      projectId: '#1228'
-    },
-    { 
-      id: 4, 
-      type: 'pending', 
-      amount: 450, 
-      description: 'في انتظار التحويل: مشروع كتابة محتوى', 
-      date: '2024-01-08', 
-      status: 'pending',
-      projectId: '#1220'
-    },
-    { 
-      id: 5, 
-      type: 'withdrawal', 
-      amount: -500, 
-      description: 'سحب إلى PayPal', 
-      date: '2024-01-05', 
-      status: 'completed',
-      method: 'PayPal'
-    },
-  ];
+  useEffect(() => {
+    loadWalletData();
+  }, []);
 
-  const stats = {
-    totalEarnings: 12500,
-    thisMonth: 2850,
-    projectsCompleted: 24,
-    averagePerProject: 520
+  const loadWalletData = async () => {
+    try {
+      setLoading(true);
+      const walletService = (await import('../../services/walletService')).default;
+      
+      // Load wallet balance
+      try {
+        const walletResponse = await walletService.getWallet();
+        const walletData = walletResponse.data?.data || walletResponse.data || {};
+        setBalance({
+          available: parseFloat(walletData.available || walletData.balance || 0),
+          pending: parseFloat(walletData.pending || 0),
+          total: parseFloat(walletData.total || walletData.balance || 0)
+        });
+      } catch (error) {
+        console.error('Error loading wallet:', error);
+        setBalance({ available: 0, pending: 0, total: 0 });
+      }
+
+      // Load transactions
+      try {
+        const transactionsResponse = await walletService.getTransactions();
+        const transactionsData = transactionsResponse.data?.data || transactionsResponse.data || [];
+        const transactionsList = Array.isArray(transactionsData) ? transactionsData : (transactionsData.data || []);
+        
+        const mappedTransactions = transactionsList.map(t => ({
+          id: t.id,
+          type: t.type || (t.amount < 0 ? 'withdrawal' : 'earning'),
+          amount: parseFloat(t.amount || 0),
+          description: t.description || t.note || 'معاملة',
+          date: t.created_at || t.date || new Date().toISOString().split('T')[0],
+          status: t.status || 'completed',
+          projectId: t.project_id ? `#${t.project_id}` : undefined,
+          method: t.method
+        }));
+        
+        setTransactions(mappedTransactions);
+        
+        // Calculate stats
+        const totalEarnings = mappedTransactions
+          .filter(t => t.type === 'earning' && t.status === 'completed')
+          .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        
+        const thisMonth = mappedTransactions
+          .filter(t => {
+            const transactionDate = new Date(t.date);
+            const now = new Date();
+            return t.type === 'earning' && 
+                   t.status === 'completed' &&
+                   transactionDate.getMonth() === now.getMonth() &&
+                   transactionDate.getFullYear() === now.getFullYear();
+          })
+          .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        
+        const projectsCompleted = mappedTransactions
+          .filter(t => t.type === 'earning' && t.status === 'completed').length;
+        
+        setStats({
+          totalEarnings,
+          thisMonth,
+          projectsCompleted,
+          averagePerProject: projectsCompleted > 0 ? totalEarnings / projectsCompleted : 0
+        });
+      } catch (error) {
+        console.error('Error loading transactions:', error);
+        setTransactions([]);
+      }
+    } catch (error) {
+      console.error('Error loading wallet data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const PLATFORM_FEE_PERCENTAGE = 10; // 10% platform fee

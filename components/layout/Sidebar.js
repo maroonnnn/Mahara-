@@ -38,7 +38,7 @@ export default function Sidebar() {
     { name: 'المشاريع المتاحة', path: '/freelancer/projects', icon: <FaProjectDiagram /> },
     { name: 'عروضي', path: '/freelancer/my-offers', icon: <FaFileContract /> },
     { name: 'المشاريع النشطة', path: '/freelancer/active-projects', icon: <FaComments /> },
-    { name: 'المشاريع المكتملة', path: '/freelancer/completed', icon: <FaChartBar /> },
+    { name: 'المشاريع المكتملة', path: '/freelancer/completed-projects', icon: <FaChartBar /> },
     { name: 'الرسائل', path: '/freelancer/messages', icon: <FaEnvelope /> },
     { name: 'المحفظة', path: '/freelancer/wallet', icon: <FaWallet /> },
     { name: 'الملف الشخصي', path: '/freelancer/profile', icon: <FaUser /> },

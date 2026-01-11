@@ -6,6 +6,11 @@ const messageService = {
     return api.get('/messages/conversations');
   },
 
+  // Get single conversation by ID
+  getConversation: (id) => {
+    return api.get(`/messages/conversations/${id}`);
+  },
+
   // Get messages for a project/conversation
   getProjectMessages: (projectId) => {
     return api.get(`/projects/${projectId}/messages`);
@@ -16,8 +21,13 @@ const messageService = {
     return api.get(`/messages/conversations/${conversationId}`);
   },
 
-  // Send message
-  sendMessage: (data) => {
+  // Send message (for a project)
+  sendMessage: (projectId, data) => {
+    return api.post(`/projects/${projectId}/messages`, data);
+  },
+
+  // Alternative: Send message with project_id in body
+  sendMessageWithBody: (data) => {
     return api.post('/messages', data);
   },
 

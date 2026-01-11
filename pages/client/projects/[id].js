@@ -15,6 +15,7 @@ import {
   FaTimesCircle,
   FaEye
 } from 'react-icons/fa';
+import ReviewForm from '../../../components/reviews/ReviewForm';
 
 export default function ClientProjectDetailsPage() {
   const router = useRouter();
@@ -23,7 +24,10 @@ export default function ClientProjectDetailsPage() {
   const [project, setProject] = useState(null);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('details');
+  const [activeTab, setActiveTab] = useState('offers'); // Default to offers tab
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [hasReview, setHasReview] = useState(false);
+  const [completing, setCompleting] = useState(false);
 
   useEffect(() => {
     // Wait for auth to finish loading before checking
@@ -52,95 +56,235 @@ export default function ClientProjectDetailsPage() {
 
     if (id) {
       loadProjectAndOffers();
+      checkReviewStatus();
+      
+      // Refresh offers every 10 seconds to see new offers
+      const interval = setInterval(() => {
+        if (id && isAuthenticated && isClient) {
+          loadOffers();
+        }
+      }, 10000);
+      
+      return () => clearInterval(interval);
     }
   }, [authLoading, id, isAuthenticated, isClient, isFreelancer]);
+  
+  const handleCompleteProject = async () => {
+    if (!confirm('هل أنت متأكد من إكمال المشروع؟ سيتم تحويل المبلغ للمستقل.')) {
+      return;
+    }
+
+    try {
+      setCompleting(true);
+      const projectService = (await import('../../../services/projectService')).default;
+      await projectService.completeProject(id);
+      
+      alert('تم إكمال المشروع بنجاح! تم تحويل المبلغ للمستقل.');
+      
+      // Reload project to update status
+      loadProjectAndOffers();
+      checkReviewStatus();
+    } catch (error) {
+      console.error('Error completing project:', error);
+      const message = error.response?.data?.message || 'حدث خطأ أثناء إكمال المشروع';
+      alert(message);
+    } finally {
+      setCompleting(false);
+    }
+  };
+
+  const checkReviewStatus = async () => {
+    if (!id) return;
+    
+    try {
+      const reviewService = (await import('../../../services/reviewService')).default;
+      const response = await reviewService.getProjectReview(id);
+      if (response.data) {
+        setHasReview(true);
+      }
+    } catch (error) {
+      // No review yet, that's okay
+      setHasReview(false);
+    }
+  };
+
+  const loadOffers = async () => {
+    if (!id) return;
+    
+    try {
+      const offerService = (await import('../../../services/offerService')).default;
+      const offersResponse = await offerService.getProjectOffers(id);
+      
+      // Backend returns: { project: {...}, offers: [...], offers_count: 5 }
+      const responseData = offersResponse.data || offersResponse;
+      const offersList = responseData.offers || responseData.data || [];
+      
+      // Map offers to frontend format
+      const mappedOffers = offersList.map(offer => ({
+        id: offer.id,
+        freelancer: {
+          id: offer.freelancer?.id || offer.freelancer_id,
+          name: offer.freelancer?.name || offer.freelancer_name || 'مستقل',
+          rating: offer.freelancer?.rating || offer.freelancer_rating || 0,
+          completedProjects: offer.freelancer?.completed_projects || offer.freelancer?.completedProjects || 0,
+          avatar: offer.freelancer?.avatar || null
+        },
+        amount: parseFloat(offer.amount || 0),
+        duration: offer.delivery_days 
+          ? `${offer.delivery_days} ${offer.delivery_days === 1 ? 'يوم' : 'أيام'}` 
+          : (offer.duration || 'غير محدد'),
+        message: offer.cover_message || offer.message || offer.description || '',
+        status: offer.status || 'pending',
+        createdAt: offer.created_at || offer.createdAt
+      }));
+      
+      setOffers(mappedOffers);
+    } catch (offersError) {
+      console.error('Error loading offers:', offersError);
+    }
+  };
 
   const loadProjectAndOffers = async () => {
     try {
+      setLoading(true);
       const projectService = (await import('../../../services/projectService')).default;
       const offerService = (await import('../../../services/offerService')).default;
       
-      // Load project details
-      const projectResponse = await projectService.getProject(id);
-      setProject(projectResponse.data || mockProject);
+      // Load project details - try API first
+      let projectLoaded = false;
+      try {
+        const projectResponse = await projectService.getProject(id);
+        const projectData = projectResponse.data?.data || projectResponse.data;
+        
+        if (projectData) {
+          // Map project data to frontend format
+          setProject({
+            id: projectData.id,
+            title: projectData.title,
+            description: projectData.description,
+            category: projectData.category?.name || projectData.category_name || 'غير محدد',
+            subcategory: projectData.subcategory || '',
+            budget: parseFloat(projectData.budget || 0),
+            budgetType: projectData.budget_type || 'fixed',
+            deliveryTime: projectData.duration_days 
+              ? `${projectData.duration_days} ${projectData.duration_days === 1 ? 'يوم' : 'أيام'}` 
+              : (projectData.delivery_time || 'غير محدد'),
+            status: projectData.status || 'open',
+            skills: projectData.skills || [],
+            createdAt: projectData.created_at || projectData.createdAt,
+            views: projectData.views || 0
+          });
+          projectLoaded = true;
+        }
+      } catch (projectError) {
+        console.error('Error loading project from API:', projectError);
+        // Try localStorage as fallback
+      }
       
-      // Load offers for this project
-      const offersResponse = await offerService.getProjectOffers(id);
-      setOffers(offersResponse.data || mockOffers);
+      // Fallback: Try to load from localStorage if API failed
+      if (!projectLoaded) {
+        try {
+          const savedProjects = JSON.parse(localStorage.getItem('myProjects') || '[]');
+          // Convert id to number for comparison (in case it's a string)
+          const projectId = typeof id === 'string' ? parseInt(id) || id : id;
+          
+          // Find project by ID
+          const foundProject = savedProjects.find(p => {
+            const pId = typeof p.id === 'string' ? parseInt(p.id) || p.id : p.id;
+            return pId == projectId || p.id == projectId || p.id.toString() === id.toString();
+          });
+          
+          if (foundProject) {
+            // Map localStorage project to frontend format
+            setProject({
+              id: foundProject.id,
+              title: foundProject.title,
+              description: foundProject.description,
+              category: foundProject.category || 'غير محدد',
+              subcategory: foundProject.subcategory || '',
+              budget: parseFloat(foundProject.budget || 0),
+              budgetType: foundProject.budgetType || 'fixed',
+              deliveryTime: foundProject.deliveryTime 
+                ? foundProject.deliveryTime
+                    .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} ${num === '1' ? 'يوم' : 'أيام'}`)
+                    .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} ${num === '1' ? 'أسبوع' : 'أسابيع'}`)
+                    .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} ${num === '1' ? 'شهر' : 'أشهر'}`)
+                : (foundProject.duration_days 
+                  ? `${foundProject.duration_days} ${foundProject.duration_days === 1 ? 'يوم' : 'أيام'}` 
+                  : 'غير محدد'),
+              status: foundProject.status || 'open',
+              skills: foundProject.skills || [],
+              createdAt: foundProject.createdAt || foundProject.created_at,
+              views: foundProject.views || 0
+            });
+            projectLoaded = true;
+          }
+        } catch (localError) {
+          console.error('Error loading project from localStorage:', localError);
+        }
+      }
+      
+      // If still not loaded, set to null
+      if (!projectLoaded) {
+        setProject(null);
+        setOffers([]);
+        setLoading(false);
+        return; // Exit early if project not found
+      }
+      
+      // Load offers for this project (only if project exists)
+      try {
+        const offersResponse = await offerService.getProjectOffers(id);
+        console.log('Offers API Response:', offersResponse);
+        
+        // Backend returns: { project: {...}, offers: [...], offers_count: 5 }
+        const responseData = offersResponse.data || offersResponse;
+        const offersList = responseData.offers || responseData.data || [];
+        
+        console.log('Offers List:', offersList);
+        console.log('Offers Count:', offersList.length);
+        
+        // Map offers to frontend format
+        const mappedOffers = offersList.map(offer => ({
+          id: offer.id,
+          freelancer: {
+            id: offer.freelancer?.id || offer.freelancer_id,
+            name: offer.freelancer?.name || offer.freelancer_name || 'مستقل',
+            rating: offer.freelancer?.rating || offer.freelancer_rating || 0,
+            completedProjects: offer.freelancer?.completed_projects || offer.freelancer?.completedProjects || 0,
+            avatar: offer.freelancer?.avatar || null
+          },
+          amount: parseFloat(offer.amount || 0),
+          duration: offer.delivery_days 
+            ? `${offer.delivery_days} ${offer.delivery_days === 1 ? 'يوم' : 'أيام'}` 
+            : (offer.duration || 'غير محدد'),
+          message: offer.cover_message || offer.message || offer.description || '',
+          status: offer.status || 'pending',
+          createdAt: offer.created_at || offer.createdAt
+        }));
+        
+        console.log('Mapped Offers:', mappedOffers);
+        setOffers(mappedOffers);
+      } catch (offersError) {
+        console.error('Error loading offers:', offersError);
+        console.error('Error details:', {
+          message: offersError.message,
+          response: offersError.response?.data,
+          status: offersError.response?.status
+        });
+        // For new projects, no offers yet - show empty state
+        setOffers([]);
+      }
       
       setLoading(false);
     } catch (error) {
-      console.error('Error loading project:', error);
-      // Fallback to mock data
-      setProject(mockProject);
-      setOffers(mockOffers);
+      console.error('Error loading project data:', error);
+      setProject(null);
+      setOffers([]);
       setLoading(false);
     }
   };
 
-  // Mock data
-  const mockProject = {
-    id: parseInt(id),
-    title: 'تصميم شعار احترافي لشركتي',
-    category: 'Graphics & Design',
-    subcategory: 'Logo Design',
-    budget: 500,
-    budgetType: 'fixed',
-    deliveryTime: '7 days',
-    status: 'open',
-    description: 'أحتاج إلى تصميم شعار احترافي يعكس هوية شركتي في مجال التكنولوجيا. يجب أن يكون عصري وبسيط ويمكن استخدامه في مختلف الوسائط.',
-    skills: ['Photoshop', 'Illustrator', 'Logo Design'],
-    createdAt: '2024-01-15',
-    views: 45
-  };
-
-  const mockOffers = [
-    {
-      id: 1,
-      freelancer: {
-        id: 1,
-        name: 'Ahmed Mohamed',
-        rating: 4.9,
-        completedProjects: 127,
-        avatar: null
-      },
-      amount: 450,
-      duration: '5 days',
-      message: 'مرحباً! لدي خبرة 5 سنوات في تصميم الشعارات. سأصمم لك 3 مفاهيم مختلفة مع مراجعات غير محدودة حتى تحصل على التصميم المثالي.',
-      status: 'pending',
-      createdAt: '2024-01-16'
-    },
-    {
-      id: 2,
-      freelancer: {
-        id: 2,
-        name: 'Sara Ali',
-        rating: 5.0,
-        completedProjects: 89,
-        avatar: null
-      },
-      amount: 500,
-      duration: '7 days',
-      message: 'أهلاً! أنا متخصصة في تصميم الهوية البصرية للشركات. سأقدم لك شعار فريد مع دليل الاستخدام وملفات بجميع الصيغ المطلوبة.',
-      status: 'pending',
-      createdAt: '2024-01-16'
-    },
-    {
-      id: 3,
-      freelancer: {
-        id: 3,
-        name: 'Omar Hassan',
-        rating: 4.7,
-        completedProjects: 215,
-        avatar: null
-      },
-      amount: 380,
-      duration: '4 days',
-      message: 'مرحباً! يمكنني تسليم شعار احترافي وعصري خلال 4 أيام. لدي محفظة واسعة من تصاميم الشعارات في مجال التكنولوجيا.',
-      status: 'pending',
-      createdAt: '2024-01-17'
-    }
-  ];
 
   const PLATFORM_COMMISSION = 10; // 10% commission on projects
 
@@ -193,8 +337,8 @@ export default function ClientProjectDetailsPage() {
 
       const offerService = (await import('../../../services/offerService')).default;
       
-      // Accept offer via API
-      await offerService.acceptOffer(offerId);
+      // Accept offer via API (needs both projectId and offerId)
+      await offerService.acceptOffer(id, offerId);
       
       // Deduct from wallet (hold in escrow)
       const newBalance = currentBalance - totalAmount;
@@ -231,7 +375,18 @@ export default function ClientProjectDetailsPage() {
       loadProjectAndOffers();
     } catch (error) {
       console.error('Error accepting offer:', error);
-      alert('❌ حدث خطأ أثناء قبول العرض. يرجى المحاولة مرة أخرى.');
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      // Show more detailed error message
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'خطأ غير معروف';
+      
+      alert(`❌ حدث خطأ أثناء قبول العرض.\n\n${errorMessage}\n\nيرجى المحاولة مرة أخرى.`);
     }
   };
 
@@ -321,7 +476,12 @@ export default function ClientProjectDetailsPage() {
             </span>
             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
               <FaCheckCircle />
-              {project.status === 'open' ? 'مفتوح' : project.status}
+              {project.status === 'open' ? 'مفتوح' : 
+               project.status === 'active' ? 'نشط' :
+               project.status === 'in_progress' ? 'قيد التنفيذ' :
+               project.status === 'delivered' ? 'تم التسليم - في انتظار الموافقة' :
+               project.status === 'completed' ? 'مكتمل' :
+               project.status === 'cancelled' ? 'ملغي' : project.status}
             </span>
           </div>
 
@@ -352,6 +512,30 @@ export default function ClientProjectDetailsPage() {
               </p>
             </div>
           </div>
+
+          {/* Complete Project Button - Show when project is delivered */}
+          {project.status === 'delivered' && (
+            <div className="mt-6 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    تم تسليم المشروع من المستقل
+                  </h3>
+                  <p className="text-gray-600">
+                    يرجى مراجعة العمل المقدم. إذا كان كل شيء على ما يرام، اضغط على "إكمال المشروع" لتحويل المبلغ للمستقل.
+                  </p>
+                </div>
+                <button
+                  onClick={handleCompleteProject}
+                  disabled={completing}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  <FaCheckCircle />
+                  {completing ? 'جاري الإكمال...' : 'إكمال المشروع'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
@@ -377,6 +561,18 @@ export default function ClientProjectDetailsPage() {
             >
               العروض ({offers.length})
             </button>
+            {project?.status === 'completed' && (
+              <button
+                onClick={() => setActiveTab('review')}
+                className={`px-6 py-4 font-semibold transition-colors ${
+                  activeTab === 'review'
+                    ? 'text-primary-600 border-b-2 border-primary-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {hasReview ? 'التقييم' : 'قيم المستقل'}
+              </button>
+            )}
           </div>
 
           <div className="p-8">
@@ -435,9 +631,14 @@ export default function ClientProjectDetailsPage() {
                             {offer.freelancer.name.charAt(0)}
                           </div>
                           <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-1">
-                              {offer.freelancer.name}
-                            </h3>
+                            <Link
+                              href={`/freelancer/${offer.freelancer.id}`}
+                              className="block hover:text-primary-600 transition-colors"
+                            >
+                              <h3 className="text-lg font-bold text-gray-900 mb-1 hover:text-primary-600 transition-colors">
+                                {offer.freelancer.name}
+                              </h3>
+                            </Link>
                             <div className="flex items-center gap-3 text-sm text-gray-600">
                               <div className="flex items-center gap-1">
                                 <FaStar className="text-yellow-500" />
@@ -445,6 +646,14 @@ export default function ClientProjectDetailsPage() {
                               </div>
                               <span>•</span>
                               <span>{offer.freelancer.completedProjects} مشروع مكتمل</span>
+                              <span>•</span>
+                              <Link
+                                href={`/freelancer/${offer.freelancer.id}`}
+                                className="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1"
+                              >
+                                <FaUser className="text-xs" />
+                                عرض الملف الشخصي
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -503,6 +712,31 @@ export default function ClientProjectDetailsPage() {
                       )}
                     </div>
                   ))
+                )}
+              </div>
+            )}
+
+            {/* Review Tab */}
+            {activeTab === 'review' && project?.status === 'completed' && (
+              <div className="space-y-6">
+                {hasReview ? (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                    <FaCheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      تم إرسال التقييم بنجاح
+                    </h3>
+                    <p className="text-gray-600">
+                      شكراً لك على تقييم المستقل. تم حفظ تقييمك بنجاح.
+                    </p>
+                  </div>
+                ) : (
+                  <ReviewForm
+                    projectId={id}
+                    onSuccess={() => {
+                      setHasReview(true);
+                      setShowReviewForm(false);
+                    }}
+                  />
                 )}
               </div>
             )}

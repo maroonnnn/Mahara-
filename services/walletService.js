@@ -25,6 +25,11 @@ const walletService = {
   getTransaction: (id) => {
     return api.get(`/wallet/transactions/${id}`);
   },
+
+  // Get wallet balance only
+  getBalance: () => {
+    return api.get('/wallet/balance');
+  },
 };
 
 export default walletService;

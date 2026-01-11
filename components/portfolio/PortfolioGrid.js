@@ -1,26 +1,27 @@
 import { useState } from 'react';
 import { FaImage, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
-import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function PortfolioGrid({ portfolioItems, onItemClick }) {
-  const { language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [imageErrors, setImageErrors] = useState({});
 
   // Get unique categories from portfolio items
-  const categories = ['all', ...new Set(portfolioItems?.map(item => item.category).filter(Boolean))];
+  const categories = ['all', ...new Set(portfolioItems?.map(item => item.category?.name || item.category).filter(Boolean))];
 
   // Filter items by category
   const filteredItems = selectedCategory === 'all' 
     ? portfolioItems 
-    : portfolioItems?.filter(item => item.category === selectedCategory);
+    : portfolioItems?.filter(item => {
+      const itemCategory = item.category?.name || item.category;
+      return itemCategory === selectedCategory;
+    });
 
   if (!portfolioItems || portfolioItems.length === 0) {
     return (
       <div className="text-center py-12">
         <FaImage className="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <p className="text-gray-500 text-lg">
-          {language === 'ar' ? 'لا توجد عناصر محفظة لعرضها' : 'No portfolio items to display'}
+          لا توجد عناصر محفظة لعرضها
         </p>
       </div>
     );
@@ -41,10 +42,7 @@ export default function PortfolioGrid({ portfolioItems, onItemClick }) {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {category === 'all' 
-                ? (language === 'ar' ? 'الكل' : 'All') 
-                : category
-              }
+              {category === 'all' ? 'الكل' : (category?.name || category)}
             </button>
           ))}
         </div>
@@ -83,9 +81,9 @@ export default function PortfolioGrid({ portfolioItems, onItemClick }) {
               </div>
 
               {/* Category Badge */}
-              {item.category && (
+              {(item.category?.name || item.category) && (
                 <div className="absolute top-3 left-3 bg-primary-500 text-white px-2 py-1 rounded text-xs font-semibold">
-                  {item.category}
+                  {item.category?.name || item.category}
                 </div>
               )}
             </div>
@@ -117,9 +115,9 @@ export default function PortfolioGrid({ portfolioItems, onItemClick }) {
               )}
 
               {/* Completed Date */}
-              {item.completed_date && (
+              {(item.completed_date || item.completion_date) && (
                 <p className="text-xs text-gray-500 mt-3">
-                  {new Date(item.completed_date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+                  {new Date(item.completed_date || item.completion_date).toLocaleDateString('ar-SA', {
                     year: 'numeric',
                     month: 'short'
                   })}

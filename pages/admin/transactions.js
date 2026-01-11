@@ -1,7 +1,9 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useLanguage } from '../../contexts/LanguageContext';
+import adminService from '../../services/adminService';
+import { toast } from 'react-toastify';
 import { 
   FaSearch, 
   FaDownload,
@@ -13,75 +15,86 @@ import {
 
 export default function AdminTransactions() {
   const { language } = useLanguage();
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
+  const [transactions, setTransactions] = useState([]);
 
-  const [transactions, setTransactions] = useState([
-    {
-      id: 'TXN-001',
-      type: 'payment',
-      user: 'John Doe',
-      project: 'E-commerce Website',
-      amount: 5000,
-      status: 'completed',
-      date: '2024-10-15',
-      method: 'PayPal'
-    },
-    {
-      id: 'TXN-002',
-      type: 'withdrawal',
-      user: 'Sarah Smith',
-      project: 'Logo Design',
-      amount: 450,
-      status: 'pending',
-      date: '2024-10-20',
-      method: 'Bank Transfer'
-    },
-    {
-      id: 'TXN-003',
-      type: 'payment',
-      user: 'Mike Johnson',
-      project: 'Mobile App Design',
-      amount: 3000,
-      status: 'completed',
-      date: '2024-10-18',
-      method: 'Credit Card'
-    },
-    {
-      id: 'TXN-004',
-      type: 'refund',
-      user: 'Emily Brown',
-      project: 'SEO Service',
-      amount: 1200,
-      status: 'failed',
-      date: '2024-10-22',
-      method: 'PayPal'
-    },
-    {
-      id: 'TXN-005',
-      type: 'payment',
-      user: 'David Wilson',
-      project: 'Video Editing',
-      amount: 800,
-      status: 'completed',
-      date: '2024-10-19',
-      method: 'Stripe'
-    },
-  ]);
+  useEffect(() => {
+    loadTransactions();
+  }, [filterType, filterStatus]);
 
+  const loadTransactions = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+      if (filterType !== 'all') {
+        params.type = filterType;
+      }
+      if (filterStatus !== 'all') {
+        params.status = filterStatus;
+      }
+      
+      const response = await adminService.getTransactions(params);
+      console.log('Transactions API response:', response);
+      
+      const transactionsData = response.data?.data || response.data || [];
+      const transactionsList = Array.isArray(transactionsData) ? transactionsData : (transactionsData.data || []);
+      
+      // Transform transactions to match frontend format
+      const formattedTransactions = transactionsList.map(txn => {
+        const details = typeof txn.details === 'string' ? JSON.parse(txn.details) : (txn.details || {});
+        const method = details.method || 'N/A';
+        
+        return {
+          id: `TXN-${txn.id}`,
+          type: txn.type,
+          user: txn.wallet?.user?.name || 'N/A',
+          userId: txn.wallet?.user?.id,
+          project: details.project || details.note || '-',
+          amount: Math.abs(parseFloat(txn.amount || 0)),
+          status: txn.status,
+          date: txn.created_at ? new Date(txn.created_at).toLocaleDateString('ar-SA') : '-',
+          method: method === 'credit_card' ? 'Credit Card' :
+                  method === 'paypal' ? 'PayPal' :
+                  method === 'bank_transfer' ? 'Bank Transfer' :
+                  method === 'unknown' ? 'N/A' : method
+        };
+      });
+      
+      setTransactions(formattedTransactions);
+    } catch (error) {
+      console.error('Error loading transactions:', error);
+      toast.error(language === 'ar' ? 'فشل تحميل المعاملات' : 'Failed to load transactions');
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm) {
+        loadTransactions();
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Client-side filtering for search term only (status and type are filtered by API)
   const filteredTransactions = transactions.filter(txn => {
-    const matchesSearch = txn.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         txn.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         txn.project.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || txn.status === filterStatus;
-    const matchesType = filterType === 'all' || txn.type === filterType;
-    
-    return matchesSearch && matchesStatus && matchesType;
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return txn.id.toLowerCase().includes(search) ||
+           txn.user.toLowerCase().includes(search) ||
+           txn.project.toLowerCase().includes(search);
   });
 
   const totalRevenue = transactions
-    .filter(t => t.status === 'completed' && t.type === 'payment')
+    .filter(t => t.status === 'completed' && (t.type === 'payment' || t.type === 'deposit'))
     .reduce((sum, t) => sum + t.amount, 0);
 
   const pendingAmount = transactions
@@ -119,10 +132,12 @@ export default function AdminTransactions() {
 
   const getTypeBadge = (type) => {
     switch(type) {
+      case 'deposit':
+        return { classes: 'bg-green-100 text-green-800', text: language === 'ar' ? 'إيداع' : 'Deposit' };
+      case 'withdraw':
+        return { classes: 'bg-purple-100 text-purple-800', text: language === 'ar' ? 'سحب' : 'Withdraw' };
       case 'payment':
         return { classes: 'bg-blue-100 text-blue-800', text: language === 'ar' ? 'دفع' : 'Payment' };
-      case 'withdrawal':
-        return { classes: 'bg-purple-100 text-purple-800', text: language === 'ar' ? 'سحب' : 'Withdrawal' };
       case 'refund':
         return { classes: 'bg-orange-100 text-orange-800', text: language === 'ar' ? 'استرجاع' : 'Refund' };
       default:
@@ -201,8 +216,9 @@ export default function AdminTransactions() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="all">{language === 'ar' ? 'جميع الأنواع' : 'All Types'}</option>
+                  <option value="deposit">{language === 'ar' ? 'إيداع' : 'Deposit'}</option>
+                  <option value="withdraw">{language === 'ar' ? 'سحب' : 'Withdraw'}</option>
                   <option value="payment">{language === 'ar' ? 'دفع' : 'Payment'}</option>
-                  <option value="withdrawal">{language === 'ar' ? 'سحب' : 'Withdrawal'}</option>
                   <option value="refund">{language === 'ar' ? 'استرجاع' : 'Refund'}</option>
                 </select>
               </div>
@@ -232,6 +248,17 @@ export default function AdminTransactions() {
                 {language === 'ar' ? 'تصدير' : 'Export'}
               </button>
             </div>
+            
+            {loading ? (
+              <div className="p-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
+                <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+              </div>
+            ) : filteredTransactions.length === 0 ? (
+              <div className="p-12 text-center">
+                <p className="text-gray-500">{language === 'ar' ? 'لا توجد معاملات' : 'No transactions found'}</p>
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
@@ -303,11 +330,6 @@ export default function AdminTransactions() {
                 </tbody>
               </table>
             </div>
-
-            {filteredTransactions.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500">{language === 'ar' ? 'لا توجد معاملات' : 'No transactions found'}</p>
-              </div>
             )}
           </div>
         </div>

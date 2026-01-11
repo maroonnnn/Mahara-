@@ -20,6 +20,8 @@ import {
   FaFolderOpen
 } from 'react-icons/fa';
 import Link from 'next/link';
+import ReviewList from '../../components/reviews/ReviewList';
+import { FaStar } from 'react-icons/fa';
 
 export default function FreelancerProfile() {
   const { user } = useAuth();
@@ -371,6 +373,38 @@ export default function FreelancerProfile() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Reviews Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                  <FaStar className="text-yellow-400" />
+                  التقييمات والمراجعات
+                </h2>
+                <p className="text-sm text-gray-600">شاهد تقييمات العملاء عنك</p>
+              </div>
+              {user?.id && (
+                <Link 
+                  href={`/freelancer/${user.id}`}
+                  target="_blank"
+                  className="flex items-center gap-2 px-4 py-2 border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-semibold text-sm"
+                >
+                  <FaExternalLinkAlt />
+                  عرض الملف الشخصي العام
+                </Link>
+              )}
+            </div>
+            
+            {user?.id ? (
+              <ReviewList freelancerId={user.id} />
+            ) : (
+              <div className="text-center py-8">
+                <FaStar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-600">لا توجد تقييمات بعد</p>
+              </div>
+            )}
           </div>
 
           {/* Featured Projects Showcase */}

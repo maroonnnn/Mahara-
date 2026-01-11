@@ -3,6 +3,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
+import adminService from '../../services/adminService';
+import { toast } from 'react-toastify';
 import { 
   FaDollarSign,
   FaArrowUp,
@@ -18,22 +20,43 @@ import {
 export default function AdminRevenuePage() {
   const router = useRouter();
   const { user, isAdmin, authLoading } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [revenueData, setRevenueData] = useState(null);
   const [filterPeriod, setFilterPeriod] = useState('all'); // all, today, week, month
 
-  useEffect(() => {
-    if (!authLoading && !isAdmin) {
-      router.push('/403');
-    }
-  }, [authLoading, isAdmin, router]);
+  // The DashboardLayout with requiredRole="admin" handles the auth check
+  // No need for duplicate check here
 
   useEffect(() => {
     loadRevenueData();
   }, []);
 
-  const loadRevenueData = () => {
-    const revenue = JSON.parse(localStorage.getItem('platformRevenue') || '{"total":0,"deposits":[],"withdrawals":[],"commissions":[]}');
-    setRevenueData(revenue);
+  const loadRevenueData = async () => {
+    try {
+      setLoading(true);
+      const response = await adminService.getRevenue();
+      console.log('Revenue API response:', response);
+      
+      const data = response.data || {};
+      
+      setRevenueData({
+        total: parseFloat(data.total || 0),
+        deposits: data.deposits || [],
+        withdrawals: data.withdrawals || [],
+        commissions: data.commissionTransactions || []
+      });
+    } catch (error) {
+      console.error('Error loading revenue data:', error);
+      toast.error('فشل تحميل بيانات الإيرادات');
+      setRevenueData({
+        total: 0,
+        deposits: [],
+        withdrawals: [],
+        commissions: []
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filterTransactions = (transactions, period) => {
@@ -117,9 +140,9 @@ export default function AdminRevenuePage() {
     a.click();
   };
 
-  if (!revenueData) {
+  if (loading || !revenueData) {
     return (
-      <DashboardLayout>
+      <DashboardLayout requiredRole="admin">
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"></div>
@@ -136,7 +159,7 @@ export default function AdminRevenuePage() {
         <title>الإيرادات والأرباح | لوحة تحكم الإدارة</title>
       </Head>
 
-      <DashboardLayout>
+      <DashboardLayout requiredRole="admin">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">

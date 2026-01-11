@@ -26,91 +26,44 @@ export default function MyOffersPage() {
 
   const loadOffers = async () => {
     try {
-      // Try to load from API
+      setLoading(true);
       const offerService = (await import('../../services/offerService')).default;
       const response = await offerService.getMyOffers();
-      setOffers(response.data || mockOffers);
+      const offersData = response.data?.data || response.data || [];
+      const offersList = Array.isArray(offersData) ? offersData : (offersData.data || []);
+      
+      // Map offers to frontend format
+      const mappedOffers = offersList.map(offer => ({
+        id: offer.id,
+        project: {
+          id: offer.project?.id || offer.project_id,
+          title: offer.project?.title || offer.project_title || 'مشروع',
+          client: {
+            name: offer.project?.client?.name || offer.client_name || 'عميل',
+            rating: offer.project?.client?.rating || offer.client_rating || 5.0
+          }
+        },
+        amount: parseFloat(offer.amount || 0),
+        duration: offer.duration_days 
+          ? `${offer.duration_days} ${offer.duration_days === 1 ? 'يوم' : 'أيام'}` 
+          : (offer.duration || 'غير محدد'),
+        message: offer.message || offer.description || '',
+        status: offer.status || 'pending',
+        createdAt: offer.created_at || offer.createdAt,
+        views: offer.views || 0,
+        acceptedAt: offer.accepted_at,
+        rejectedAt: offer.rejected_at
+      }));
+      
+      setOffers(mappedOffers);
     } catch (error) {
-      console.log('API not available, using mock data');
-      // Fallback to mock data
-      setOffers(mockOffers);
+      console.error('Error loading offers:', error);
+      setOffers([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  // Mock data
-  const mockOffers = [
-    {
-      id: 1,
-      project: {
-        id: 1,
-        title: 'تصميم شعار احترافي لشركتي',
-        client: {
-          name: 'Abdalrhmn bobes',
-          rating: 4.8
-        }
-      },
-      amount: 450,
-      duration: '5 أيام',
-      message: 'مرحباً! لدي خبرة 5 سنوات في تصميم الشعارات. سأصمم لك 3 مفاهيم مختلفة مع مراجعات غير محدودة.',
-      status: 'pending',
-      createdAt: '2024-01-16',
-      views: 12
-    },
-    {
-      id: 2,
-      project: {
-        id: 2,
-        title: 'تطوير موقع إلكتروني للتجارة الإلكترونية',
-        client: {
-          name: 'Tech Company',
-          rating: 5.0
-        }
-      },
-      amount: 2200,
-      duration: '30 يوم',
-      message: 'يمكنني تطوير متجر إلكتروني متكامل باستخدام React و Node.js مع جميع المميزات المطلوبة.',
-      status: 'accepted',
-      createdAt: '2024-01-15',
-      views: 8,
-      acceptedAt: '2024-01-16'
-    },
-    {
-      id: 3,
-      project: {
-        id: 3,
-        title: 'كتابة محتوى تسويقي لموقع الشركة',
-        client: {
-          name: 'Marketing Agency',
-          rating: 4.9
-        }
-      },
-      amount: 280,
-      duration: '4 أيام',
-      message: 'أنا متخصص في كتابة المحتوى التسويقي وسأقدم محتوى احترافي وجذاب.',
-      status: 'rejected',
-      createdAt: '2024-01-14',
-      views: 5,
-      rejectedAt: '2024-01-15'
-    },
-    {
-      id: 4,
-      project: {
-        id: 4,
-        title: 'تصميم واجهة مستخدم لتطبيق جوال',
-        client: {
-          name: 'Startup Co',
-          rating: 4.7
-        }
-      },
-      amount: 800,
-      duration: '10 أيام',
-      message: 'لدي خبرة واسعة في تصميم UI/UX للتطبيقات. سأقدم تصاميم عصرية وسهلة الاستخدام.',
-      status: 'pending',
-      createdAt: '2024-01-13',
-      views: 20
-    },
-  ];
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -171,7 +124,7 @@ export default function MyOffersPage() {
     <DashboardLayout>
       <Head>
         <title>عروضي | Mahara</title>
-        <meta name="description" content="My submitted offers" />
+        <meta name="description" content="جميع العروض التي قدمتها على المشاريع" />
       </Head>
 
       <div className="max-w-6xl mx-auto">

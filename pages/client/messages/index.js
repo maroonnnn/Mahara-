@@ -23,96 +23,84 @@ export default function ClientMessagesPage() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    loadConversations();
-    loadUnreadCount();
+    if (user) {
+      loadConversations();
+      loadUnreadCount();
+    }
     
     // Refresh every 30 seconds
     const interval = setInterval(() => {
-      loadConversations();
-      loadUnreadCount();
+      if (user) {
+        loadConversations();
+        loadUnreadCount();
+      }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
 
   const loadConversations = async () => {
     try {
-      // Mock data - Replace with actual API call
-      const mockConversations = [
-        {
-          id: 1,
-          projectId: 1,
-          projectTitle: 'تصميم شعار احترافي لشركتي',
+      setLoading(true);
+      
+      // Try to load from API first
+      try {
+        const response = await messageService.getConversations();
+        const conversationsData = response.data?.data || response.data || [];
+        
+        // Map API conversations to frontend format
+        const mappedConversations = conversationsData.map(conv => ({
+          id: conv.id,
+          projectId: conv.project_id || conv.projectId,
+          projectTitle: conv.project?.title || conv.project_title || 'مشروع',
           otherUser: {
-            id: 2,
-            name: 'Ahmed Designer',
-            avatar: null,
-            isOnline: true
+            id: conv.other_user?.id || conv.freelancer?.id || conv.user_id,
+            name: conv.other_user?.name || conv.freelancer?.name || conv.user?.name || 'مستقل',
+            avatar: conv.other_user?.avatar || conv.freelancer?.avatar || null,
+            isOnline: conv.other_user?.is_online || conv.freelancer?.is_online || false
           },
           lastMessage: {
-            text: 'سأرسل لك التصميم النهائي خلال ساعات',
-            timestamp: new Date(Date.now() - 5 * 60000), // 5 minutes ago
-            senderId: 2,
-            isRead: false
+            text: conv.last_message?.text || conv.last_message_text || '',
+            timestamp: new Date(conv.last_message?.created_at || conv.last_message_at || conv.updated_at),
+            senderId: conv.last_message?.sender_id || conv.last_message_sender_id,
+            isRead: conv.last_message?.is_read || conv.is_read || false
           },
-          unreadCount: 2,
-          updatedAt: new Date(Date.now() - 5 * 60000)
-        },
-        {
-          id: 2,
-          projectId: 2,
-          projectTitle: 'تطوير موقع إلكتروني للتجارة الإلكترونية',
-          otherUser: {
-            id: 3,
-            name: 'Sarah Developer',
-            avatar: null,
-            isOnline: false
-          },
-          lastMessage: {
-            text: 'شكراً لك! سأبدأ العمل على المشروع اليوم',
-            timestamp: new Date(Date.now() - 2 * 60 * 60000), // 2 hours ago
-            senderId: 3,
-            isRead: true
-          },
-          unreadCount: 0,
-          updatedAt: new Date(Date.now() - 2 * 60 * 60000)
-        },
-        {
-          id: 3,
-          projectId: 3,
-          projectTitle: 'كتابة محتوى تسويقي لموقع الشركة',
-          otherUser: {
-            id: 4,
-            name: 'Mohamed Writer',
-            avatar: null,
-            isOnline: true
-          },
-          lastMessage: {
-            text: 'هل لديك أي متطلبات إضافية للمحتوى؟',
-            timestamp: new Date(Date.now() - 1 * 24 * 60 * 60000), // 1 day ago
-            senderId: 4,
-            isRead: true
-          },
-          unreadCount: 0,
-          updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60000)
-        },
-      ];
-
-      setConversations(mockConversations);
+          unreadCount: conv.unread_count || 0,
+          updatedAt: new Date(conv.updated_at || conv.created_at)
+        }));
+        
+        setConversations(mappedConversations);
+        setLoading(false);
+        return; // Exit early on success
+      } catch (apiError) {
+        console.error('API Error:', apiError);
+        // If API fails, check localStorage or show empty state
+      }
+      
+      // For new users, show empty state (no mock data)
+      setConversations([]);
       setLoading(false);
     } catch (error) {
       console.error('Error loading conversations:', error);
+      setConversations([]);
       setLoading(false);
     }
   };
 
   const loadUnreadCount = async () => {
     try {
-      // Mock - Replace with actual API call
-      const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
-      setUnreadCount(totalUnread);
+      // Try to load from API
+      try {
+        const response = await messageService.getUnreadCount();
+        setUnreadCount(response.data?.count || response.data || 0);
+      } catch (apiError) {
+        // Calculate from conversations if API fails
+        const totalUnread = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
+        setUnreadCount(totalUnread);
+      }
     } catch (error) {
       console.error('Error loading unread count:', error);
+      setUnreadCount(0);
     }
   };
 

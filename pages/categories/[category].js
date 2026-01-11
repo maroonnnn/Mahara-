@@ -1,18 +1,124 @@
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import PublicLayout from '../../components/layout/PublicLayout';
 import { categories, getCategoryBySlug, getSubcategoriesFromCategory } from '../../data/categories';
-import { FaChevronRight, FaStar } from 'react-icons/fa';
+import projectService from '../../services/projectService';
+import categoryService from '../../services/categoryService';
+import { FaChevronRight, FaStar, FaClock, FaDollarSign, FaUsers, FaEye } from 'react-icons/fa';
 
 export default function CategoryPage() {
   const router = useRouter();
   const { category: categorySlug } = router.query;
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [categoryId, setCategoryId] = useState(null);
 
-  // Get category data
-  const category = getCategoryBySlug(categorySlug);
+  const [category, setCategory] = useState(null);
 
-  if (!category) {
+  const loadCategoryProjects = async () => {
+    try {
+      setLoading(true);
+      
+      // First, get category data from API using slug
+      try {
+        const categoriesResponse = await categoryService.getCategories();
+        const categories = categoriesResponse.data?.data || categoriesResponse.data || [];
+        
+        // Find category by slug
+        const foundCategory = categories.find(cat => 
+          cat.slug === categorySlug
+        );
+        
+        if (foundCategory) {
+          setCategory(foundCategory);
+          setCategoryId(foundCategory.id);
+          
+          // Load projects for this category
+          const response = await projectService.getOpenProjects({ 
+            category_id: foundCategory.id 
+          });
+          
+          // Handle paginated response
+          const responseData = response.data || response;
+          let projectsList = [];
+          
+          if (responseData && responseData.data && Array.isArray(responseData.data)) {
+            projectsList = responseData.data;
+          } else if (Array.isArray(responseData)) {
+            projectsList = responseData;
+          }
+          
+          console.log('Category Projects:', projectsList);
+          
+          // Map projects to display format
+          const mappedProjects = projectsList.map(p => ({
+            id: p.id,
+            title: p.title,
+            description: p.description,
+            category: p.category?.name || p.category_name || foundCategory.name || 'غير محدد',
+            budget: parseFloat(p.budget || 0),
+            budgetType: p.budget_type || 'fixed',
+            deliveryTime: p.duration_days 
+              ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
+              : 'غير محدد',
+            status: p.status || 'open',
+            proposals: p.offers_count || p.proposals || 0,
+            views: p.views || 0,
+            createdAt: p.created_at || p.createdAt,
+            client: p.client || {
+              name: 'عميل'
+            }
+          }));
+          
+          setProjects(mappedProjects);
+        } else {
+          // Category not found in API, try static data as fallback
+          const staticCategory = getCategoryBySlug(categorySlug);
+          if (staticCategory) {
+            setCategory(staticCategory);
+            setProjects([]);
+          } else {
+            setCategory(null);
+            setProjects([]);
+          }
+        }
+      } catch (apiError) {
+        console.error('Error loading category projects:', apiError);
+        // Fallback to static data
+        const staticCategory = getCategoryBySlug(categorySlug);
+        if (staticCategory) {
+          setCategory(staticCategory);
+        } else {
+          setCategory(null);
+        }
+        setProjects([]);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Fallback to static data
+      const staticCategory = getCategoryBySlug(categorySlug);
+      if (staticCategory) {
+        setCategory(staticCategory);
+      } else {
+        setCategory(null);
+      }
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load category ID and projects - MUST be before any conditional return
+  useEffect(() => {
+    if (categorySlug) {
+      loadCategoryProjects();
+    }
+  }, [categorySlug]);
+
+  // Early return for invalid category - AFTER all hooks
+  if (!category && !loading) {
     return (
       <PublicLayout>
         <div className="min-h-screen flex items-center justify-center">
@@ -28,23 +134,30 @@ export default function CategoryPage() {
     );
   }
 
-  const subcategories = getSubcategoriesFromCategory(category);
+  // Show loading state while category is being loaded
+  if (loading || !category) {
+    return (
+      <PublicLayout>
+        <Head>
+          <title>Loading Category | Mahara</title>
+        </Head>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">جاري تحميل التصنيف...</p>
+          </div>
+        </div>
+      </PublicLayout>
+    );
+  }
 
-  // Popular services (mock data - replace with real data later)
-  const popularServices = [
-    { name: 'SEO', count: '50M+' },
-    { name: 'Social Media Marketing', count: '30M+' },
-    { name: 'E-Commerce Marketing', count: '25M+' },
-    { name: 'Video Marketing', count: '20M+' },
-    { name: 'Email Marketing', count: '15M+' },
-    { name: 'Content Marketing', count: '10M+' },
-  ];
+  const subcategories = getSubcategoriesFromCategory(category);
 
   return (
     <PublicLayout>
       <Head>
-        <title>{category.name} Services | Mahara</title>
-        <meta name="description" content={category.description} />
+        <title>{category.name || 'Category'} Services | Mahara</title>
+        <meta name="description" content={category.description || ''} />
       </Head>
 
       {/* Hero Section */}
@@ -262,86 +375,104 @@ export default function CategoryPage() {
         </div>
       )}
 
-       {/* Main Content */}
-       <div className="bg-gray-50 py-12">
-         <div className="container-custom">
-           <h2 className="text-3xl font-bold text-gray-900 mb-8">
-             Explore {category.name}
-           </h2>
- 
-           {/* SubCategories Grid */}
-           {category.subCategories && category.subCategories.length > 0 && (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-               {category.subCategories.map((sub, index) => (
-                 <Link
-                   key={index}
-                   href={sub.href}
-                   className="bg-white rounded-lg p-6 hover:shadow-lg transition-all border border-gray-200 hover:border-primary-500 group"
-                 >
-                   <div className="flex items-center justify-between">
-                     <h3 className="text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                       {sub.name}
-                     </h3>
-                     <FaChevronRight className="w-4 h-4 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" />
-                   </div>
-                 </Link>
-               ))}
-             </div>
-           )}
-         </div>
-       </div>
 
-      {/* Services Listings Section (Placeholder) */}
+      {/* Open Projects Section */}
       <div className="bg-white py-12">
         <div className="container-custom">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
-              {category.name} Services
+              المشاريع المفتوحة في {category.name}
             </h2>
             <div className="flex items-center gap-4">
               <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                <option>Recommended</option>
-                <option>Best Selling</option>
-                <option>Newest</option>
+                <option>الأحدث</option>
+                <option>الأعلى ميزانية</option>
+                <option>الأكثر عروض</option>
               </select>
             </div>
           </div>
 
-          {/* Placeholder for gigs grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-              <div key={item} className="bg-gray-100 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-video bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">Service Image</span>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-300"></div>
-                    <span className="text-sm font-medium text-gray-700">Seller Name</span>
-                  </div>
-                  <h3 className="text-sm text-gray-900 mb-2 line-clamp-2">
-                    I will provide professional {category.name.toLowerCase()} services
-                  </h3>
-                  <div className="flex items-center gap-1 mb-2">
-                    <FaStar className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-bold text-gray-900">5.0</span>
-                    <span className="text-sm text-gray-500">(100)</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Starting at</span>
-                    <span className="text-lg font-bold text-gray-900">$50</span>
-                  </div>
-                </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">جاري تحميل المشاريع...</p>
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaClock className="text-gray-400 text-2xl" />
               </div>
-            ))}
-          </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع مفتوحة حالياً</h3>
+              <p className="text-gray-600 mb-6">كن أول من ينشر مشروع في هذه الفئة!</p>
+              <Link
+                href="/client/projects/new"
+                className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
+              >
+                إنشاء مشروع جديد
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.map((project) => (
+                  <Link
+                    key={project.id}
+                    href={`/projects/${project.id}`}
+                    className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all hover:border-primary-500 group"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2 flex-1">
+                        {project.title}
+                      </h3>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                        {project.category}
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                        مفتوح
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <FaDollarSign className="text-green-600" />
+                          <span className="font-semibold">
+                            ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <FaClock className="text-blue-600" />
+                          <span>{project.deliveryTime}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <FaUsers className="text-purple-600" />
+                        <span>{project.proposals || 0} عروض</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <FaEye className="text-gray-400" />
+                        <span>{project.views || 0} مشاهدة</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
 
-          {/* Load More Button */}
-          <div className="text-center mt-8">
-            <button className="px-8 py-3 border-2 border-primary-500 text-primary-500 rounded-lg hover:bg-primary-500 hover:text-white transition-colors font-medium">
-              Load More Services
-            </button>
-          </div>
+              {projects.length >= 8 && (
+                <div className="text-center mt-8">
+                  <button className="px-8 py-3 border-2 border-primary-500 text-primary-500 rounded-lg hover:bg-primary-500 hover:text-white transition-colors font-medium">
+                    عرض المزيد
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 

@@ -29,35 +29,72 @@ export default function ChatPage() {
 
   const loadConversation = async () => {
     try {
-      // Mock data - Replace with actual API call
-      const mockConversation = {
-        id: parseInt(id),
-        projectId: 1,
-        project: {
-          id: 1,
-          title: 'تصميم شعار احترافي لشركتي',
-          budget: 500,
-          budgetType: 'fixed',
-          deliveryTime: '7 days',
-          status: 'in_progress',
-          category: 'Graphics & Design',
-          subcategory: 'Logo Design'
-        },
-        otherUser: {
-          id: 2,
-          name: 'Ahmed Designer',
-          email: 'ahmed@example.com',
-          avatar: null,
-          isOnline: true,
-          rating: 4.9,
-          completedProjects: 127
+      setLoading(true);
+      const projectService = (await import('../../../services/projectService')).default;
+      const messageService = (await import('../../../services/messageService')).default;
+      
+      // id is the projectId in this context
+      const projectId = id;
+      
+      // Load project details
+      try {
+        const projectResponse = await projectService.getProject(projectId);
+        const project = projectResponse.data?.data || projectResponse.data;
+        
+        if (!project) {
+          setLoading(false);
+          return;
         }
-      };
-
-      setConversation(mockConversation);
-      setLoading(false);
+        
+        // Determine other user based on current user role (client)
+        let otherUser = null;
+        if (project.accepted_offer?.freelancer) {
+          otherUser = {
+            id: project.accepted_offer.freelancer.id,
+            name: project.accepted_offer.freelancer.name || 'مستقل',
+            email: project.accepted_offer.freelancer.email || '',
+            avatar: null,
+            isOnline: false,
+            rating: 0,
+            completedProjects: 0
+          };
+        }
+        
+        const projectData = {
+          id: project.id,
+          title: project.title,
+          budget: parseFloat(project.budget || 0),
+          budgetType: project.budget_type || 'fixed',
+          deliveryTime: project.duration_days 
+            ? `${project.duration_days} ${project.duration_days === 1 ? 'يوم' : 'أيام'}` 
+            : (project.delivery_time || 'غير محدد'),
+          status: project.status || 'open',
+          category: project.category?.name || project.category_name || 'غير محدد',
+          subcategory: project.subcategory || ''
+        };
+        
+        setConversation({
+          id: projectId, // Use projectId as conversation ID
+          projectId: projectId,
+          project: projectData,
+          otherUser: otherUser || {
+            id: null,
+            name: 'مستقل',
+            email: '',
+            avatar: null,
+            isOnline: false,
+            rating: 0,
+            completedProjects: 0
+          }
+        });
+      } catch (error) {
+        console.error('Error loading project:', error);
+        setLoading(false);
+        return;
+      }
     } catch (error) {
       console.error('Error loading conversation:', error);
+    } finally {
       setLoading(false);
     }
   };

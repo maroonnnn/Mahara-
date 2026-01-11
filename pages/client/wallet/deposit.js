@@ -76,38 +76,29 @@ export default function DepositPage() {
       // In real app, call payment gateway API (Stripe, PayPal, etc.)
       const walletService = (await import('../../../services/walletService')).default;
       
+      // Send amount and description to the backend
+      const methodNames = {
+        'credit_card': 'بطاقة ائتمان',
+        'paypal': 'PayPal',
+        'bank_transfer': 'تحويل بنكي'
+      };
+      
       const depositData = {
-        amount: depositAmount,
-        platformFee: platformFee,
-        finalAmount: finalAmount,
-        method: paymentMethod,
-        status: 'completed',
-        description: `إيداع ${depositAmount.toFixed(2)} دولار عبر ${paymentMethod === 'credit_card' ? 'بطاقة ائتمان' : paymentMethod === 'paypal' ? 'PayPal' : 'تحويل بنكي'}`
+        amount: finalAmount, // Send the final amount after fees
+        description: `إيداع ${depositAmount.toFixed(2)} دولار عبر ${methodNames[paymentMethod] || paymentMethod}`,
+        method: paymentMethod
       };
 
-      await walletService.deposit(depositData);
+      const response = await walletService.deposit(depositData);
+      console.log('Deposit response:', response);
 
-      // Update local balance (in real app, refresh from server)
-      const currentBalance = parseFloat(localStorage.getItem('walletBalance') || '0');
-      const newBalance = currentBalance + finalAmount;
-      localStorage.setItem('walletBalance', newBalance.toString());
-
-      // Track platform revenue
-      const platformRevenue = JSON.parse(localStorage.getItem('platformRevenue') || '{"total":0,"deposits":[],"withdrawals":[],"commissions":[]}');
-      platformRevenue.total += platformFee;
-      platformRevenue.deposits.push({
-        id: Date.now(),
-        userId: user?.id,
-        userName: user?.name,
-        amount: depositAmount,
-        fee: platformFee,
-        date: new Date().toISOString(),
-        type: 'client_deposit'
-      });
-      localStorage.setItem('platformRevenue', JSON.stringify(platformRevenue));
+      // Get updated wallet balance from response
+      const updatedWallet = await walletService.getWallet();
+      const newBalance = parseFloat(updatedWallet.data?.balance || updatedWallet.data?.data?.balance || 0);
 
       alert(`✅ تم إيداع ${depositAmount.toFixed(2)} دولار بنجاح!\n\n💰 المبلغ المضاف لمحفظتك: $${finalAmount.toFixed(2)}\n📊 عمولة المنصة (10%): $${platformFee.toFixed(2)}\n\n💼 رصيدك الجديد: $${newBalance.toFixed(2)}`);
       
+      // Redirect to wallet page - it will reload transactions automatically
       router.push('/client/wallet');
     } catch (error) {
       console.error('Deposit error:', error);

@@ -1,7 +1,9 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useLanguage } from '../../contexts/LanguageContext';
+import adminService from '../../services/adminService';
+import { toast } from 'react-toastify';
 import { 
   FaSearch, 
   FaFilter, 
@@ -15,82 +17,87 @@ import {
 
 export default function AdminUsers() {
   const { language } = useLanguage();
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [users, setUsers] = useState([]);
 
-  // Mock data - replace with API call
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: 'freelancer',
-      status: 'active',
-      joinDate: '2024-01-15',
-      projects: 12,
-      revenue: 5400
-    },
-    {
-      id: 2, 
-      name: 'Sarah Smith',
-      email: 'sarah@example.com',
-      role: 'client',
-      status: 'active',
-      joinDate: '2024-02-20',
-      projects: 5,
-      revenue: 2100
-    },
-    {
-      id: 3,
-      name: 'Mike Johnson',
-      email: 'mike@example.com',
-      role: 'freelancer',
-      status: 'suspended',
-      joinDate: '2023-12-10',
-      projects: 25,
-      revenue: 12500
-    },
-    {
-      id: 4,
-      name: 'Emily Brown',
-      email: 'emily@example.com',
-      role: 'client',
-      status: 'active',
-      joinDate: '2024-03-05',
-      projects: 3,
-      revenue: 900
-    },
-    {
-      id: 5,
-      name: 'David Wilson',
-      email: 'david@example.com',
-      role: 'freelancer',
-      status: 'active',
-      joinDate: '2024-01-28',
-      projects: 18,
-      revenue: 8700
-    },
-  ]);
+  useEffect(() => {
+    loadUsers();
+  }, [filterRole, filterStatus]);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = filterRole === 'all' || user.role === filterRole;
-    const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
-    
-    return matchesSearch && matchesRole && matchesStatus;
-  });
-
-  const handleSuspendUser = (userId) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, status: user.status === 'active' ? 'suspended' : 'active' } : user
-    ));
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+      if (filterRole !== 'all') {
+        params.role = filterRole;
+      }
+      if (filterStatus !== 'all') {
+        params.status = filterStatus;
+      }
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+      
+      const response = await adminService.getUsers(params);
+      console.log('Users API response:', response);
+      
+      const usersData = response.data?.data || response.data || [];
+      const usersList = Array.isArray(usersData) ? usersData : (usersData.data || []);
+      
+      setUsers(usersList);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      toast.error(language === 'ar' ? 'فشل تحميل المستخدمين' : 'Failed to load users');
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteUser = (userId) => {
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm || filterRole !== 'all') {
+        loadUsers();
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, filterRole]);
+
+  const filteredUsers = users.filter(user => {
+    // Client-side filtering for status (if backend doesn't support it)
+    const matchesStatus = filterStatus === 'all' || (user.status || 'active') === filterStatus;
+    return matchesStatus;
+  });
+
+  const handleSuspendUser = async (userId) => {
+    try {
+      // Update user status via API
+      await adminService.updateUser(userId, { 
+        status: users.find(u => u.id === userId)?.status === 'active' ? 'suspended' : 'active' 
+      });
+      toast.success(language === 'ar' ? 'تم تحديث حالة المستخدم' : 'User status updated');
+      loadUsers(); // Reload users
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error(language === 'ar' ? 'فشل تحديث المستخدم' : 'Failed to update user');
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
     if (confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا المستخدم؟' : 'Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== userId));
+      try {
+        await adminService.deleteUser(userId);
+        toast.success(language === 'ar' ? 'تم حذف المستخدم' : 'User deleted successfully');
+        loadUsers(); // Reload users
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error(language === 'ar' ? 'فشل حذف المستخدم' : 'Failed to delete user');
+      }
     }
   };
 
@@ -160,6 +167,16 @@ export default function AdminUsers() {
 
           {/* Users Table */}
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            {loading ? (
+              <div className="p-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
+                <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="p-12 text-center">
+                <p className="text-gray-600">{language === 'ar' ? 'لا توجد مستخدمين' : 'No users found'}</p>
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
@@ -208,23 +225,26 @@ export default function AdminUsers() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`flex items-center gap-1 text-sm ${
-                          user.status === 'active' ? 'text-green-600' : 'text-red-600'
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          user.status === 'active' ? 'bg-green-100 text-green-800' :
+                          user.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
+                          user.status === 'banned' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
                         }`}>
-                          {user.status === 'active' ? <FaCheckCircle /> : <FaBan />}
-                          {user.status === 'active' ? 
-                            (language === 'ar' ? 'نشط' : 'Active') : 
-                            (language === 'ar' ? 'موقوف' : 'Suspended')}
+                          {user.status === 'active' ? (language === 'ar' ? 'نشط' : 'Active') :
+                           user.status === 'suspended' ? (language === 'ar' ? 'معلق' : 'Suspended') :
+                           user.status === 'banned' ? (language === 'ar' ? 'محظور' : 'Banned') :
+                           (language === 'ar' ? 'نشط' : 'Active')}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.projects}
+                        {user.projects || 0}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                        ${user.revenue.toLocaleString()}
+                        ${(user.revenue || 0).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {user.joinDate}
+                        {user.created_at ? new Date(user.created_at).toLocaleDateString('ar-SA') : '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
@@ -255,11 +275,6 @@ export default function AdminUsers() {
                 </tbody>
               </table>
             </div>
-
-            {filteredUsers.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500">{language === 'ar' ? 'لا يوجد مستخدمون' : 'No users found'}</p>
-              </div>
             )}
           </div>
 
