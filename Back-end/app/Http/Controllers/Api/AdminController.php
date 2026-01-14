@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Transaction;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -233,11 +235,11 @@ class AdminController extends Controller
             ->latest()
             ->get();
 
-        // Calculate deposit fees (10% platform fee on deposits)
+        // Calculate deposit fees (5% platform fee on deposits)
         $deposits = $allTransactions->where('type', 'deposit')->map(function($transaction) {
             $details = is_string($transaction->details) ? json_decode($transaction->details, true) : ($transaction->details ?? []);
             $amount = abs((float) $transaction->amount);
-            $fee = $amount * 0.10; // 10% platform fee
+            $fee = $amount * 0.05; // 5% platform fee
             
             return [
                 'id' => $transaction->id,
@@ -249,12 +251,12 @@ class AdminController extends Controller
             ];
         })->values();
 
-        // Calculate withdrawal fees
+        // Calculate withdrawal fees (5% platform fee on withdrawals)
         $withdrawals = $allTransactions->where('type', 'withdraw')->map(function($transaction) {
             $details = is_string($transaction->details) ? json_decode($transaction->details, true) : ($transaction->details ?? []);
             $amount = abs((float) $transaction->amount);
-            // Withdrawal fee might be stored in details or calculated
-            $fee = $details['platform_fee'] ?? 0;
+            // Calculate 5% platform fee if not stored in details
+            $fee = $details['platform_fee'] ?? ($amount * 0.05);
             
             return [
                 'id' => $transaction->id,
@@ -270,7 +272,7 @@ class AdminController extends Controller
         $commissions = $allTransactions->where('type', 'payment')->map(function($transaction) {
             $details = is_string($transaction->details) ? json_decode($transaction->details, true) : ($transaction->details ?? []);
             $amount = abs((float) $transaction->amount);
-            $commission = $amount * 0.20; // 20% platform commission on projects
+            $commission = $amount * 0.05; // 5% platform commission on projects
             
             return [
                 'id' => $transaction->id,
@@ -297,6 +299,132 @@ class AdminController extends Controller
             'deposits' => $deposits,
             'withdrawals' => $withdrawals,
             'commissionTransactions' => $commissions,
+        ]);
+    }
+
+    /**
+     * Get reports and analytics data
+     */
+    public function getReports(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        
+        // Calculate date range based on period
+        $now = now();
+        switch ($period) {
+            case 'week':
+                $startDate = $now->copy()->startOfWeek();
+                break;
+            case 'quarter':
+                $startDate = $now->copy()->startOfQuarter();
+                break;
+            case 'year':
+                $startDate = $now->copy()->startOfYear();
+                break;
+            default: // month
+                $startDate = $now->copy()->startOfMonth();
+        }
+
+        // Users statistics
+        $totalUsers = User::count();
+        $newUsers = User::where('created_at', '>=', $startDate)->count();
+        $activeUsers = User::where('status', 'active')->count();
+        
+        // Calculate growth percentage (compare with previous period)
+        $previousStartDate = $startDate->copy()->sub($period === 'week' ? 1 : ($period === 'month' ? 1 : ($period === 'quarter' ? 3 : 12)), $period === 'week' ? 'week' : ($period === 'month' ? 'month' : 'month'));
+        $previousNewUsers = User::whereBetween('created_at', [$previousStartDate, $startDate])->count();
+        $usersGrowth = $previousNewUsers > 0 ? round((($newUsers - $previousNewUsers) / $previousNewUsers) * 100) : 0;
+
+        // Projects statistics
+        $totalProjects = Project::count();
+        $activeProjects = Project::where('status', 'in_progress')->count();
+        $completedProjects = Project::where('status', 'completed')->count();
+        $newProjects = Project::where('created_at', '>=', $startDate)->count();
+        $previousNewProjects = Project::whereBetween('created_at', [$previousStartDate, $startDate])->count();
+        $projectsGrowth = $previousNewProjects > 0 ? round((($newProjects - $previousNewProjects) / $previousNewProjects) * 100) : 0;
+
+        // Revenue statistics
+        $totalRevenue = Transaction::where('type', 'payment')
+            ->where('status', 'completed')
+            ->sum('amount');
+        
+        $thisPeriodRevenue = Transaction::where('type', 'payment')
+            ->where('status', 'completed')
+            ->where('created_at', '>=', $startDate)
+            ->sum('amount');
+        
+        $previousPeriodRevenue = Transaction::where('type', 'payment')
+            ->where('status', 'completed')
+            ->whereBetween('created_at', [$previousStartDate, $startDate])
+            ->sum('amount');
+        
+        $revenueGrowth = $previousPeriodRevenue > 0 ? round((($thisPeriodRevenue - $previousPeriodRevenue) / $previousPeriodRevenue) * 100) : 0;
+
+        // Monthly trends (last 6 months)
+        $monthlyTrends = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = $now->copy()->subMonths($i)->startOfMonth();
+            $monthEnd = $now->copy()->subMonths($i)->endOfMonth();
+            
+            $monthRevenue = Transaction::where('type', 'payment')
+                ->where('status', 'completed')
+                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->sum('amount');
+            
+            $monthlyTrends[] = [
+                'month' => $monthStart->format('M'),
+                'monthName' => $monthStart->format('F'),
+                'revenue' => (float) $monthRevenue,
+            ];
+        }
+
+        // Top categories by projects and revenue
+        $categories = DB::table('categories')
+            ->leftJoin('projects', 'categories.id', '=', 'projects.category_id')
+            ->leftJoin('offers', function($join) {
+                $join->on('projects.id', '=', 'offers.project_id')
+                     ->where('offers.status', '=', 'accepted');
+            })
+            ->select(
+                'categories.id',
+                'categories.name',
+                DB::raw('COUNT(DISTINCT projects.id) as projects_count'),
+                DB::raw('COALESCE(SUM(offers.amount), 0) as revenue')
+            )
+            ->groupBy('categories.id', 'categories.name')
+            ->orderBy('projects_count', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function($category) {
+                return [
+                    'name' => $category->name,
+                    'projects' => (int) $category->projects_count,
+                    'revenue' => (float) $category->revenue,
+                ];
+            });
+
+        return response()->json([
+            'users' => [
+                'total' => $totalUsers,
+                'new' => $newUsers,
+                'active' => $activeUsers,
+                'growth' => $usersGrowth > 0 ? '+' . $usersGrowth . '%' : $usersGrowth . '%',
+            ],
+            'projects' => [
+                'total' => $totalProjects,
+                'active' => $activeProjects,
+                'completed' => $completedProjects,
+                'new' => $newProjects,
+                'growth' => $projectsGrowth > 0 ? '+' . $projectsGrowth . '%' : $projectsGrowth . '%',
+            ],
+            'revenue' => [
+                'total' => (float) $totalRevenue,
+                'thisPeriod' => (float) $thisPeriodRevenue,
+                'lastPeriod' => (float) $previousPeriodRevenue,
+                'growth' => $revenueGrowth > 0 ? '+' . $revenueGrowth . '%' : $revenueGrowth . '%',
+            ],
+            'monthlyTrends' => $monthlyTrends,
+            'topCategories' => $categories,
         ]);
     }
 }

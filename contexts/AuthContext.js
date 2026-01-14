@@ -165,18 +165,22 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = async () => {
+    // Clear local state first to prevent any auth checks from triggering
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Try to call logout API, but don't wait for it or fail if it errors
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      toast.info('تم تسجيل الخروج');
-      router.push('/login');
+      // Silently ignore logout API errors - we've already cleared local state
+      console.log('Logout API call failed (this is OK):', error);
     }
+    
+    toast.info('تم تسجيل الخروج');
+    router.push('/login');
   };
 
   // Update profile

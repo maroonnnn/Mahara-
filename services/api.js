@@ -49,10 +49,14 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
+        // Check if this is a logout request - don't show alert for logout
+        const isLogoutRequest = error.config?.url?.includes('/logout');
+        
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        // Only redirect if not already on login page
-        if (window.location.pathname !== '/login') {
+        
+        // Only redirect if not already on login page and not a logout request
+        if (window.location.pathname !== '/login' && !isLogoutRequest) {
           window.location.href = '/login';
         }
       }

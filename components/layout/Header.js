@@ -8,7 +8,6 @@ import {
   FaSearch, 
   FaBell, 
   FaEnvelope, 
-  FaHeart, 
   FaUser, 
   FaSignOutAlt,
   FaGlobe,
@@ -26,6 +25,7 @@ export default function Header() {
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user, isAuthenticated, logout } = useAuth();
   const { language, changeLanguage } = useLanguage();
   const userMenuRef = useRef(null);
@@ -40,6 +40,26 @@ export default function Header() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Load unread notifications count
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUnreadCount();
+      // Refresh every 30 seconds
+      const interval = setInterval(loadUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const notificationService = (await import('../../services/notificationService')).default;
+      const response = await notificationService.getUnreadCount();
+      setUnreadCount(response.data?.count || 0);
+    } catch (error) {
+      console.error('Error loading unread count:', error);
+    }
+  };
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -131,16 +151,15 @@ export default function Header() {
                   </Link>
                   <Link href="/notifications" className="text-gray-700 hover:text-primary-500 relative">
                     <FaBell className="w-5 h-5" />
-            </Link>
-                  <Link href="/messages" className="text-gray-700 hover:text-primary-500 relative">
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  <Link href={user?.role === 'client' ? '/client/messages' : user?.role === 'freelancer' ? '/freelancer/messages' : '/messages'} className="text-gray-700 hover:text-primary-500 relative">
                     <FaEnvelope className="w-5 h-5" />
-            </Link>
-                  <Link href="/favorites" className="text-gray-700 hover:text-primary-500 relative">
-                    <FaHeart className="w-5 h-5" />
-            </Link>
-                  <Link href="/orders" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
-                    Orders
-            </Link>
+                  </Link>
                   <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={toggleUserMenu}
@@ -374,21 +393,7 @@ export default function Header() {
               {isAuthenticated ? (
                 <>
             <Link
-                    href="/orders"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-2 text-gray-700 hover:text-primary-500 text-sm"
-            >
-                    Orders
-            </Link>
-            <Link
-                    href="/favorites"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-2 text-gray-700 hover:text-primary-500 text-sm"
-            >
-                    Favorites
-            </Link>
-            <Link
-                    href="/messages"
+                    href={user?.role === 'client' ? '/client/messages' : user?.role === 'freelancer' ? '/freelancer/messages' : '/messages'}
                     onClick={() => setMobileMenuOpen(false)}
                     className="block py-2 text-gray-700 hover:text-primary-500 text-sm"
             >
@@ -399,7 +404,7 @@ export default function Header() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="block py-2 text-gray-700 hover:text-primary-500 text-sm"
                 >
-                    Notifications
+                    Notifications {unreadCount > 0 && `(${unreadCount})`}
                 </Link>
                 <Link
                   href={`/${user?.role}/profile`}

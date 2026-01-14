@@ -30,7 +30,39 @@ class FreelancerProfileController extends Controller
             return response()->json(['message' => 'Profile not found'], 404);
         }
 
-        return response()->json($profile);
+        // Parse skills if it's a JSON string
+        $skills = $profile->skills;
+        if (is_string($skills)) {
+            try {
+                $skills = json_decode($skills, true);
+            } catch (\Exception $e) {
+                // If not valid JSON, keep as string
+            }
+        }
+
+        return response()->json([
+            'id' => $profile->id,
+            'user_id' => $profile->user_id,
+            'user' => [
+                'id' => $profile->user->id,
+                'name' => $profile->user->name,
+                'email' => $profile->user->email,
+                'created_at' => $profile->user->created_at,
+            ],
+            'display_name' => $profile->display_name,
+            'title' => $profile->title,
+            'bio' => $profile->bio,
+            'skills' => $skills,
+            'hourly_rate' => $profile->hourly_rate,
+            'github_url' => $profile->github_url,
+            'portfolio_url' => $profile->portfolio_url,
+            'linkedin_url' => $profile->linkedin_url,
+            'average_rating' => $profile->average_rating,
+            'total_reviews' => $profile->total_reviews,
+            'portfolioItems' => $profile->portfolioItems,
+            'created_at' => $profile->created_at,
+            'updated_at' => $profile->updated_at,
+        ]);
     }
 
     /**
@@ -50,6 +82,9 @@ class FreelancerProfileController extends Controller
             'bio' => 'nullable|string|max:2000',
             'skills' => 'nullable|string|max:1000',
             'hourly_rate' => 'nullable|numeric|min:0',
+            'github_url' => 'nullable|url|max:255',
+            'portfolio_url' => 'nullable|url|max:255',
+            'linkedin_url' => 'nullable|url|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -68,6 +103,9 @@ class FreelancerProfileController extends Controller
             'bio',
             'skills',
             'hourly_rate',
+            'github_url',
+            'portfolio_url',
+            'linkedin_url',
         ]));
 
         return response()->json([

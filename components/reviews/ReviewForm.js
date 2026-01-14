@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import reviewService from '../../services/reviewService';
-import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function ReviewForm({ projectId, onSuccess, onCancel }) {
-  const { language } = useLanguage();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -34,7 +32,7 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
     e.preventDefault();
     
     if (rating === 0) {
-      toast.error(language === 'ar' ? 'يرجى اختيار تقييم' : 'Please select a rating');
+      toast.error('يرجى اختيار تقييم');
       return;
     }
 
@@ -45,15 +43,14 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
         comment: comment.trim() || null
       });
       
-      toast.success(language === 'ar' ? 'تم إرسال التقييم بنجاح' : 'Review submitted successfully');
+      toast.success('تم إرسال التقييم بنجاح');
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
       console.error('Error submitting review:', error);
-      const message = error.response?.data?.message || 
-        (language === 'ar' ? 'حدث خطأ أثناء إرسال التقييم' : 'Error submitting review');
+      const message = error.response?.data?.message || 'حدث خطأ أثناء إرسال التقييم';
       toast.error(message);
     } finally {
       setLoading(false);
@@ -72,9 +69,7 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
         <p className="text-yellow-800">
-          {language === 'ar' 
-            ? 'لا يمكنك تقييم هذا المشروع. يجب أن يكون المشروع مكتملاً وأن تكون صاحب المشروع.'
-            : 'You cannot review this project. The project must be completed and you must be the project owner.'}
+          لا يمكنك تقييم هذا المشروع. يجب أن يكون المشروع مكتملاً وأن تكون صاحب المشروع.
         </p>
       </div>
     );
@@ -83,14 +78,14 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h3 className="text-2xl font-bold text-gray-900 mb-6">
-        {language === 'ar' ? 'قيم المستقل' : 'Rate the Freelancer'}
+        قيم المستقل
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Rating Stars */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
-            {language === 'ar' ? 'التقييم' : 'Rating'} <span className="text-red-500">*</span>
+            التقييم <span className="text-red-500">*</span>
           </label>
           <div className="flex items-center gap-2">
             {[1, 2, 3, 4, 5].map((star) => (
@@ -113,7 +108,7 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
             ))}
             {rating > 0 && (
               <span className="text-lg font-semibold text-gray-700 ml-2">
-                {rating} {language === 'ar' ? 'نجمة' : 'star'}{rating > 1 ? (language === 'ar' ? 'ات' : 's') : ''}
+                {rating} {rating === 1 ? 'نجمة' : 'نجمات'}
               </span>
             )}
           </div>
@@ -122,7 +117,7 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
         {/* Comment */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {language === 'ar' ? 'تعليق (اختياري)' : 'Comment (Optional)'}
+            تعليق (اختياري)
           </label>
           <textarea
             value={comment}
@@ -130,12 +125,10 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
             rows="5"
             maxLength={2000}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-            placeholder={language === 'ar' 
-              ? 'شارك تجربتك مع هذا المستقل...'
-              : 'Share your experience with this freelancer...'}
+            placeholder="شارك تجربتك مع هذا المستقل..."
           />
           <p className="text-xs text-gray-500 mt-1">
-            {comment.length}/2000 {language === 'ar' ? 'حرف' : 'characters'}
+            {comment.length}/2000 حرف
           </p>
         </div>
 
@@ -146,10 +139,7 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
             disabled={loading || rating === 0}
             className="flex-1 bg-primary-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {loading 
-              ? (language === 'ar' ? 'جاري الإرسال...' : 'Submitting...')
-              : (language === 'ar' ? 'إرسال التقييم' : 'Submit Review')
-            }
+            {loading ? 'جاري الإرسال...' : 'إرسال التقييم'}
           </button>
           {onCancel && (
             <button
@@ -157,7 +147,7 @@ export default function ReviewForm({ projectId, onSuccess, onCancel }) {
               onClick={onCancel}
               className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
             >
-              {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              إلغاء
             </button>
           )}
         </div>

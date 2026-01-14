@@ -112,4 +112,52 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Successfully logged out']);
     }
+
+    /**
+     * Get authenticated user profile
+     */
+    public function getProfile(Request $request)
+    {
+        $user = $request->user();
+        return response()->json([
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Update user profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'nullable|string|max:191',
+            'email' => 'nullable|string|email|max:191|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'location' => 'nullable|string|max:191',
+            'bio' => 'nullable|string|max:2000',
+            'company' => 'nullable|string|max:191',
+            'website' => 'nullable|url|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user->update($request->only([
+            'name',
+            'email',
+            'phone',
+            'location',
+            'bio',
+            'company',
+            'website',
+        ]));
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user->fresh(),
+        ]);
+    }
 }

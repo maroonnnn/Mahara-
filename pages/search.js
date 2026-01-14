@@ -4,6 +4,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuth } from '../contexts/AuthContext';
+import projectService from '../services/projectService';
+import { toast } from 'react-toastify';
 import { 
   FaSearch,
   FaClock,
@@ -30,44 +32,71 @@ export default function SearchPage() {
       setSearchQuery(q);
       performSearch(q);
     }
-  }, [q]);
+  }, [q, sortBy]);
 
-  const performSearch = (query) => {
-    setLoading(true);
-
-    // Get all projects from localStorage
-    const allProjects = JSON.parse(localStorage.getItem('myProjects') || '[]');
-    
-    // Search logic
-    const searchTerm = query.toLowerCase();
-    const filteredProjects = allProjects.filter(project => {
-      return (
-        project.title?.toLowerCase().includes(searchTerm) ||
-        project.description?.toLowerCase().includes(searchTerm) ||
-        project.category?.toLowerCase().includes(searchTerm) ||
-        project.skills?.some(skill => skill.toLowerCase().includes(searchTerm))
-      );
-    });
-
-    // Sort results
-    let sortedProjects = [...filteredProjects];
-    switch (sortBy) {
-      case 'newest':
-        sortedProjects.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        break;
-      case 'budget-high':
-        sortedProjects.sort((a, b) => (b.budget || 0) - (a.budget || 0));
-        break;
-      case 'budget-low':
-        sortedProjects.sort((a, b) => (a.budget || 0) - (b.budget || 0));
-        break;
-      default: // relevant
-        // Already filtered by relevance
-        break;
+  const performSearch = async (query) => {
+    if (!query || !query.trim()) {
+      setResults([]);
+      return;
     }
 
-    setResults(sortedProjects);
-    setLoading(false);
+    setLoading(true);
+    try {
+      // Prepare API parameters
+      const params = {
+        search: query.trim(),
+      };
+
+      // Add sorting
+      switch (sortBy) {
+        case 'newest':
+          params.sort_by = 'created_at';
+          params.sort_order = 'desc';
+          break;
+        case 'budget-high':
+          params.sort_by = 'budget';
+          params.sort_order = 'desc';
+          break;
+        case 'budget-low':
+          params.sort_by = 'budget';
+          params.sort_order = 'asc';
+          break;
+        default: // relevant
+          params.sort_by = 'created_at';
+          params.sort_order = 'desc';
+      }
+
+      // Fetch projects from API
+      const response = await projectService.getOpenProjects(params);
+      
+      // Format projects for display
+      const formattedProjects = response.data.data.map(project => ({
+        id: project.id,
+        title: project.title,
+        description: project.description,
+        budget: project.budget,
+        status: project.status,
+        category: project.category?.name || 'غير محدد',
+        category_id: project.category_id,
+        client: project.client ? {
+          name: project.client.name,
+          id: project.client.id
+        } : null,
+        deliveryTime: project.delivery_days ? `${project.delivery_days} يوم` : 'غير محدد',
+        views: project.views || 0,
+        offers_count: project.offers_count || 0,
+        created_at: project.created_at,
+        skills: project.skills || []
+      }));
+
+      setResults(formattedProjects);
+    } catch (error) {
+      console.error('Search error:', error);
+      toast.error('حدث خطأ أثناء البحث');
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = (e) => {
@@ -203,9 +232,6 @@ export default function SearchPage() {
               {results.map((project) => {
                 const badge = getStatusBadge(project.status);
                 const isFreelancer = user?.role === 'freelancer';
-                const projectUrl = isFreelancer 
-                  ? `/freelancer/projects/${project.id}`
-                  : `/client/projects/${project.id}`;
 
                 return (
                   <div
@@ -220,7 +246,7 @@ export default function SearchPage() {
                             <FaFileAlt className="text-primary-600 text-xl" />
                           </div>
                           <div className="flex-1">
-                            <Link href={projectUrl}>
+                            <Link href={`/projects/${project.id}`}>
                               <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-primary-600 cursor-pointer">
                                 {project.title}
                               </h3>
@@ -277,10 +303,16 @@ export default function SearchPage() {
                       <div className="text-right">
                         <div className="mb-4">
                           <p className="text-sm text-gray-500 mb-1">الميزانية</p>
-                          <p className="text-3xl font-bold text-gray-900">${project.budget}</p>
+                          <p className="text-3xl font-bold text-gray-900">{project.budget} ريال</p>
                         </div>
+                        {project.offers_count > 0 && (
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-500 mb-1">عدد العروض</p>
+                            <p className="text-lg font-semibold text-gray-700">{project.offers_count} عرض</p>
+                          </div>
+                        )}
                         <Link
-                          href={projectUrl}
+                          href={`/projects/${project.id}`}
                           className="block w-full px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold text-center"
                         >
                           {isFreelancer ? 'تقديم عرض' : 'عرض التفاصيل'}

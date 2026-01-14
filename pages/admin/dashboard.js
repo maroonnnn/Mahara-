@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import adminService from '../../services/adminService';
 import { toast } from 'react-toastify';
 import { 
@@ -18,7 +17,6 @@ import Link from 'next/link';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const { language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -66,9 +64,7 @@ export default function AdminDashboard() {
         activities.push({
           id: `user-${user.id}`,
           type: 'user',
-          message: language === 'ar' 
-            ? `انضم مستخدم جديد: ${user.name}` 
-            : `New user joined: ${user.name}`,
+          message: `انضم مستخدم جديد: ${user.name}`,
           time: new Date(user.created_at).toLocaleDateString('ar-SA')
         });
       });
@@ -78,9 +74,7 @@ export default function AdminDashboard() {
         activities.push({
           id: `project-${project.id}`,
           type: 'project',
-          message: language === 'ar' 
-            ? `مشروع جديد: ${project.title}` 
-            : `New project: ${project.title}`,
+          message: `مشروع جديد: ${project.title}`,
           time: new Date(project.created_at).toLocaleDateString('ar-SA')
         });
       });
@@ -88,7 +82,7 @@ export default function AdminDashboard() {
       setRecentActivities(activities);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      toast.error(language === 'ar' ? 'فشل تحميل البيانات' : 'Failed to load dashboard data');
+      toast.error('فشل تحميل البيانات');
     } finally {
       setLoading(false);
     }
@@ -96,7 +90,7 @@ export default function AdminDashboard() {
 
   const statsCards = [
     {
-      title: language === 'ar' ? 'إجمالي المستخدمين' : 'Total Users',
+      title: 'إجمالي المستخدمين',
       value: stats.totalUsers,
       change: '+12%',
       isIncrease: true,
@@ -105,7 +99,7 @@ export default function AdminDashboard() {
       link: '/admin/users'
     },
     {
-      title: language === 'ar' ? 'إجمالي المشاريع' : 'Total Projects',
+      title: 'إجمالي المشاريع',
       value: stats.totalProjects,
       change: '+8%',
       isIncrease: true,
@@ -114,7 +108,7 @@ export default function AdminDashboard() {
       link: '/admin/projects'
     },
     {
-      title: language === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue',
+      title: 'إجمالي الإيرادات',
       value: `$${stats.totalRevenue.toLocaleString()}`,
       change: '+15%',
       isIncrease: true,
@@ -123,7 +117,7 @@ export default function AdminDashboard() {
       link: '/admin/transactions'
     },
     {
-      title: language === 'ar' ? 'المشاريع النشطة' : 'Active Projects',
+      title: 'المشاريع النشطة',
       value: stats.activeProjects,
       change: '-3%',
       isIncrease: false,
@@ -136,7 +130,7 @@ export default function AdminDashboard() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'لوحة تحكم المدير - Mahara' : 'Admin Dashboard - Mahara'}</title>
+        <title>لوحة تحكم المدير - Mahara</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">
@@ -144,10 +138,10 @@ export default function AdminDashboard() {
           {/* Page Header */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {language === 'ar' ? 'لوحة تحكم المدير' : 'Admin Dashboard'}
+              لوحة تحكم المدير
             </h1>
             <p className="text-gray-600">
-              {language === 'ar' ? 'مرحباً بك، ' : 'Welcome back, '}{user?.name || 'Admin'}
+              مرحباً بك، {user?.name || 'المدير'}
             </p>
           </div>
 
@@ -192,30 +186,30 @@ export default function AdminDashboard() {
             {/* Quick Stats */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {language === 'ar' ? 'إحصائيات سريعة' : 'Quick Stats'}
+                إحصائيات سريعة
               </h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">
-                    {language === 'ar' ? 'مستخدمون جدد هذا الشهر' : 'New Users This Month'}
+                    مستخدمون جدد هذا الشهر
                   </span>
                   <span className="text-lg font-semibold text-gray-900">{stats.newUsersThisMonth}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">
-                    {language === 'ar' ? 'المشاريع المكتملة' : 'Completed Projects'}
+                    المشاريع المكتملة
                   </span>
                   <span className="text-lg font-semibold text-gray-900">{stats.completedProjects}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">
-                    {language === 'ar' ? 'المعاملات المعلقة' : 'Pending Transactions'}
+                    المعاملات المعلقة
                   </span>
                   <span className="text-lg font-semibold text-orange-500">{stats.pendingTransactions}</span>
                 </div>
                 <div className="flex items-center justify-between py-3">
                   <span className="text-gray-600">
-                    {language === 'ar' ? 'إجمالي الفئات' : 'Total Categories'}
+                    إجمالي الفئات
                   </span>
                   <span className="text-lg font-semibold text-gray-900">{stats.totalCategories}</span>
                 </div>
@@ -226,16 +220,16 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-gray-900">
-                  {language === 'ar' ? 'الأنشطة الأخيرة' : 'Recent Activities'}
+                  الأنشطة الأخيرة
                 </h2>
                 <Link href="/admin/activities" className="text-primary-500 hover:text-primary-600 text-sm font-semibold">
-                  {language === 'ar' ? 'عرض الكل' : 'View All'}
+                  عرض الكل
                 </Link>
               </div>
               <div className="space-y-4">
                 {recentActivities.length === 0 ? (
                   <p className="text-gray-500 text-center py-4">
-                    {language === 'ar' ? 'لا توجد أنشطة حديثة' : 'No recent activities'}
+                    لا توجد أنشطة حديثة
                   </p>
                 ) : (
                   recentActivities.map((activity) => (
@@ -263,31 +257,31 @@ export default function AdminDashboard() {
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {language === 'ar' ? 'إجراءات سريعة' : 'Quick Actions'}
+              إجراءات سريعة
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link href="/admin/users" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaUsers className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  {language === 'ar' ? 'إدارة المستخدمين' : 'Manage Users'}
+                  إدارة المستخدمين
                 </span>
               </Link>
               <Link href="/admin/projects" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaProjectDiagram className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  {language === 'ar' ? 'إدارة المشاريع' : 'Manage Projects'}
+                  إدارة المشاريع
                 </span>
               </Link>
               <Link href="/admin/transactions" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaDollarSign className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  {language === 'ar' ? 'المعاملات المالية' : 'Transactions'}
+                  المعاملات المالية
                 </span>
               </Link>
               <Link href="/admin/reports" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaChartLine className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  {language === 'ar' ? 'التقارير' : 'Reports'}
+                  التقارير
                 </span>
               </Link>
             </div>

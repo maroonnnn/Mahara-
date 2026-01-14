@@ -1,26 +1,19 @@
-import { useState, useEffect } from 'react';
-import Head from 'next/head';
-import Link from 'next/link';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import DashboardLayout from '../../../components/layout/DashboardLayout';
-import { useAuth } from '../../../contexts/AuthContext';
-import { 
-  FaArrowRight,
-  FaDollarSign,
-  FaClock,
-  FaFileAlt,
-  FaUser,
-  FaCheckCircle,
-  FaEnvelope,
-  FaPaperPlane
-} from 'react-icons/fa';
-import { toast } from 'react-toastify';
-import { useLanguage } from '../../../contexts/LanguageContext';
 
 export default function FreelancerProjectDetailsPage() {
   const router = useRouter();
   const { id } = router.query;
-  const { user, isClient, isFreelancer, isAuthenticated, loading: authLoading } = useAuth();
+
+  // Redirect to the public project details page
+  useEffect(() => {
+    if (id) {
+      router.replace(`/projects/${id}`);
+    }
+  }, [id, router]);
+
+  // Show loading while redirecting
+  return null;
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [offerSubmitted, setOfferSubmitted] = useState(false);
@@ -417,7 +410,7 @@ export default function FreelancerProjectDetailsPage() {
                 </button>
               </div>
             </form>
-          ) : hasAcceptedOffer && project.status === 'in_progress' ? (
+          ) : project.acceptedOffer && project.acceptedOffer.freelancer_id === user?.id && project.status === 'in_progress' ? (
             <div className="space-y-4">
               <button
                 onClick={handleDeliverProject}

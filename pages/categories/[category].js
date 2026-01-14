@@ -6,14 +6,17 @@ import PublicLayout from '../../components/layout/PublicLayout';
 import { categories, getCategoryBySlug, getSubcategoriesFromCategory } from '../../data/categories';
 import projectService from '../../services/projectService';
 import categoryService from '../../services/categoryService';
+import { useAuth } from '../../contexts/AuthContext';
 import { FaChevronRight, FaStar, FaClock, FaDollarSign, FaUsers, FaEye } from 'react-icons/fa';
 
 export default function CategoryPage() {
   const router = useRouter();
   const { category: categorySlug } = router.query;
+  const { user, isClient, isFreelancer, isAuthenticated } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryId, setCategoryId] = useState(null);
+  const [sortBy, setSortBy] = useState('latest'); // 'latest', 'budget', 'offers'
 
   const [category, setCategory] = useState(null);
 
@@ -31,14 +34,38 @@ export default function CategoryPage() {
           cat.slug === categorySlug
         );
         
+        console.log('Looking for category slug:', categorySlug);
+        console.log('Available categories:', categories.map(c => ({ id: c.id, slug: c.slug, name: c.name })));
+        console.log('Found category:', foundCategory);
+        
         if (foundCategory) {
           setCategory(foundCategory);
           setCategoryId(foundCategory.id);
           
           // Load projects for this category
-          const response = await projectService.getOpenProjects({ 
+          console.log('Loading projects for category ID:', foundCategory.id);
+          
+          // Build query params based on sort option
+          const queryParams = { 
             category_id: foundCategory.id 
-          });
+          };
+          
+          // Add sorting parameters
+          if (sortBy === 'budget') {
+            queryParams.sort_by = 'budget';
+            queryParams.sort_order = 'desc';
+          } else if (sortBy === 'offers') {
+            queryParams.sort_by = 'offers';
+            queryParams.sort_order = 'desc';
+          } else {
+            // latest is default
+            queryParams.sort_by = 'created_at';
+            queryParams.sort_order = 'desc';
+          }
+          
+          const response = await projectService.getOpenProjects(queryParams);
+          
+          console.log('Projects API Response:', response);
           
           // Handle paginated response
           const responseData = response.data || response;
@@ -50,7 +77,8 @@ export default function CategoryPage() {
             projectsList = responseData;
           }
           
-          console.log('Category Projects:', projectsList);
+          console.log('Category Projects List:', projectsList);
+          console.log('Projects Count:', projectsList.length);
           
           // Map projects to display format
           const mappedProjects = projectsList.map(p => ({
@@ -115,7 +143,7 @@ export default function CategoryPage() {
     if (categorySlug) {
       loadCategoryProjects();
     }
-  }, [categorySlug]);
+  }, [categorySlug, sortBy]);
 
   // Early return for invalid category - AFTER all hooks
   if (!category && !loading) {
@@ -384,10 +412,14 @@ export default function CategoryPage() {
               المشاريع المفتوحة في {category.name}
             </h2>
             <div className="flex items-center gap-4">
-              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                <option>الأحدث</option>
-                <option>الأعلى ميزانية</option>
-                <option>الأكثر عروض</option>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="latest">الأحدث</option>
+                <option value="budget">الأعلى ميزانية</option>
+                <option value="offers">الأكثر عروض</option>
               </select>
             </div>
           </div>
@@ -403,13 +435,27 @@ export default function CategoryPage() {
                 <FaClock className="text-gray-400 text-2xl" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع مفتوحة حالياً</h3>
-              <p className="text-gray-600 mb-6">كن أول من ينشر مشروع في هذه الفئة!</p>
-              <Link
-                href="/client/projects/new"
-                className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
-              >
-                إنشاء مشروع جديد
-              </Link>
+              <p className="text-gray-600 mb-6">
+                {isFreelancer 
+                  ? 'لا توجد مشاريع متاحة حالياً في هذه الفئة. كن أول من يقدم عرضاً عندما يتم نشر مشروع جديد!'
+                  : 'كن أول من ينشر مشروع في هذه الفئة!'}
+              </p>
+              {isClient && (
+                <Link
+                  href="/client/projects/new"
+                  className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
+                >
+                  إنشاء مشروع جديد
+                </Link>
+              )}
+              {!isAuthenticated && (
+                <Link
+                  href="/register?role=client"
+                  className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
+                >
+                  سجل كعميل لإنشاء مشروع
+                </Link>
+              )}
             </div>
           ) : (
             <>

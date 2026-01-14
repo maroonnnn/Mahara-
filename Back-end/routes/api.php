@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\FreelancerProfileController;
 use App\Http\Controllers\Api\FreelancerPortfolioController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +106,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/projects/{project}/messages', [MessageController::class, 'index']);
     Route::post('/projects/{project}/messages', [MessageController::class, 'store']);
 
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+
+    // User profile management (for all authenticated users)
+    Route::get('/user/profile', [AuthController::class, 'getProfile']);
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+
     // نظام المحفظة
     Route::get('/wallet', [WalletController::class, 'show']);
     Route::get('/wallet/transactions', [WalletController::class, 'transactions']);
@@ -118,6 +130,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/projects', [AdminController::class, 'getProjects']);
         Route::get('/transactions', [AdminController::class, 'getTransactions']);
         Route::get('/revenue', [AdminController::class, 'getRevenue']);
+        Route::get('/reports', [AdminController::class, 'getReports']);
         Route::put('/users/{user}/status', [AdminController::class, 'updateUserStatus']);
         Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
         

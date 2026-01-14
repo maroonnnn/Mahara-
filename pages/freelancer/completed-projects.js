@@ -3,7 +3,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   FaFileAlt,
   FaDollarSign,
@@ -16,7 +15,6 @@ import {
 
 export default function FreelancerCompletedProjectsPage() {
   const { user } = useAuth();
-  const { language } = useLanguage();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +66,7 @@ export default function FreelancerCompletedProjectsPage() {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+    return date.toLocaleDateString('ar-SA', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -78,41 +76,31 @@ export default function FreelancerCompletedProjectsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>{language === 'ar' ? 'المشاريع المكتملة | Mahara' : 'Completed Projects | Mahara'}</title>
-        <meta name="description" content={language === 'ar' ? 'مشاريعك المكتملة' : 'Your completed projects'} />
+        <title>المشاريع المكتملة | Mahara</title>
+        <meta name="description" content="مشاريعك المكتملة" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {language === 'ar' ? 'المشاريع المكتملة' : 'Completed Projects'}
-          </h1>
-          <p className="text-gray-600">
-            {language === 'ar' ? 'المشاريع التي قمت بتسليمها أو تم إكمالها' : 'Projects you have delivered or completed'}
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">المشاريع المكتملة</h1>
+          <p className="text-gray-600">المشاريع التي قمت بتسليمها أو تم إكمالها</p>
         </div>
 
         {loading ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+            <p className="text-gray-600">جاري تحميل المشاريع المكتملة...</p>
           </div>
         ) : projects.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <FaFileAlt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {language === 'ar' ? 'لا توجد مشاريع مكتملة' : 'No completed projects'}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {language === 'ar' 
-                ? 'المشاريع التي تقوم بتسليمها ستظهر هنا'
-                : 'Projects you deliver will appear here'}
-            </p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع مكتملة</h3>
+            <p className="text-gray-600 mb-6">المشاريع التي تقوم بتسليمها ستظهر هنا</p>
             <Link
               href="/freelancer/active-projects"
               className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
             >
-              {language === 'ar' ? 'عرض المشاريع النشطة' : 'View Active Projects'}
+              عرض المشاريع النشطة
             </Link>
           </div>
         ) : (
@@ -148,17 +136,17 @@ export default function FreelancerCompletedProjectsPage() {
                       {project.status === 'delivered' ? (
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
                           <FaClock className="text-yellow-600" />
-                          {language === 'ar' ? 'في انتظار موافقة العميل' : 'Awaiting Client Approval'}
+                          في انتظار موافقة العميل
                         </div>
                       ) : (
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
                           <FaCheckCircle className="text-green-600" />
-                          {language === 'ar' ? 'مكتمل' : 'Completed'}
+                          مكتمل
                         </div>
                       )}
                       {project.completedAt && (
                         <span className="ml-3 text-sm text-gray-500">
-                          {language === 'ar' ? 'تم التسليم:' : 'Delivered:'} {formatDate(project.completedAt)}
+                          تم التسليم: {formatDate(project.completedAt)}
                         </span>
                       )}
                     </div>
@@ -203,7 +191,7 @@ export default function FreelancerCompletedProjectsPage() {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">{project.client.name}</p>
-                      <p className="text-xs text-gray-500">{language === 'ar' ? 'العميل' : 'Client'}</p>
+                      <p className="text-xs text-gray-500">العميل</p>
                     </div>
                   </div>
 
@@ -212,7 +200,7 @@ export default function FreelancerCompletedProjectsPage() {
                       href={`/freelancer/projects/${project.id}`}
                       className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
                     >
-                      {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
+                      عرض التفاصيل
                     </Link>
                   </div>
                 </div>

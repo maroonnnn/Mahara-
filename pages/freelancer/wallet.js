@@ -108,7 +108,7 @@ export default function FreelancerWallet() {
     }
   };
 
-  const PLATFORM_FEE_PERCENTAGE = 10; // 10% platform fee
+  const PLATFORM_FEE_PERCENTAGE = 5; // 5% platform fee
 
   const calculateWithdrawalFees = (amount) => {
     const withdrawAmount = parseFloat(amount) || 0;
@@ -150,7 +150,7 @@ export default function FreelancerWallet() {
     });
     localStorage.setItem('platformRevenue', JSON.stringify(platformRevenue));
 
-    alert(`✅ تم طلب سحب ${amount.toFixed(2)} دولار بنجاح!\n\n💰 المبلغ الذي ستستلمه: $${finalAmount.toFixed(2)}\n📊 عمولة المنصة (10%): $${platformFee.toFixed(2)}\n\n⏱️ سيتم معالجة الطلب خلال 3-5 أيام عمل.`);
+    alert(`✅ تم طلب سحب ${amount.toFixed(2)} دولار بنجاح!\n\n💰 المبلغ الذي ستستلمه: $${finalAmount.toFixed(2)}\n📊 عمولة المنصة (5%): $${platformFee.toFixed(2)}\n\n⏱️ سيتم معالجة الطلب خلال 3-5 أيام عمل.`);
     setShowWithdrawModal(false);
     setWithdrawAmount('');
   };
@@ -293,7 +293,7 @@ export default function FreelancerWallet() {
           <h3 className="font-bold text-blue-900 mb-2">💡 معلومات عن السحب</h3>
           <ul className="space-y-2 text-sm text-blue-800">
             <li>• الحد الأدنى للسحب: 50 دولار</li>
-            <li>• عمولة المنصة: 10% من مبلغ السحب</li>
+            <li>• عمولة المنصة: 5% من مبلغ السحب</li>
             <li>• مدة المعالجة: 3-5 أيام عمل</li>
             <li>• طرق السحب المتاحة: التحويل البنكي، PayPal، Payoneer</li>
             <li>• يمكنك طلب سحب واحد كل 24 ساعة</li>
@@ -352,7 +352,7 @@ export default function FreelancerWallet() {
                     <span className="font-semibold">${calculateWithdrawalFees(withdrawAmount).withdrawAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">عمولة المنصة (10%)</span>
+                    <span className="text-gray-600">عمولة المنصة (5%)</span>
                     <span className="font-semibold text-red-600">-${calculateWithdrawalFees(withdrawAmount).platformFee.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-300 pt-2 flex justify-between">

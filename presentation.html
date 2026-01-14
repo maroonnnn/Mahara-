@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة العمل الحر - Freelance Marketplace Platform</title>
+    
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #3B82F6;
+            --secondary-purple: #8B5CF6;
+            --success-green: #10B981;
+            --warning-orange: #F59E0B;
+            --bg-gray: #F9FAFB;
+            --text-dark: #1F2937;
+            --text-gray: #6B7280;
+        }
+        
+        .reveal {
+            font-family: 'Cairo', 'Inter', sans-serif;
+        }
+        
+        .reveal h1, .reveal h2, .reveal h3 {
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-transform: none;
+        }
+        
+        .reveal h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+        
+        .reveal h2 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+        
+        .reveal h3 {
+            font-size: 1.5em;
+        }
+        
+        .reveal p, .reveal li {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        
+        /* Title Slide */
+        .title-slide {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-purple) 100%);
+            color: white !important;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .title-slide h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 0.3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .title-slide h3 {
+            color: rgba(255,255,255,0.95);
+            font-weight: 400;
+            font-size: 1.5em;
+        }
+        
+        .title-slide p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+            margin: 0.5em 0;
+        }
+        
+        /* Icon Grid */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2em;
+            margin: 2em 0;
+        }
+        
+        .icon-item {
+            text-align: center;
+            padding: 1.5em;
+            background: var(--bg-gray);
+            border-radius: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .icon-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .icon-item i {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            display: block;
+        }
+        
+        .icon-item.blue i { color: var(--primary-blue); }
+        .icon-item.purple i { color: var(--secondary-purple); }
+        .icon-item.green i { color: var(--success-green); }
+        .icon-item.orange i { color: var(--warning-orange); }
+        
+        /* Feature List */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 0.8em 1em;
+            margin: 0.5em 0;
+            background: white;
+            border-right: 4px solid var(--primary-blue);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .feature-list li i {
+            margin-left: 0.5em;
+            color: var(--success-green);
+        }
+        
+        /* Problem List */
+        .problem-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .problem-list li {
+            padding: 0.8em 1em;
+            margin: 0.5em 0;
+            background: #FEF2F2;
+            border-right: 4px solid #EF4444;
+            border-radius: 8px;
+        }
+        
+        .problem-list li i {
+            margin-left: 0.5em;
+            color: #EF4444;
+        }
+        
+        /* Two Column Layout */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2em;
+            text-align: right;
+        }
+        
+        /* Three Column Layout */
+        .three-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2em;
+        }
+        
+        .column {
+            background: var(--bg-gray);
+            padding: 1.5em;
+            border-radius: 12px;
+        }
+        
+        .column h4 {
+            color: var(--primary-blue);
+            margin-bottom: 1em;
+            font-size: 1.3em;
+        }
+        
+        /* Stats Box */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5em;
+            margin: 2em 0;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 2em;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stat-box .number {
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            display: block;
+        }
+        
+        .stat-box .label {
+            font-size: 1.2em;
+            color: var(--text-gray);
+        }
+        
+        /* Tech Stack */
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2em;
+        }
+        
+        .tech-column {
+            background: var(--bg-gray);
+            padding: 2em;
+            border-radius: 12px;
+        }
+        
+        .tech-column h4 {
+            color: var(--primary-blue);
+            font-size: 1.5em;
+            margin-bottom: 1em;
+        }
+        
+        .tech-item {
+            padding: 0.8em;
+            margin: 0.5em 0;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1em;
+        }
+        
+        .tech-item i {
+            font-size: 1.5em;
+        }
+        
+        /* Process Flow */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+        
+        .process-step {
+            background: var(--bg-gray);
+            padding: 1.5em;
+            border-radius: 12px;
+            border-right: 4px solid var(--primary-blue);
+            position: relative;
+        }
+        
+        .process-step .step-number {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-blue);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        /* Architecture Diagram */
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1em;
+            padding: 2em;
+        }
+        
+        .arch-box {
+            background: var(--bg-gray);
+            padding: 1.5em 3em;
+            border-radius: 12px;
+            border: 3px solid var(--primary-blue);
+            font-size: 1.2em;
+            font-weight: 600;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .arch-arrow {
+            font-size: 2em;
+            color: var(--primary-blue);
+        }
+        
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-purple) 100%);
+            color: white;
+            padding: 2em;
+            border-radius: 12px;
+            margin: 1em 0;
+        }
+        
+        .highlight-box h3 {
+            color: white;
+        }
+        
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1em;
+            margin: 2em 0;
+        }
+        
+        .category-item {
+            background: var(--bg-gray);
+            padding: 1.5em;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .category-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .category-item i {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            display: block;
+        }
+        
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.5em 1em;
+            background: var(--success-green);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 0.2em;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .icon-grid,
+            .three-columns,
+            .stats-grid,
+            .tech-stack,
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Custom Reveal Styles */
+        .reveal .controls {
+            color: var(--primary-blue);
+        }
+        
+        .reveal .progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary-blue);
+        }
+        
+        .reveal .slide-number {
+            background: var(--primary-blue);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- Slide 1: Title -->
+            <section class="title-slide">
+                <h1>منصة العمل الحر</h1>
+                <h3>حلول مبتكرة لربط المواهب بالفرص</h3>
+                <p><strong>Freelance Marketplace Platform</strong></p>
+                <p>Connecting Talent with Opportunities</p>
+                <br>
+                <p style="font-size: 1em; margin-top: 2em;">
+                    Full-Stack Web Application<br>
+                    January 2026
+                </p>
+            </section>
+
+            <!-- Slide 2: Project Overview -->
+            <section>
+                <h2>نظرة عامة على المشروع</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Project Overview</h3>
+                <div class="icon-grid">
+                    <div class="icon-item blue">
+                        <i class="fas fa-user-tie"></i>
+                        <h4>العملاء</h4>
+                        <p>Clients</p>
+                    </div>
+                    <div class="icon-item purple">
+                        <i class="fas fa-laptop-code"></i>
+                        <h4>المستقلون</h4>
+                        <p>Freelancers</p>
+                    </div>
+                    <div class="icon-item green">
+                        <i class="fas fa-user-shield"></i>
+                        <h4>المشرفون</h4>
+                        <p>Admins</p>
+                    </div>
+                </div>
+                <p style="text-align: center; font-size: 1.2em; margin-top: 1em;">
+                    منصة متكاملة تربط بين الخدمات الاحترافية والمواهب المتميزة
+                </p>
+            </section>
+
+            <!-- Slide 3: Problem Statement -->
+            <section>
+                <h2>المشكلة</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">The Problem</h3>
+                <ul class="problem-list">
+                    <li><i class="fas fa-times-circle"></i> صعوبة إيجاد مستقلين موثوقين</li>
+                    <li><i class="fas fa-times-circle"></i> غياب نظام دفع آمن ومضمون</li>
+                    <li><i class="fas fa-times-circle"></i> ضعف التواصل بين الأطراف</li>
+                    <li><i class="fas fa-times-circle"></i> عدم وجود ضمانات للطرفين</li>
+                    <li><i class="fas fa-times-circle"></i> صعوبة إدارة المشاريع</li>
+                </ul>
+            </section>
+
+            <!-- Slide 4: Our Solution -->
+            <section>
+                <h2>الحل</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Our Solution</h3>
+                <div class="icon-grid">
+                    <div class="icon-item blue">
+                        <i class="fas fa-wallet"></i>
+                        <p>نظام دفع آمن</p>
+                        <small>Secure Payments</small>
+                    </div>
+                    <div class="icon-item purple">
+                        <i class="fas fa-comments"></i>
+                        <p>تواصل منظم</p>
+                        <small>Organized Communication</small>
+                    </div>
+                    <div class="icon-item green">
+                        <i class="fas fa-star"></i>
+                        <p>نظام تقييمات</p>
+                        <small>Rating System</small>
+                    </div>
+                    <div class="icon-item orange">
+                        <i class="fas fa-bell"></i>
+                        <p>إشعارات فورية</p>
+                        <small>Real-time Notifications</small>
+                    </div>
+                    <div class="icon-item blue">
+                        <i class="fas fa-chart-line"></i>
+                        <p>لوحات تحكم</p>
+                        <small>Advanced Dashboards</small>
+                    </div>
+                    <div class="icon-item purple">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <p>تقارير مفصلة</p>
+                        <small>Detailed Reports</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: User Roles -->
+            <section>
+                <h2>أدوار المستخدمين</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">User Roles</h3>
+                <div class="three-columns">
+                    <div class="column">
+                        <h4><i class="fas fa-user-tie"></i> العملاء</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ إنشاء المشاريع</li>
+                            <li>✓ إدارة العروض</li>
+                            <li>✓ تتبع التقدم</li>
+                            <li>✓ الدفع الآمن</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-laptop-code"></i> المستقلون</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ تصفح المشاريع</li>
+                            <li>✓ تقديم العروض</li>
+                            <li>✓ إدارة الأعمال</li>
+                            <li>✓ سحب الأرباح</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-user-shield"></i> المشرفون</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ مراقبة النظام</li>
+                            <li>✓ إدارة المستخدمين</li>
+                            <li>✓ متابعة الإيرادات</li>
+                            <li>✓ التقارير التحليلية</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Project Workflow -->
+            <section>
+                <h2>دورة حياة المشروع</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Project Lifecycle</h3>
+                <div class="process-flow">
+                    <div class="process-step">
+                        <span class="step-number">1</span>
+                        <strong>إنشاء المشروع</strong> - العميل ينشر المشروع مع التفاصيل والميزانية
+                    </div>
+                    <div class="process-step">
+                        <span class="step-number">2</span>
+                        <strong>استقبال العروض</strong> - المستقلون يقدمون عروضهم
+                    </div>
+                    <div class="process-step">
+                        <span class="step-number">3</span>
+                        <strong>قبول العرض</strong> - الدفع الآمن من المحفظة
+                    </div>
+                    <div class="process-step">
+                        <span class="step-number">4</span>
+                        <strong>التسليم والإكمال</strong> - التقييم المتبادل
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: Digital Wallet -->
+            <section>
+                <h2>نظام المحفظة الإلكترونية</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Digital Wallet System</h3>
+                <div class="two-columns">
+                    <div class="column">
+                        <h4><i class="fas fa-user-tie"></i> للعملاء</h4>
+                        <ul>
+                            <li>إيداع الأموال بأمان</li>
+                            <li>الدفع للمستقلين</li>
+                            <li>سجل معاملات شفاف</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-laptop-code"></i> للمستقلين</h4>
+                        <ul>
+                            <li>استلام المدفوعات</li>
+                            <li>سحب الأرباح</li>
+                            <li>تتبع الأرباح</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight-box" style="margin-top: 2em;">
+                    <h3><i class="fas fa-percent"></i> عمولة 5% على جميع العمليات</h3>
+                    <p>نظام عمولة عادل وشفاف يضمن استدامة المنصة</p>
+                </div>
+            </section>
+
+            <!-- Slide 8: Categories -->
+            <section>
+                <h2>الفئات والتخصصات</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Categories</h3>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <i class="fas fa-code" style="color: var(--primary-blue);"></i>
+                        <p>البرمجة والتقنية</p>
+                    </div>
+                    <div class="category-item">
+                        <i class="fas fa-palette" style="color: var(--secondary-purple);"></i>
+                        <p>التصميم الجرافيكي</p>
+                    </div>
+                    <div class="category-item">
+                        <i class="fas fa-chart-bar" style="color: var(--success-green);"></i>
+                        <p>تحليل البيانات</p>
+                    </div>
+                    <div class="category-item">
+                        <i class="fas fa-bullhorn" style="color: var(--warning-orange);"></i>
+                        <p>التسويق الرقمي</p>
+                    </div>
+                    <div class="category-item">
+                        <i class="fas fa-briefcase" style="color: var(--primary-blue);"></i>
+                        <p>الدعم الفني</p>
+                    </div>
+                    <div class="category-item">
+                        <i class="fas fa-video" style="color: var(--secondary-purple);"></i>
+                        <p>الفيديو والأنيميشن</p>
+                    </div>
+                    <div class="category-item">
+                        <i class="fas fa-pen" style="color: var(--success-green);"></i>
+                        <p>الكتابة والترجمة</p>
+                    </div>
+                    <div class="category-item">
+                        <i class="fas fa-music" style="color: var(--warning-orange);"></i>
+                        <p>الموسيقى والصوت</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9: Technology Stack -->
+            <section>
+                <h2>التقنيات المستخدمة</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Technology Stack</h3>
+                <div class="tech-stack">
+                    <div class="tech-column">
+                        <h4><i class="fas fa-desktop"></i> Frontend</h4>
+                        <div class="tech-item" style="border-right: 4px solid var(--primary-blue);">
+                            <i class="fab fa-react" style="color: #61DAFB;"></i>
+                            <span>Next.js 13 + React 18</span>
+                        </div>
+                        <div class="tech-item" style="border-right: 4px solid var(--primary-blue);">
+                            <i class="fas fa-palette" style="color: #06B6D4;"></i>
+                            <span>Tailwind CSS</span>
+                        </div>
+                        <div class="tech-item" style="border-right: 4px solid var(--primary-blue);">
+                            <i class="fas fa-exchange-alt" style="color: var(--primary-blue);"></i>
+                            <span>Axios + Context API</span>
+                        </div>
+                    </div>
+                    <div class="tech-column">
+                        <h4><i class="fas fa-server"></i> Backend</h4>
+                        <div class="tech-item" style="border-right: 4px solid var(--secondary-purple);">
+                            <i class="fab fa-laravel" style="color: #FF2D20;"></i>
+                            <span>Laravel 11</span>
+                        </div>
+                        <div class="tech-item" style="border-right: 4px solid var(--secondary-purple);">
+                            <i class="fab fa-php" style="color: #777BB4;"></i>
+                            <span>PHP 8.2+</span>
+                        </div>
+                        <div class="tech-item" style="border-right: 4px solid var(--secondary-purple);">
+                            <i class="fas fa-database" style="color: #4479A1;"></i>
+                            <span>MySQL 8.0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 10: Architecture -->
+            <section>
+                <h2>البنية المعمارية</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">System Architecture</h3>
+                <div class="architecture">
+                    <div class="arch-box" style="background: #E0F2FE;">
+                        <i class="fas fa-browser"></i> متصفح المستخدم<br>User Browser
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box" style="background: #DBEAFE;">
+                        <i class="fab fa-react"></i> Next.js Frontend
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box" style="background: #E0E7FF;">
+                        <i class="fas fa-exchange-alt"></i> REST API
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box" style="background: #DDD6FE;">
+                        <i class="fab fa-laravel"></i> Laravel Backend
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box" style="background: #F3E8FF;">
+                        <i class="fas fa-database"></i> MySQL Database
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 11: Security -->
+            <section>
+                <h2>الأمان والحماية</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Security Features</h3>
+                <ul class="feature-list">
+                    <li><i class="fas fa-shield-alt"></i> <strong>Laravel Sanctum</strong> - نظام مصادقة متقدم</li>
+                    <li><i class="fas fa-lock"></i> <strong>RBAC</strong> - التحكم في الوصول حسب الدور</li>
+                    <li><i class="fas fa-key"></i> <strong>bcrypt</strong> - تشفير كلمات المرور</li>
+                    <li><i class="fas fa-code"></i> <strong>SQL Injection</strong> - حماية من الثغرات</li>
+                    <li><i class="fas fa-ban"></i> <strong>XSS Protection</strong> - حماية من البرمجة عبر المواقع</li>
+                    <li><i class="fas fa-user-shield"></i> <strong>CSRF Protection</strong> - حماية الطلبات</li>
+                </ul>
+            </section>
+
+            <!-- Slide 12: Key Statistics -->
+            <section>
+                <h2>الإحصائيات الرئيسية</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Key Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="number">150+</span>
+                        <span class="label">مستخدم نشط<br>Active Users</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">200+</span>
+                        <span class="label">مشروع منشور<br>Total Projects</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">85%</span>
+                        <span class="label">معدل الإكمال<br>Completion Rate</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">2,500+</span>
+                        <span class="label">ريال إيرادات<br>SAR Revenue</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 13: Commission System -->
+            <section>
+                <h2>نظام العمولة</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Commission System - 5%</h3>
+                <div class="three-columns">
+                    <div class="column">
+                        <h4><i class="fas fa-arrow-down"></i> الإيداع</h4>
+                        <p><strong>1000 ريال</strong></p>
+                        <p style="color: var(--warning-orange);">- 50 ريال (5%)</p>
+                        <hr>
+                        <p><strong>950 ريال</strong> في المحفظة</p>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-handshake"></i> قبول العرض</h4>
+                        <p><strong>500 ريال</strong></p>
+                        <p style="color: var(--warning-orange);">- 25 ريال (5%)</p>
+                        <hr>
+                        <p><strong>475 ريال</strong> للمستقل</p>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-arrow-up"></i> السحب</h4>
+                        <p><strong>1000 ريال</strong></p>
+                        <p style="color: var(--warning-orange);">- 50 ريال (5%)</p>
+                        <hr>
+                        <p><strong>950 ريال</strong> مستلم</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 14: Client Journey -->
+            <section>
+                <h2>رحلة العميل</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Client Journey</h3>
+                <div style="display: flex; justify-content: space-around; align-items: center; margin: 2em 0;">
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--primary-blue); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            1
+                        </div>
+                        <p>التسجيل</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--primary-blue);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--primary-blue); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            2
+                        </div>
+                        <p>إيداع رصيد</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--primary-blue);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--primary-blue); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            3
+                        </div>
+                        <p>إنشاء مشروع</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--primary-blue);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--primary-blue); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            4
+                        </div>
+                        <p>قبول عرض</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--primary-blue);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--success-green); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            ✓
+                        </div>
+                        <p>التقييم</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 15: Freelancer Journey -->
+            <section>
+                <h2>رحلة المستقل</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Freelancer Journey</h3>
+                <div style="display: flex; justify-content: space-around; align-items: center; margin: 2em 0;">
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--secondary-purple); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            1
+                        </div>
+                        <p>التسجيل</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--secondary-purple);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--secondary-purple); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            2
+                        </div>
+                        <p>تصفح المشاريع</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--secondary-purple);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--secondary-purple); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            3
+                        </div>
+                        <p>تقديم عرض</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--secondary-purple);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--secondary-purple); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            4
+                        </div>
+                        <p>التسليم</p>
+                    </div>
+                    <div style="font-size: 2em; color: var(--secondary-purple);">→</div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="background: var(--success-green); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5em; font-size: 1.5em;">
+                            ✓
+                        </div>
+                        <p>سحب الأرباح</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 16: Features Summary -->
+            <section>
+                <h2>الميزات الرئيسية</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Key Features</h3>
+                <div class="two-columns">
+                    <div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> نظام محفظة إلكترونية آمن</li>
+                            <li><i class="fas fa-check"></i> نظام إشعارات فوري</li>
+                            <li><i class="fas fa-check"></i> نظام تقييمات شفاف</li>
+                            <li><i class="fas fa-check"></i> لوحات تحكم متقدمة</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 8 فئات متنوعة</li>
+                            <li><i class="fas fa-check"></i> دعم كامل للغة العربية</li>
+                            <li><i class="fas fa-check"></i> تصميم حديث ومتجاوب</li>
+                            <li><i class="fas fa-check"></i> أمان متعدد الطبقات</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 17: Achievements -->
+            <section>
+                <h2>الإنجازات</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Key Achievements</h3>
+                <div class="icon-grid">
+                    <div class="icon-item blue">
+                        <i class="fas fa-code"></i>
+                        <h4>15,000+</h4>
+                        <p>سطر برمجي</p>
+                    </div>
+                    <div class="icon-item purple">
+                        <i class="fas fa-file-code"></i>
+                        <h4>100+</h4>
+                        <p>ملف ومكون</p>
+                    </div>
+                    <div class="icon-item green">
+                        <i class="fas fa-network-wired"></i>
+                        <h4>30+</h4>
+                        <p>نقطة API</p>
+                    </div>
+                    <div class="icon-item orange">
+                        <i class="fas fa-database"></i>
+                        <h4>10+</h4>
+                        <p>جدول قاعدة بيانات</p>
+                    </div>
+                    <div class="icon-item blue">
+                        <i class="fas fa-book"></i>
+                        <h4>235+</h4>
+                        <p>صفحة توثيق</p>
+                    </div>
+                    <div class="icon-item purple">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>100%</h4>
+                        <p>أمان محمي</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 18: Challenges & Solutions -->
+            <section>
+                <h2>التحديات والحلول</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Challenges & Solutions</h3>
+                <div class="two-columns" style="gap: 1em;">
+                    <div class="column" style="background: #FEF2F2;">
+                        <h4 style="color: #EF4444;"><i class="fas fa-exclamation-triangle"></i> التحدي</h4>
+                        <p>تطابق البيانات بين Frontend/Backend</p>
+                    </div>
+                    <div class="column" style="background: #F0FDF4;">
+                        <h4 style="color: var(--success-green);"><i class="fas fa-check-circle"></i> الحل</h4>
+                        <p>توثيق API شامل وتوحيد المعايير</p>
+                    </div>
+                </div>
+                <div class="two-columns" style="gap: 1em; margin-top: 1em;">
+                    <div class="column" style="background: #FEF2F2;">
+                        <h4 style="color: #EF4444;"><i class="fas fa-exclamation-triangle"></i> التحدي</h4>
+                        <p>أمان المعاملات المالية</p>
+                    </div>
+                    <div class="column" style="background: #F0FDF4;">
+                        <h4 style="color: var(--success-green);"><i class="fas fa-check-circle"></i> الحل</h4>
+                        <p>نظام محفظة محمي بالكامل مع RBAC</p>
+                    </div>
+                </div>
+                <div class="two-columns" style="gap: 1em; margin-top: 1em;">
+                    <div class="column" style="background: #FEF2F2;">
+                        <h4 style="color: #EF4444;"><i class="fas fa-exclamation-triangle"></i> التحدي</h4>
+                        <p>دعم اللغة العربية بشكل كامل</p>
+                    </div>
+                    <div class="column" style="background: #F0FDF4;">
+                        <h4 style="color: var(--success-green);"><i class="fas fa-check-circle"></i> الحل</h4>
+                        <p>تصميم RTL ومحتوى عربي متكامل</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 19: Future Enhancements -->
+            <section>
+                <h2>التطويرات المستقبلية</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Future Enhancements</h3>
+                <div class="three-columns">
+                    <div class="column">
+                        <h4><i class="fas fa-clock"></i> المدى القريب</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ دردشة مباشرة</li>
+                            <li>✓ إشعارات بريدية</li>
+                            <li>✓ رفع الملفات</li>
+                            <li>✓ نظام النزاعات</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-calendar-alt"></i> المدى المتوسط</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ تطبيق موبايل</li>
+                            <li>✓ بوابات دفع</li>
+                            <li>✓ اشتراكات مميزة</li>
+                            <li>✓ AI للتوصيات</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-rocket"></i> المدى البعيد</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ توسع إقليمي</li>
+                            <li>✓ عملات متعددة</li>
+                            <li>✓ Blockchain</li>
+                            <li>✓ عقود ذكية</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 20: Learning Outcomes -->
+            <section>
+                <h2>ما تعلمته</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Learning Outcomes</h3>
+                <div class="two-columns">
+                    <div>
+                        <h4 style="color: var(--primary-blue);">المهارات التقنية</h4>
+                        <ul>
+                            <li>تطوير Full-Stack متكامل</li>
+                            <li>تصميم RESTful API</li>
+                            <li>تصميم قواعد البيانات</li>
+                            <li>الأمان والحماية</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--secondary-purple);">المهارات العملية</h4>
+                        <ul>
+                            <li>إدارة المشاريع</li>
+                            <li>حل المشكلات</li>
+                            <li>التوثيق الشامل</li>
+                            <li>Best Practices</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 2em;">
+                    <span class="badge">Next.js</span>
+                    <span class="badge">Laravel</span>
+                    <span class="badge">MySQL</span>
+                    <span class="badge">React</span>
+                    <span class="badge">API Design</span>
+                    <span class="badge">Security</span>
+                </div>
+            </section>
+
+            <!-- Slide 21: Live Demo -->
+            <section>
+                <h2>العرض التوضيحي</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Live Demo</h3>
+                <div class="highlight-box">
+                    <h3><i class="fas fa-laptop-code"></i> عرض مباشر للمنصة</h3>
+                    <p style="font-size: 1.2em; margin: 1em 0;">
+                        سنقوم الآن بعرض مباشر لجميع ميزات المنصة
+                    </p>
+                </div>
+                <div class="process-flow" style="margin-top: 2em;">
+                    <div class="process-step">
+                        <span class="step-number">1</span>
+                        إنشاء مشروع جديد من حساب العميل
+                    </div>
+                    <div class="process-step">
+                        <span class="step-number">2</span>
+                        تقديم عرض من حساب المستقل
+                    </div>
+                    <div class="process-step">
+                        <span class="step-number">3</span>
+                        قبول العرض ومعاملة المحفظة
+                    </div>
+                    <div class="process-step">
+                        <span class="step-number">4</span>
+                        لوحة تحكم المشرف والتقارير
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 22: Documentation -->
+            <section>
+                <h2>التوثيق</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Documentation</h3>
+                <div class="icon-grid">
+                    <div class="icon-item blue">
+                        <i class="fas fa-book"></i>
+                        <h4>README.md</h4>
+                        <p>دليل الإعداد</p>
+                    </div>
+                    <div class="icon-item purple">
+                        <i class="fas fa-code"></i>
+                        <h4>API Docs</h4>
+                        <p>توثيق API</p>
+                    </div>
+                    <div class="icon-item green">
+                        <i class="fas fa-users"></i>
+                        <h4>Scenarios</h4>
+                        <p>رحلات المستخدمين</p>
+                    </div>
+                    <div class="icon-item orange">
+                        <i class="fas fa-percent"></i>
+                        <h4>Commission</h4>
+                        <p>نظام العمولة</p>
+                    </div>
+                    <div class="icon-item blue">
+                        <i class="fas fa-link"></i>
+                        <h4>References</h4>
+                        <p>المراجع</p>
+                    </div>
+                    <div class="icon-item purple">
+                        <i class="fas fa-list"></i>
+                        <h4>Index</h4>
+                        <p>فهرس التوثيق</p>
+                    </div>
+                </div>
+                <p style="text-align: center; font-size: 1.3em; margin-top: 1em; font-weight: 600;">
+                    235+ صفحة من التوثيق الشامل
+                </p>
+            </section>
+
+            <!-- Slide 23: Project Impact -->
+            <section>
+                <h2>أثر المشروع</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Project Impact</h3>
+                <div class="three-columns">
+                    <div class="column">
+                        <h4><i class="fas fa-users"></i> للمستخدمين</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ سهولة الوصول للفرص</li>
+                            <li>✓ معاملات آمنة</li>
+                            <li>✓ بناء سمعة احترافية</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-code"></i> للمطورين</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ نموذج تطبيق حقيقي</li>
+                            <li>✓ Best Practices</li>
+                            <li>✓ Portfolio Project</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h4><i class="fas fa-chart-line"></i> للمجتمع</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ دعم العمل الحر</li>
+                            <li>✓ تمكين المواهب</li>
+                            <li>✓ اقتصاد رقمي</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 24: Conclusion -->
+            <section>
+                <h2>الخلاصة</h2>
+                <h3 style="color: var(--text-gray); font-size: 1.2em;">Conclusion</h3>
+                <div class="highlight-box">
+                    <h3>منصة متكاملة للعمل الحر</h3>
+                    <div style="text-align: right; margin-top: 2em; font-size: 1.1em;">
+                        <p>✅ ثلاثة أنواع من المستخدمين (عملاء، مستقلون، مشرفون)</p>
+                        <p>✅ نظام دفع آمن ومحمي بالكامل</p>
+                        <p>✅ واجهة عربية حديثة ومتجاوبة</p>
+                        <p>✅ لوحات تحكم متقدمة للجميع</p>
+                        <p>✅ توثيق شامل ومهني</p>
+                        <p>✅ معايير عالية للجودة والأمان</p>
+                    </div>
+                </div>
+                <p style="text-align: center; font-size: 1.5em; margin-top: 1em; font-weight: 700; color: var(--primary-blue);">
+                    جاهز للاستخدام الفعلي والتطوير المستقبلي
+                </p>
+            </section>
+
+            <!-- Slide 25: Q&A / Thank You -->
+            <section class="title-slide">
+                <h1>شكراً لحسن الاستماع</h1>
+                <h2>Thank You</h2>
+                <div style="margin: 3em 0;">
+                    <i class="fas fa-question-circle" style="font-size: 4em; margin-bottom: 0.5em;"></i>
+                    <h3>الأسئلة والاستفسارات</h3>
+                    <h4>Questions & Answers</h4>
+                </div>
+                <div style="font-size: 1.1em; margin-top: 3em;">
+                    <p><i class="fas fa-envelope"></i> your.email@example.com</p>
+                    <p><i class="fab fa-github"></i> github.com/yourusername</p>
+                    <p><i class="fas fa-globe"></i> localhost:3000 (Demo)</p>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+    <script>
+        // Initialize Reveal.js
+        Reveal.initialize({
+            // Display controls in the bottom right corner
+            controls: true,
+            
+            // Display a presentation progress bar
+            progress: true,
+            
+            // Display slide number
+            slideNumber: 'c/t',
+            
+            // Push each slide change to browser history
+            history: true,
+            
+            // Enable keyboard shortcuts
+            keyboard: true,
+            
+            // Enable overview mode
+            overview: true,
+            
+            // Center slides vertically
+            center: true,
+            
+            // Enable touch navigation
+            touch: true,
+            
+            // Loop presentation
+            loop: false,
+            
+            // Right-to-left support
+            rtl: true,
+            
+            // Change transition style
+            transition: 'slide', // none/fade/slide/convex/concave/zoom
+            
+            // Transition speed
+            transitionSpeed: 'default', // default/fast/slow
+            
+            // Transition style for full page slide backgrounds
+            backgroundTransition: 'fade',
+            
+            // Number of slides away from current visible
+            viewDistance: 3,
+            
+            // Parallax background image
+            // parallaxBackgroundImage: '',
+            
+            // Parallax background size
+            // parallaxBackgroundSize: '',
+            
+            // Number of pixels to move parallax background
+            // parallaxBackgroundHorizontal: null,
+            // parallaxBackgroundVertical: null,
+            
+            // Display time in milliseconds
+            autoSlideStoppable: true,
+            
+            // Mouse wheel navigation
+            mouseWheel: false,
+            
+            // Hide cursor
+            hideInactiveCursor: true,
+            hideCursorTime: 5000,
+            
+            // PDF export
+            pdfSeparateFragments: false,
+            pdfMaxPagesPerSlide: 1
+        });
+        
+        // Add custom keyboard shortcuts
+        Reveal.addKeyBinding({keyCode: 70, key: 'F', description: 'Toggle fullscreen'}, function() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen();
+            }
+        });
+        
+        // Log current slide for debugging
+        Reveal.on('slidechanged', event => {
+            console.log('Current slide:', event.indexh + 1);
+        });
+    </script>
+</body>
+</html>

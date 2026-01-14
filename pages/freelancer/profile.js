@@ -1,12 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   FaUser, 
   FaEnvelope, 
-  FaPhone, 
-  FaMapMarkerAlt, 
   FaCamera, 
   FaSave,
   FaDollarSign,
@@ -17,56 +15,109 @@ import {
   FaTimes,
   FaExternalLinkAlt,
   FaPlus,
-  FaFolderOpen
+  FaFolderOpen,
+  FaSpinner
 } from 'react-icons/fa';
 import Link from 'next/link';
 import ReviewList from '../../components/reviews/ReviewList';
 import { FaStar } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 export default function FreelancerProfile() {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || 'Ahmed Mohamed',
-    email: user?.email || 'ahmed@example.com',
-    phone: '+966 XX XXX XXXX',
-    location: 'Saudi Arabia',
-    bio: 'مستقل محترف متخصص في تطوير الويب والتصميم مع خبرة تزيد عن 5 سنوات',
-    title: 'Full Stack Developer & UI/UX Designer',
-    hourlyRate: '50',
-    yearsOfExperience: '5',
-    languages: ['العربية', 'English'],
-    portfolioUrl: 'https://portfolio.example.com',
-    linkedinUrl: 'https://linkedin.com/in/username',
-    githubUrl: 'https://github.com/username'
+    name: user?.name || '',
+    email: user?.email || '',
+    bio: '',
+    title: '',
+    hourlyRate: '',
+    portfolioUrl: '',
+    linkedinUrl: '',
+    githubUrl: ''
   });
 
-  const [skills, setSkills] = useState([
-    'React', 'Node.js', 'JavaScript', 'TypeScript', 
-    'Tailwind CSS', 'MongoDB', 'UI/UX Design'
-  ]);
+  const [skills, setSkills] = useState([]);
   const [newSkill, setNewSkill] = useState('');
 
-  // Featured projects for showcase
-  const [featuredProjects] = useState([
-    {
-      id: 1,
-      title: 'تطبيق التجارة الإلكترونية',
-      image: 'https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=300&fit=crop',
-      demo: 'https://demo.example.com',
-    },
-    {
-      id: 2,
-      title: 'تصميم هوية بصرية متكاملة',
-      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop',
-      demo: 'https://demo2.example.com',
-    },
-    {
-      id: 3,
-      title: 'لوحة تحكم إدارية',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
-      demo: 'https://demo3.example.com',
-    },
-  ]);
+  const [featuredProjects, setFeaturedProjects] = useState([]);
+
+  // Load profile data from API
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+    }
+  }, [user]);
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      const sellerService = (await import('../../services/sellerService')).default;
+      const response = await sellerService.getMyProfile();
+      
+      const profile = response.data || {};
+      const userData = profile.user || {};
+      
+      // Parse skills (can be JSON string or array)
+      let skillsList = [];
+      if (profile.skills) {
+        if (typeof profile.skills === 'string') {
+          try {
+            skillsList = JSON.parse(profile.skills);
+          } catch {
+            // If not JSON, treat as comma-separated
+            skillsList = profile.skills.split(',').map(s => s.trim()).filter(s => s);
+          }
+        } else if (Array.isArray(profile.skills)) {
+          skillsList = profile.skills;
+        }
+      }
+
+      setFormData({
+        name: userData.name || user?.name || '',
+        email: userData.email || user?.email || '',
+        bio: profile.bio || '',
+        title: profile.title || '',
+        hourlyRate: profile.hourly_rate || '',
+        portfolioUrl: profile.portfolio_url || '',
+        linkedinUrl: profile.linkedin_url || '',
+        githubUrl: profile.github_url || ''
+      });
+
+      setSkills(skillsList);
+      
+      // Load portfolio items
+      if (profile.portfolioItems && Array.isArray(profile.portfolioItems)) {
+        setFeaturedProjects(profile.portfolioItems.slice(0, 3).map(item => ({
+          id: item.id,
+          title: item.title,
+          image: item.image_url || 'https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=300&fit=crop',
+          demo: item.project_url || '#',
+        })));
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      // If profile doesn't exist (404), initialize with user data only
+      if (error.response?.status === 404) {
+        setFormData({
+          name: user?.name || '',
+          email: user?.email || '',
+          bio: '',
+          title: '',
+          hourlyRate: '',
+          portfolioUrl: '',
+          linkedinUrl: '',
+          githubUrl: ''
+        });
+        setSkills([]);
+      } else {
+        toast.error('حدث خطأ في تحميل الملف الشخصي');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,10 +135,37 @@ export default function FreelancerProfile() {
     setSkills(skills.filter(skill => skill !== skillToRemove));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Profile updated:', { ...formData, skills });
-    alert('تم تحديث الملف الشخصي بنجاح!');
+    
+    try {
+      setSaving(true);
+      const sellerService = (await import('../../services/sellerService')).default;
+      
+      // Prepare data for API
+      const updateData = {
+        display_name: formData.name,
+        title: formData.title,
+        bio: formData.bio,
+        skills: JSON.stringify(skills), // Send as JSON string
+        hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
+        portfolio_url: formData.portfolioUrl || null,
+        linkedin_url: formData.linkedinUrl || null,
+        github_url: formData.githubUrl || null,
+      };
+
+      await sellerService.updateProfile(updateData);
+      
+      toast.success('تم تحديث الملف الشخصي بنجاح!');
+      
+      // Reload profile to get updated data
+      await loadProfile();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error(error.response?.data?.message || 'حدث خطأ في تحديث الملف الشخصي');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -99,6 +177,12 @@ export default function FreelancerProfile() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">الملف الشخصي</h1>
 
+        {loading ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <FaSpinner className="w-12 h-12 text-primary-500 mx-auto mb-4 animate-spin" />
+            <p className="text-gray-600">جاري تحميل الملف الشخصي...</p>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Picture */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
@@ -118,7 +202,9 @@ export default function FreelancerProfile() {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">{formData.name}</h3>
                 <p className="text-sm text-gray-500 mb-1">{formData.title}</p>
-                <p className="text-sm text-gray-500 mb-3">مستقل منذ يناير 2024</p>
+                <p className="text-sm text-gray-500 mb-3">
+                  مستقل منذ {user?.created_at ? new Date(user.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long' }) : '2024'}
+                </p>
                 <button
                   type="button"
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium"
@@ -160,38 +246,6 @@ export default function FreelancerProfile() {
                     type="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  رقم الهاتف
-                </label>
-                <div className="relative">
-                  <FaPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  الموقع
-                </label>
-                <div className="relative">
-                  <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
                     onChange={handleChange}
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
@@ -253,19 +307,6 @@ export default function FreelancerProfile() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  سنوات الخبرة
-                </label>
-                <input
-                  type="number"
-                  name="yearsOfExperience"
-                  value={formData.yearsOfExperience}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
             </div>
           </div>
 
@@ -492,13 +533,24 @@ export default function FreelancerProfile() {
             </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center gap-2"
+              disabled={saving}
+              className="px-8 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FaSave />
-              حفظ التغييرات
+              {saving ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  جاري الحفظ...
+                </>
+              ) : (
+                <>
+                  <FaSave />
+                  حفظ التغييرات
+                </>
+              )}
             </button>
           </div>
         </form>
+        )}
       </div>
     </DashboardLayout>
   );

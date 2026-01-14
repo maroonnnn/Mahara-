@@ -20,6 +20,11 @@ class User extends Authenticatable
         'password',
         'role', // 'client', 'freelancer', 'admin'
         'status', // 'active', 'suspended', 'banned'
+        'phone',
+        'location',
+        'bio',
+        'company',
+        'website',
     ];
 
     /**

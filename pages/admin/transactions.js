@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import { useLanguage } from '../../contexts/LanguageContext';
 import adminService from '../../services/adminService';
 import { toast } from 'react-toastify';
 import { 
@@ -14,7 +13,6 @@ import {
 } from 'react-icons/fa';
 
 export default function AdminTransactions() {
-  const { language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -45,28 +43,29 @@ export default function AdminTransactions() {
       // Transform transactions to match frontend format
       const formattedTransactions = transactionsList.map(txn => {
         const details = typeof txn.details === 'string' ? JSON.parse(txn.details) : (txn.details || {});
-        const method = details.method || 'N/A';
+        const method = details.method || 'غير محدد';
         
         return {
           id: `TXN-${txn.id}`,
           type: txn.type,
-          user: txn.wallet?.user?.name || 'N/A',
+          user: txn.wallet?.user?.name || 'غير محدد',
           userId: txn.wallet?.user?.id,
           project: details.project || details.note || '-',
           amount: Math.abs(parseFloat(txn.amount || 0)),
           status: txn.status,
           date: txn.created_at ? new Date(txn.created_at).toLocaleDateString('ar-SA') : '-',
-          method: method === 'credit_card' ? 'Credit Card' :
-                  method === 'paypal' ? 'PayPal' :
-                  method === 'bank_transfer' ? 'Bank Transfer' :
-                  method === 'unknown' ? 'N/A' : method
+          method: method === 'credit_card' ? 'بطاقة ائتمانية' :
+                  method === 'paypal' ? 'باي بال' :
+                  method === 'bank_transfer' ? 'تحويل بنكي' :
+                  method === 'manual_deposit' ? 'إيداع يدوي' :
+                  method === 'unknown' ? 'غير محدد' : method
         };
       });
       
       setTransactions(formattedTransactions);
     } catch (error) {
       console.error('Error loading transactions:', error);
-      toast.error(language === 'ar' ? 'فشل تحميل المعاملات' : 'Failed to load transactions');
+      toast.error('فشل تحميل المعاملات');
       setTransactions([]);
     } finally {
       setLoading(false);
@@ -107,19 +106,19 @@ export default function AdminTransactions() {
         return {
           icon: <FaCheckCircle />,
           classes: 'bg-green-100 text-green-800',
-          text: language === 'ar' ? 'مكتمل' : 'Completed'
+          text: 'مكتمل'
         };
       case 'pending':
         return {
           icon: <FaClock />,
           classes: 'bg-yellow-100 text-yellow-800',
-          text: language === 'ar' ? 'معلق' : 'Pending'
+          text: 'معلق'
         };
       case 'failed':
         return {
           icon: <FaTimesCircle />,
           classes: 'bg-red-100 text-red-800',
-          text: language === 'ar' ? 'فشل' : 'Failed'
+          text: 'فشل'
         };
       default:
         return {
@@ -133,13 +132,13 @@ export default function AdminTransactions() {
   const getTypeBadge = (type) => {
     switch(type) {
       case 'deposit':
-        return { classes: 'bg-green-100 text-green-800', text: language === 'ar' ? 'إيداع' : 'Deposit' };
+        return { classes: 'bg-green-100 text-green-800', text: 'إيداع' };
       case 'withdraw':
-        return { classes: 'bg-purple-100 text-purple-800', text: language === 'ar' ? 'سحب' : 'Withdraw' };
+        return { classes: 'bg-purple-100 text-purple-800', text: 'سحب' };
       case 'payment':
-        return { classes: 'bg-blue-100 text-blue-800', text: language === 'ar' ? 'دفع' : 'Payment' };
+        return { classes: 'bg-blue-100 text-blue-800', text: 'دفع' };
       case 'refund':
-        return { classes: 'bg-orange-100 text-orange-800', text: language === 'ar' ? 'استرجاع' : 'Refund' };
+        return { classes: 'bg-orange-100 text-orange-800', text: 'استرجاع' };
       default:
         return { classes: 'bg-gray-100 text-gray-800', text: type };
     }
@@ -148,7 +147,7 @@ export default function AdminTransactions() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'إدارة المعاملات المالية - Mahara' : 'Transaction Management - Mahara'}</title>
+        <title>إدارة المعاملات المالية - Mahara</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">
@@ -156,10 +155,10 @@ export default function AdminTransactions() {
           {/* Page Header */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {language === 'ar' ? 'إدارة المعاملات المالية' : 'Transaction Management'}
+              إدارة المعاملات المالية
             </h1>
             <p className="text-gray-600">
-              {language === 'ar' ? 'مراقبة وإدارة جميع المعاملات المالية' : 'Monitor and manage all financial transactions'}
+              مراقبة وإدارة جميع المعاملات المالية
             </p>
           </div>
 
@@ -168,7 +167,7 @@ export default function AdminTransactions() {
             <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium opacity-90">
-                  {language === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue'}
+                  إجمالي الإيرادات
                 </h3>
                 <FaDollarSign className="w-8 h-8 opacity-75" />
               </div>
@@ -178,7 +177,7 @@ export default function AdminTransactions() {
             <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-lg shadow-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium opacity-90">
-                  {language === 'ar' ? 'المعاملات المعلقة' : 'Pending Transactions'}
+                  المعاملات المعلقة
                 </h3>
                 <FaClock className="w-8 h-8 opacity-75" />
               </div>
@@ -188,7 +187,7 @@ export default function AdminTransactions() {
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium opacity-90">
-                  {language === 'ar' ? 'إجمالي المعاملات' : 'Total Transactions'}
+                  إجمالي المعاملات
                 </h3>
                 <FaCheckCircle className="w-8 h-8 opacity-75" />
               </div>
@@ -203,7 +202,7 @@ export default function AdminTransactions() {
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder={language === 'ar' ? 'البحث عن معاملة...' : 'Search transactions...'}
+                  placeholder="البحث عن معاملة..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -215,11 +214,11 @@ export default function AdminTransactions() {
                   onChange={(e) => setFilterType(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">{language === 'ar' ? 'جميع الأنواع' : 'All Types'}</option>
-                  <option value="deposit">{language === 'ar' ? 'إيداع' : 'Deposit'}</option>
-                  <option value="withdraw">{language === 'ar' ? 'سحب' : 'Withdraw'}</option>
-                  <option value="payment">{language === 'ar' ? 'دفع' : 'Payment'}</option>
-                  <option value="refund">{language === 'ar' ? 'استرجاع' : 'Refund'}</option>
+                  <option value="all">جميع الأنواع</option>
+                  <option value="deposit">إيداع</option>
+                  <option value="withdraw">سحب</option>
+                  <option value="payment">دفع</option>
+                  <option value="refund">استرجاع</option>
                 </select>
               </div>
               <div>
@@ -228,10 +227,10 @@ export default function AdminTransactions() {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">{language === 'ar' ? 'جميع الحالات' : 'All Status'}</option>
-                  <option value="completed">{language === 'ar' ? 'مكتمل' : 'Completed'}</option>
-                  <option value="pending">{language === 'ar' ? 'معلق' : 'Pending'}</option>
-                  <option value="failed">{language === 'ar' ? 'فشل' : 'Failed'}</option>
+                  <option value="all">جميع الحالات</option>
+                  <option value="completed">مكتمل</option>
+                  <option value="pending">معلق</option>
+                  <option value="failed">فشل</option>
                 </select>
               </div>
             </div>
@@ -241,22 +240,22 @@ export default function AdminTransactions() {
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                {language === 'ar' ? 'المعاملات الأخيرة' : 'Recent Transactions'}
+                المعاملات الأخيرة
               </h2>
               <button className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
                 <FaDownload />
-                {language === 'ar' ? 'تصدير' : 'Export'}
+                تصدير
               </button>
             </div>
             
             {loading ? (
               <div className="p-12 text-center">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
-                <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+                <p className="text-gray-600">جاري التحميل...</p>
               </div>
             ) : filteredTransactions.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-gray-500">{language === 'ar' ? 'لا توجد معاملات' : 'No transactions found'}</p>
+                <p className="text-gray-500">لا توجد معاملات</p>
               </div>
             ) : (
             <div className="overflow-x-auto">
@@ -264,28 +263,28 @@ export default function AdminTransactions() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'معرف المعاملة' : 'Transaction ID'}
+                      معرف المعاملة
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'النوع' : 'Type'}
+                      النوع
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'المستخدم' : 'User'}
+                      المستخدم
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'المشروع' : 'Project'}
+                      المشروع
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'المبلغ' : 'Amount'}
+                      المبلغ
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'الحالة' : 'Status'}
+                      الحالة
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'التاريخ' : 'Date'}
+                      التاريخ
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'الطريقة' : 'Method'}
+                      الطريقة
                     </th>
                   </tr>
                 </thead>

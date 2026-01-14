@@ -37,7 +37,7 @@ export default function DepositPage() {
     setCardDetails(prev => ({ ...prev, [name]: value }));
   };
 
-  const PLATFORM_FEE_PERCENTAGE = 10; // 10% platform fee
+  const PLATFORM_FEE_PERCENTAGE = 5; // 5% platform fee
 
   const calculateFees = () => {
     const depositAmount = parseFloat(amount) || 0;
@@ -96,7 +96,7 @@ export default function DepositPage() {
       const updatedWallet = await walletService.getWallet();
       const newBalance = parseFloat(updatedWallet.data?.balance || updatedWallet.data?.data?.balance || 0);
 
-      alert(`✅ تم إيداع ${depositAmount.toFixed(2)} دولار بنجاح!\n\n💰 المبلغ المضاف لمحفظتك: $${finalAmount.toFixed(2)}\n📊 عمولة المنصة (10%): $${platformFee.toFixed(2)}\n\n💼 رصيدك الجديد: $${newBalance.toFixed(2)}`);
+      alert(`✅ تم إيداع ${depositAmount.toFixed(2)} دولار بنجاح!\n\n💰 المبلغ المضاف لمحفظتك: $${finalAmount.toFixed(2)}\n📊 عمولة المنصة (5%): $${platformFee.toFixed(2)}\n\n💼 رصيدك الجديد: $${newBalance.toFixed(2)}`);
       
       // Redirect to wallet page - it will reload transactions automatically
       router.push('/client/wallet');
@@ -363,7 +363,7 @@ export default function DepositPage() {
                   <span className="font-semibold text-gray-900">${calculateFees().depositAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">عمولة المنصة (10%)</span>
+                  <span className="text-gray-600">عمولة المنصة (5%)</span>
                   <span className="font-semibold text-red-600">-${calculateFees().platformFee.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-3 flex justify-between">

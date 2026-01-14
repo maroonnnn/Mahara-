@@ -115,8 +115,30 @@ class ProjectController extends Controller
             $query->where('budget', '<=', $request->float('max_budget'));
         }
 
-        // ترتيب حسب الأحدث أولاً
-        $projects = $query->latest('created_at')->paginate(20);
+        // البحث في العنوان والوصف
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // ترتيب المشاريع
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        
+        if ($sortBy === 'budget') {
+            $query->orderBy('budget', $sortOrder);
+        } elseif ($sortBy === 'offers') {
+            // ترتيب حسب عدد العروض (يستخدم withCount الذي تم إضافته مسبقاً)
+            $query->orderBy('offers_count', $sortOrder);
+        } else {
+            // افتراضي: ترتيب حسب الأحدث
+            $query->latest('created_at');
+        }
+
+        $projects = $query->paginate(20);
 
         return response()->json($projects);
     }

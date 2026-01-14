@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Offer;
 use App\Models\Project;
 use App\Models\Transaction;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -57,6 +58,19 @@ class OfferController extends Controller
             'delivery_days' => $request->delivery_days,
             'cover_message' => $request->cover_message,
         ]);
+
+        // Create notification for the project owner (client)
+        $project->load('client');
+        if ($project->client) {
+            Notification::create([
+                'user_id' => $project->client_id,
+                'type' => 'offer_submitted',
+                'title' => 'عرض جديد على مشروعك',
+                'message' => "قدم المستقل {$user->name} عرضاً جديداً على مشروعك: {$project->title}",
+                'related_type' => 'project',
+                'related_id' => $project->id,
+            ]);
+        }
 
         return response()->json(['message' => 'Offer submitted successfully', 'offer' => $offer], 201);
     }
@@ -150,6 +164,19 @@ class OfferController extends Controller
                 'accepted_offer_id' => $offer->id,
                 'status' => 'in_progress',
             ]);
+
+            // Create notification for the freelancer
+            $offer->load('freelancer');
+            if ($offer->freelancer) {
+                Notification::create([
+                    'user_id' => $offer->freelancer_id,
+                    'type' => 'offer_accepted',
+                    'title' => 'تم قبول عرضك',
+                    'message' => "تم قبول عرضك على المشروع: {$project->title}. يمكنك الآن البدء بالعمل!",
+                    'related_type' => 'project',
+                    'related_id' => $project->id,
+                ]);
+            }
         });
 
         return response()->json(['message' => 'Offer accepted and payment captured']);

@@ -65,8 +65,8 @@ const adminService = {
   },
 
   // Reports
-  getReports: (type, period = 'month') => {
-    return api.get(`/admin/reports/${type}`, { params: { period } });
+  getReports: (period = 'month') => {
+    return api.get('/admin/reports', { params: { period } });
   },
 
   exportReport: (type, format = 'csv', period = 'month') => {

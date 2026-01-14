@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { useAuth } from '../../../contexts/AuthContext';
+import { toast } from 'react-toastify';
 import { 
   FaArrowRight,
   FaDollarSign,
@@ -286,8 +287,6 @@ export default function ClientProjectDetailsPage() {
   };
 
 
-  const PLATFORM_COMMISSION = 10; // 10% commission on projects
-
   const handleAcceptOffer = async (offerId) => {
     try {
       // Find the offer to get the amount
@@ -297,27 +296,36 @@ export default function ClientProjectDetailsPage() {
         return;
       }
 
-      // Calculate total amount with platform commission
       const offerAmount = offer.amount;
-      const clientCommission = offerAmount * (PLATFORM_COMMISSION / 100);
-      const totalAmount = offerAmount + clientCommission;
 
-      // Check wallet balance
-      const currentBalance = parseFloat(localStorage.getItem('walletBalance') || '1200'); // Mock balance
+      // Fetch real wallet balance from API
+      const walletService = (await import('../../../services/walletService')).default;
+      let walletResponse;
+      let currentBalance = 0;
+      
+      try {
+        walletResponse = await walletService.getWallet();
+        const walletData = walletResponse.data?.data || walletResponse.data || {};
+        currentBalance = parseFloat(walletData.balance || 0);
+      } catch (error) {
+        console.error('Error loading wallet:', error);
+        alert('❌ فشل تحميل رصيد المحفظة. يرجى المحاولة مرة أخرى.');
+        return;
+      }
 
-      if (currentBalance < totalAmount) {
-        const shortage = totalAmount - currentBalance;
+      // Check wallet balance (backend only checks offer amount, not commission)
+      if (currentBalance < offerAmount) {
+        const shortage = offerAmount - currentBalance;
         const confirmDeposit = window.confirm(
-          `❌ رصيدك الحالي: $${currentBalance.toFixed(2)}\n` +
+          `❌ رصيدك غير كافٍ!\n\n` +
           `💵 مبلغ العرض: $${offerAmount.toFixed(2)}\n` +
-          `📊 عمولة المنصة (10%): $${clientCommission.toFixed(2)}\n` +
-          `💰 المبلغ الإجمالي: $${totalAmount.toFixed(2)}\n` +
+          `💰 رصيدك الحالي: $${currentBalance.toFixed(2)}\n` +
           `⚠️ ينقصك: $${shortage.toFixed(2)}\n\n` +
           `هل تريد الذهاب لصفحة الإيداع لإضافة رصيد؟`
         );
         
         if (confirmDeposit) {
-          router.push('/client/wallet/deposit');
+          router.push('/client/wallet');
         }
         return;
       }
@@ -326,8 +334,6 @@ export default function ClientProjectDetailsPage() {
       const confirmed = window.confirm(
         `هل أنت متأكد من قبول هذا العرض؟\n\n` +
         `💵 مبلغ العرض: $${offerAmount.toFixed(2)}\n` +
-        `📊 عمولة المنصة (10%): $${clientCommission.toFixed(2)}\n` +
-        `💰 المبلغ الإجمالي: $${totalAmount.toFixed(2)}\n` +
         `⏱ المدة: ${offer.duration}\n` +
         `👤 المستقل: ${offer.freelancer.name}\n\n` +
         `سيتم خصم المبلغ من محفظتك وحجزه حتى إتمام المشروع.`
@@ -340,39 +346,10 @@ export default function ClientProjectDetailsPage() {
       // Accept offer via API (needs both projectId and offerId)
       await offerService.acceptOffer(id, offerId);
       
-      // Deduct from wallet (hold in escrow)
-      const newBalance = currentBalance - totalAmount;
-      localStorage.setItem('walletBalance', newBalance.toString());
-      localStorage.setItem('escrowAmount', offerAmount.toString()); // Only offer amount in escrow, not commission
+      toast.success('✅ تم قبول العرض بنجاح! سيتم إشعار المستقل وبدء العمل على المشروع.');
       
-      // Track platform revenue from commission
-      const platformRevenue = JSON.parse(localStorage.getItem('platformRevenue') || '{"total":0,"deposits":[],"withdrawals":[],"commissions":[]}');
-      platformRevenue.total += clientCommission;
-      platformRevenue.commissions.push({
-        id: Date.now(),
-        projectId: id,
-        offerId: offerId,
-        userId: offer.freelancer.id,
-        userName: offer.freelancer.name,
-        amount: offerAmount,
-        fee: clientCommission,
-        date: new Date().toISOString(),
-        type: 'project_commission',
-        source: 'client'
-      });
-      localStorage.setItem('platformRevenue', JSON.stringify(platformRevenue));
-      
-      alert(
-        `✅ تم قبول العرض بنجاح!\n\n` +
-        `💵 مبلغ العرض: $${offerAmount.toFixed(2)}\n` +
-        `📊 عمولة المنصة: $${clientCommission.toFixed(2)}\n` +
-        `💰 المبلغ المخصوم: $${totalAmount.toFixed(2)}\n` +
-        `🔒 المبلغ محفوظ بأمان حتى إتمام المشروع\n` +
-        `💼 رصيدك الجديد: $${newBalance.toFixed(2)}\n\n` +
-        `سيتم إشعار المستقل وبدء العمل على المشروع.`
-      );
-      
-      loadProjectAndOffers();
+      // Reload project and offers to see updated status
+      await loadProjectAndOffers();
     } catch (error) {
       console.error('Error accepting offer:', error);
       console.error('Error details:', {
@@ -386,7 +363,19 @@ export default function ClientProjectDetailsPage() {
                           error.message || 
                           'خطأ غير معروف';
       
-      alert(`❌ حدث خطأ أثناء قبول العرض.\n\n${errorMessage}\n\nيرجى المحاولة مرة أخرى.`);
+      if (error.response?.status === 422 && errorMessage.includes('Insufficient')) {
+        const confirmDeposit = window.confirm(
+          `❌ رصيدك غير كافٍ!\n\n` +
+          `${errorMessage}\n\n` +
+          `هل تريد الذهاب لصفحة الإيداع لإضافة رصيد؟`
+        );
+        
+        if (confirmDeposit) {
+          router.push('/client/wallet');
+        }
+      } else {
+        alert(`❌ حدث خطأ أثناء قبول العرض.\n\n${errorMessage}\n\nيرجى المحاولة مرة أخرى.`);
+      }
     }
   };
 
