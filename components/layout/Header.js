@@ -172,13 +172,19 @@ export default function Header() {
 
                         {/* Account Management */}
                         <div className="px-4 py-2 border-b border-gray-100">
-                          <Link href="/become-seller" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
-                            Become a Seller
-                          </Link>
                           <Link href="/settings" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
                             Account settings
                           </Link>
-                          <Link href="/billing" className="block py-2 text-gray-700 hover:text-primary-500 text-sm">
+                          <Link
+                            href={
+                              user?.role === 'admin'
+                                ? '/admin/transactions'
+                                : user?.role === 'client'
+                                  ? '/client/wallet'
+                                  : '/freelancer/wallet'
+                            }
+                            className="block py-2 text-gray-700 hover:text-primary-500 text-sm"
+                          >
                             Billing and payments
                           </Link>
                         </div>
@@ -292,12 +298,6 @@ export default function Header() {
                     )}
                   </div>
 
-                  {/* Hide "Become a Seller" button on landing page */}
-                  {router.pathname !== '/' && (
-                        <Link href="/become-seller" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
-                          Become a Seller
-                        </Link>
-                  )}
                   <Link href="/login" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
                     Sign In
                   </Link>

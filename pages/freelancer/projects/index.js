@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { useAuth } from '../../../contexts/AuthContext';
+import { toast } from 'react-toastify';
 import { 
   FaSearch,
   FaClock, 
@@ -28,22 +29,10 @@ export default function FreelancerProjectsPage() {
       return;
     }
 
-    // Role-based access control
+    // Auth guard
     if (!isAuthenticated) {
-      alert('Please sign in first.');
+      toast.error('Please sign in first.');
       router.push('/login');
-      return;
-    }
-
-    if (isClient) {
-      alert('❌ This page is for freelancers only.\n\nAs a client, you can create a new project from your dashboard.');
-      router.push('/client/projects');
-      return;
-    }
-
-    if (!isFreelancer) {
-      alert('❌ Only freelancers can access this page.');
-      router.push('/');
       return;
     }
 
@@ -345,14 +334,16 @@ export default function FreelancerProjectsPage() {
     <DashboardLayout>
       <Head>
         <title>Available Projects | Mahara</title>
-        <meta name="description" content="Browse open projects and submit your offers" />
+        <meta name="description" content="Browse open projects on the platform" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Available Projects</h1>
-          <p className="text-gray-600">Browse open projects and submit your offers.</p>
+          <p className="text-gray-600">
+            {isFreelancer ? 'Browse open projects and submit your offers.' : 'Browse open projects on the platform.'}
+          </p>
         </div>
 
         {/* Search and Filters */}
@@ -408,7 +399,7 @@ export default function FreelancerProjectsPage() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <Link href={`/freelancer/projects/${project.id}`}>
+                    <Link href={`/projects/${project.id}`}>
                       <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors cursor-pointer">
                         {project.title}
                       </h3>
@@ -452,7 +443,7 @@ export default function FreelancerProjectsPage() {
                       <p className="text-sm font-semibold text-gray-900">{project.client?.name || 'Client'}</p>
                     </div>
                     <Link
-                      href={`/freelancer/projects/${project.id}`}
+                      href={`/projects/${project.id}`}
                       className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold"
                     >
                       View details
