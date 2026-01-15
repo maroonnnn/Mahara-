@@ -10,7 +10,6 @@ import {
   FaEnvelope, 
   FaUser, 
   FaSignOutAlt,
-  FaGlobe,
   FaBars,
   FaTimes,
   FaChevronDown
@@ -20,16 +19,14 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [exploreMenuOpen, setExploreMenuOpen] = useState(false);
-  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { user, isAuthenticated, logout } = useAuth();
-  const { language, changeLanguage } = useLanguage();
+  const { language } = useLanguage();
   const userMenuRef = useRef(null);
   const exploreMenuRef = useRef(null);
-  const languageMenuRef = useRef(null);
   const categoryRefs = useRef({});
   const categoryTimeoutRef = useRef(null);
   const router = useRouter();
@@ -59,11 +56,6 @@ export default function Header() {
     }
   };
 
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-  ];
-
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
@@ -75,9 +67,6 @@ export default function Header() {
       }
       if (exploreMenuRef.current && !exploreMenuRef.current.contains(event.target)) {
         setExploreMenuOpen(false);
-      }
-      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target)) {
-        setLanguageMenuOpen(false);
       }
       // Close category dropdowns when clicking outside
       if (openCategoryIndex !== null) {
@@ -192,18 +181,6 @@ export default function Header() {
 
                         {/* Bottom Section */}
                         <div className="px-4 py-2">
-                          <div className="relative">
-                            <button
-                              onClick={() => {
-                                const newLang = language === 'en' ? 'ar' : 'en';
-                                changeLanguage(newLang);
-                              }}
-                              className="flex items-center w-full py-2 text-gray-700 hover:text-primary-500 text-sm"
-                            >
-                              <FaGlobe className="w-4 h-4 mr-2" />
-                              {language === 'en' ? 'English' : 'العربية'}
-                            </button>
-                          </div>
                           <div className="block py-2 text-gray-700 text-sm">
                             $ USD
                           </div>
@@ -229,7 +206,6 @@ export default function Header() {
                     <button
                       onClick={() => {
                         setExploreMenuOpen(!exploreMenuOpen);
-                        setLanguageMenuOpen(false);
                       }}
                       className="flex items-center gap-1 text-gray-700 hover:text-primary-500 text-sm font-medium transition-colors"
                     >
@@ -251,50 +227,7 @@ export default function Header() {
                             </Link>
                           ))}
                         </div>
-                        <Link href="/inspiration" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
-                          Get Inspired
-                </Link>
-                        <Link href="/learn" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
-                          Learn from Mahara
-                </Link>
               </div>
-                    )}
-                  </div>
-
-                  {/* Language Selector */}
-                  <div className="relative" ref={languageMenuRef}>
-                    <button
-                      onClick={() => {
-                        setLanguageMenuOpen(!languageMenuOpen);
-                        setExploreMenuOpen(false);
-                      }}
-                      className="flex items-center gap-1 text-gray-700 hover:text-primary-500 text-sm font-medium transition-colors"
-                    >
-                      <FaGlobe className="w-4 h-4" />
-                      <span suppressHydrationWarning>{languages.find(l => l.code === language)?.name || 'English'}</span>
-                      <FaChevronDown className={`w-3 h-3 transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    {languageMenuOpen && (
-                      <div className={`absolute mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-200 z-50 ${language === 'ar' ? 'left-0' : 'right-0'}`}>
-                        {languages.map((lang) => (
-                          <button
-                            key={lang.code}
-                            onClick={() => {
-                              changeLanguage(lang.code);
-                              setLanguageMenuOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 ${
-                              language === lang.code ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-700'
-                            }`}
-                          >
-                            <span>{lang.flag}</span>
-                            <span>{lang.name}</span>
-                            <span className={`ml-auto text-primary-500 ${language === lang.code ? '' : 'invisible'}`} suppressHydrationWarning>
-                              ✓
-                            </span>
-                          </button>
-                        ))}
-                      </div>
                     )}
                   </div>
 
@@ -457,11 +390,6 @@ export default function Header() {
                           {category.emoji && <span className="mr-1">{category.emoji}</span>}
                           {category.name}
                         </Link>
-                        {((category.sections && category.sections.length > 0) || (category.subCategories && category.subCategories.length > 0)) && (
-                          <span className="ml-1">
-                            <FaChevronDown className={`w-3 h-3 transition-transform ${openCategoryIndex === index ? 'rotate-180' : ''}`} />
-                          </span>
-                        )}
                       </div>
 
                       {/* Dropdown Menu - Sections Layout */}

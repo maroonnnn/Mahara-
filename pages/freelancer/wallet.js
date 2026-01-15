@@ -59,37 +59,75 @@ export default function FreelancerWallet() {
         const transactionsData = transactionsResponse.data?.data || transactionsResponse.data || [];
         const transactionsList = Array.isArray(transactionsData) ? transactionsData : (transactionsData.data || []);
         
-        const mappedTransactions = transactionsList.map(t => ({
-          id: t.id,
-          type: t.type || (t.amount < 0 ? 'withdrawal' : 'earning'),
-          amount: parseFloat(t.amount || 0),
-          description: t.description || t.note || 'Transaction',
-          date: t.created_at || t.date || new Date().toISOString().split('T')[0],
-          status: t.status || 'completed',
-          projectId: t.project_id ? `#${t.project_id}` : undefined,
-          method: t.method
-        }));
+        const normalizeStatus = (rawStatus) => {
+          const s = String(rawStatus || '').toLowerCase();
+          if (!s) return 'completed';
+          if (['pending', 'processing', 'in_progress', 'in-progress', 'queued'].includes(s)) return 'pending';
+          if (['completed', 'complete', 'success', 'succeeded', 'paid', 'done'].includes(s)) return 'completed';
+          return s; // fallback
+        };
+
+        const normalizeType = (rawType, amount) => {
+          const t = String(rawType || '').toLowerCase();
+          if (t.includes('withdraw')) return 'withdrawal';
+          if (t.includes('deposit') || t.includes('topup') || t.includes('top_up')) return 'deposit';
+          // Incoming project money is often "payment" on the API
+          if (t.includes('payment') || t.includes('earning') || t.includes('income')) return 'earning';
+          // Fees/commissions (if returned) shouldn't count as earnings
+          if (t.includes('fee') || t.includes('commission')) return 'fee';
+          return amount < 0 ? 'withdrawal' : 'earning';
+        };
+
+        const mappedTransactions = transactionsList.map((t) => {
+          const amount = parseFloat(t.amount || 0);
+
+          let description = t.description || t.note || '';
+          let method = t.method || '';
+          if (t.details) {
+            try {
+              const details = typeof t.details === 'string' ? JSON.parse(t.details) : t.details;
+              description = description || details?.note || details?.description || '';
+              method = method || details?.method || '';
+            } catch {
+              // ignore invalid JSON
+            }
+          }
+
+          const rawDate = t.created_at || t.date;
+          const date = rawDate
+            ? new Date(rawDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+            : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+          return {
+            id: t.id,
+            type: normalizeType(t.type, amount),
+            amount,
+            description: description || 'Transaction',
+            date,
+            status: normalizeStatus(t.status),
+            projectId: t.project_id ? `#${t.project_id}` : undefined,
+            method
+          };
+        });
         
         setTransactions(mappedTransactions);
         
         // Calculate stats
-        const totalEarnings = mappedTransactions
-          .filter(t => t.type === 'earning' && t.status === 'completed')
-          .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        const completedEarnings = mappedTransactions.filter(
+          (t) => t.type === 'earning' && t.status === 'completed' && t.amount > 0
+        );
+
+        const totalEarnings = completedEarnings.reduce((sum, t) => sum + t.amount, 0);
         
-        const thisMonth = mappedTransactions
-          .filter(t => {
+        const now = new Date();
+        const thisMonth = completedEarnings
+          .filter((t) => {
             const transactionDate = new Date(t.date);
-            const now = new Date();
-            return t.type === 'earning' && 
-                   t.status === 'completed' &&
-                   transactionDate.getMonth() === now.getMonth() &&
-                   transactionDate.getFullYear() === now.getFullYear();
+            return transactionDate.getMonth() === now.getMonth() && transactionDate.getFullYear() === now.getFullYear();
           })
-          .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+          .reduce((sum, t) => sum + t.amount, 0);
         
-        const projectsCompleted = mappedTransactions
-          .filter(t => t.type === 'earning' && t.status === 'completed').length;
+        const projectsCompleted = new Set(completedEarnings.map((t) => t.projectId).filter(Boolean)).size || completedEarnings.length;
         
         setStats({
           totalEarnings,
@@ -214,7 +252,7 @@ export default function FreelancerWallet() {
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <p className="text-sm text-gray-500 mb-2">Average per project</p>
-            <p className="text-2xl font-bold text-gray-900">${stats.averagePerProject}</p>
+            <p className="text-2xl font-bold text-gray-900">${stats.averagePerProject.toFixed(2)}</p>
           </div>
         </div>
 

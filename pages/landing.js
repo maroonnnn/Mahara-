@@ -9,15 +9,6 @@ export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { t, language } = useLanguage();
 
-  const popularServices = [
-    { key: 'websiteDevelopment', color: 'bg-green-700', image: '💻' },
-    { key: 'logoDesign', color: 'bg-orange-600', image: '🎨' },
-    { key: 'videoEditing', color: 'bg-pink-600', image: '🎬' },
-    { key: 'softwareDevelopment', color: 'bg-green-800', image: '⚙️' },
-    { key: 'bookPublishing', color: 'bg-yellow-700', image: '📚' },
-    { key: 'architectureInterior', color: 'bg-red-600', image: '🏛️' },
-  ];
-
   const categories = [
     { key: 'programmingTech', icon: '💻' },
     { key: 'graphicsDesign', icon: '🎨' },
@@ -220,28 +211,6 @@ export default function LandingPage() {
                   <h3 className="text-xs sm:text-sm font-medium text-gray-800 group-hover:text-primary-600 leading-tight">
                     {t(`categories.${category.key}`)}
                   </h3>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Popular Services Section */}
-        <div className="py-12 sm:py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">{t('landing.popularServices')}</h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {popularServices.map((service) => (
-                <Link
-                  key={service.key}
-                  href={`/search?q=${encodeURIComponent(t(`services.${service.key}`))}`}
-                  className={`${service.color} rounded-lg p-5 sm:p-6 text-white hover:opacity-90 transition-opacity group`}
-                >
-                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                    {service.image}
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-semibold">{t(`services.${service.key}`)}</h3>
                 </Link>
               ))}
             </div>
