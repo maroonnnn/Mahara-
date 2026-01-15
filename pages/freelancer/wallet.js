@@ -38,15 +38,19 @@ export default function FreelancerWallet() {
     try {
       setLoading(true);
       const walletService = (await import('../../services/walletService')).default;
+      let walletSnapshot = {};
+      let computedBalanceTotal = 0;
       
       // Load wallet balance
       try {
         const walletResponse = await walletService.getWallet();
         const walletData = walletResponse.data?.data || walletResponse.data || {};
+        walletSnapshot = walletData || {};
+        computedBalanceTotal = parseFloat(walletData.total || walletData.balance || 0);
         setBalance({
           available: parseFloat(walletData.available || walletData.balance || 0),
           pending: parseFloat(walletData.pending || 0),
-          total: parseFloat(walletData.total || walletData.balance || 0)
+          total: computedBalanceTotal
         });
       } catch (error) {
         console.error('Error loading wallet:', error);
@@ -94,9 +98,8 @@ export default function FreelancerWallet() {
           }
 
           const rawDate = t.created_at || t.date;
-          const date = rawDate
-            ? new Date(rawDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-            : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+          const createdAt = rawDate ? new Date(rawDate) : new Date();
+          const date = createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
           return {
             id: t.id,
@@ -104,6 +107,7 @@ export default function FreelancerWallet() {
             amount,
             description: description || 'Transaction',
             date,
+            createdAt,
             status: normalizeStatus(t.status),
             projectId: t.project_id ? `#${t.project_id}` : undefined,
             method
@@ -122,18 +126,47 @@ export default function FreelancerWallet() {
         const now = new Date();
         const thisMonth = completedEarnings
           .filter((t) => {
-            const transactionDate = new Date(t.date);
-            return transactionDate.getMonth() === now.getMonth() && transactionDate.getFullYear() === now.getFullYear();
+            const transactionDate = t.createdAt instanceof Date ? t.createdAt : new Date();
+            return (
+              transactionDate.getMonth() === now.getMonth() &&
+              transactionDate.getFullYear() === now.getFullYear()
+            );
           })
           .reduce((sum, t) => sum + t.amount, 0);
         
         const projectsCompleted = new Set(completedEarnings.map((t) => t.projectId).filter(Boolean)).size || completedEarnings.length;
-        
+
+        // Fallbacks: some backends don't return detailed transactions, but they do return wallet totals.
+        const walletTotalEarnings =
+          parseFloat(
+            walletSnapshot.total_earnings ||
+              walletSnapshot.totalEarnings ||
+              walletSnapshot.earnings_total ||
+              walletSnapshot.earningsTotal ||
+              0
+          ) || 0;
+        const walletThisMonth =
+          parseFloat(
+            walletSnapshot.this_month ||
+              walletSnapshot.thisMonth ||
+              walletSnapshot.month_earnings ||
+              walletSnapshot.monthEarnings ||
+              0
+          ) || 0;
+        const walletProjectsCompleted =
+          parseInt(walletSnapshot.projects_completed || walletSnapshot.projectsCompleted || 0, 10) || 0;
+
+        const finalTotalEarnings =
+          totalEarnings > 0 ? totalEarnings : walletTotalEarnings > 0 ? walletTotalEarnings : computedBalanceTotal;
+        const finalThisMonth = thisMonth > 0 ? thisMonth : walletThisMonth;
+        const finalProjectsCompleted =
+          projectsCompleted > 0 ? projectsCompleted : walletProjectsCompleted;
+
         setStats({
-          totalEarnings,
-          thisMonth,
-          projectsCompleted,
-          averagePerProject: projectsCompleted > 0 ? totalEarnings / projectsCompleted : 0
+          totalEarnings: finalTotalEarnings,
+          thisMonth: finalThisMonth,
+          projectsCompleted: finalProjectsCompleted,
+          averagePerProject: finalProjectsCompleted > 0 ? finalTotalEarnings / finalProjectsCompleted : 0
         });
       } catch (error) {
         console.error('Error loading transactions:', error);
