@@ -51,7 +51,7 @@ export default function ChatPage() {
         if (project.accepted_offer?.freelancer) {
           otherUser = {
             id: project.accepted_offer.freelancer.id,
-            name: project.accepted_offer.freelancer.name || 'مستقل',
+            name: project.accepted_offer.freelancer.name || 'Freelancer',
             email: project.accepted_offer.freelancer.email || '',
             avatar: null,
             isOnline: false,
@@ -66,10 +66,10 @@ export default function ChatPage() {
           budget: parseFloat(project.budget || 0),
           budgetType: project.budget_type || 'fixed',
           deliveryTime: project.duration_days 
-            ? `${project.duration_days} ${project.duration_days === 1 ? 'يوم' : 'أيام'}` 
-            : (project.delivery_time || 'غير محدد'),
+            ? `${project.duration_days} ${project.duration_days === 1 ? 'day' : 'days'}` 
+            : (project.delivery_time || 'Not specified'),
           status: project.status || 'open',
-          category: project.category?.name || project.category_name || 'غير محدد',
+          category: project.category?.name || project.category_name || 'Not specified',
           subcategory: project.subcategory || ''
         };
         
@@ -79,7 +79,7 @@ export default function ChatPage() {
           project: projectData,
           otherUser: otherUser || {
             id: null,
-            name: 'مستقل',
+            name: 'Freelancer',
             email: '',
             avatar: null,
             isOnline: false,
@@ -108,12 +108,12 @@ export default function ChatPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>الرسائل | Mahara</title>
+          <title>Messages | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري التحميل...</p>
+            <p className="text-gray-600">Loading...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -124,16 +124,16 @@ export default function ChatPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>الرسائل | Mahara</title>
+          <title>Messages | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">المحادثة غير موجودة</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Conversation not found</h2>
             <Link
               href="/client/messages"
               className="text-primary-500 hover:text-primary-600 font-semibold"
             >
-              العودة إلى الرسائل
+              Back to messages
             </Link>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function ChatPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المحادثة | Mahara</title>
+        <title>Conversation | Mahara</title>
         <meta name="description" content="Chat conversation" />
       </Head>
 
@@ -173,12 +173,9 @@ export default function ChatPage() {
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                     {conversation.otherUser.name}
-                    <span className="text-sm font-normal text-gray-500">
-                      ({conversation.otherUser.rating} ⭐)
-                    </span>
                   </h2>
                   <p className="text-sm text-gray-500">
-                    {conversation.otherUser.isOnline ? 'متصل الآن' : 'غير متصل'}
+                    {conversation.otherUser.isOnline ? 'Online now' : 'Offline'}
                   </p>
                 </div>
               </div>
@@ -187,7 +184,7 @@ export default function ChatPage() {
                 href={`/client/projects/${conversation.projectId}`}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium"
               >
-                عرض المشروع
+                View project
               </Link>
             </div>
           </div>
@@ -213,7 +210,7 @@ export default function ChatPage() {
                     ? 'bg-blue-100 text-blue-700'
                     : 'bg-green-100 text-green-700'
                 }`}>
-                  {conversation.project.status === 'in_progress' ? 'قيد التنفيذ' : 'نشط'}
+                  {conversation.project.status === 'in_progress' ? 'In progress' : 'Active'}
                 </span>
               </div>
             </div>

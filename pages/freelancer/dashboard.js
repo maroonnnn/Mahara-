@@ -92,18 +92,18 @@ export default function FreelancerDashboard() {
           id: p.id,
           title: p.title,
           description: p.description,
-          category: p.category?.name || p.category_name || 'غير محدد',
+          category: p.category?.name || p.category_name || 'Not specified',
           subcategory: p.subcategory || '',
           budget: parseFloat(p.budget || 0),
           budgetType: p.budget_type || 'fixed',
           deliveryTime: p.duration_days 
-            ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
-            : (p.delivery_time || 'غير محدد'),
+            ? `${p.duration_days} ${p.duration_days === 1 ? 'day' : 'days'}` 
+            : (p.delivery_time || 'Not specified'),
           proposals: p.offers_count || 0,
           views: p.views || 0,
           createdAt: p.created_at || p.createdAt,
           client: p.client || {
-            name: 'عميل',
+            name: 'Client',
             rating: 5.0
           }
         }));
@@ -221,24 +221,24 @@ export default function FreelancerDashboard() {
     );
   });
 
-  // Show only the 2 newest projects on dashboard
-  const newestProjects = filteredProjects.slice(0, 2);
-  const hasMoreProjects = filteredProjects.length > 2;
+  // Show only the 4 newest projects on dashboard
+  const newestProjects = filteredProjects.slice(0, 4);
+  const hasMoreProjects = filteredProjects.length > 4;
 
   return (
     <DashboardLayout>
       <Head>
-        <title>لوحة التحكم | Mahara</title>
-        <meta name="description" content="لوحة تحكم المستقل - تصفح المشاريع المتاحة وقدم عروضك" />
+        <title>Dashboard | Mahara</title>
+        <meta name="description" content="Freelancer dashboard - browse open projects and submit offers" />
       </Head>
 
       <div className="max-w-7xl mx-auto">
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            مرحباً، {user?.name || 'مستقل'}
+            Welcome, {user?.name || 'Freelancer'}
           </h1>
-          <p className="text-gray-600">تصفح المشاريع المتاحة وقدم عروضك</p>
+          <p className="text-gray-600">Browse available projects and submit your offers.</p>
         </div>
 
         {/* Stats Cards */}
@@ -246,7 +246,7 @@ export default function FreelancerDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">المشاريع المتاحة</p>
+                <p className="text-gray-500 text-sm mb-1">Available projects</p>
                 {loading ? (
                   <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -262,7 +262,7 @@ export default function FreelancerDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">عروضي</p>
+                <p className="text-gray-500 text-sm mb-1">My offers</p>
                 {loading ? (
                   <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -278,7 +278,7 @@ export default function FreelancerDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">المشاريع النشطة</p>
+                <p className="text-gray-500 text-sm mb-1">Active projects</p>
                 {loading ? (
                   <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -294,7 +294,7 @@ export default function FreelancerDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">الأرباح</p>
+                <p className="text-gray-500 text-sm mb-1">Earnings</p>
                 {loading ? (
                   <div className="h-10 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -312,14 +312,14 @@ export default function FreelancerDashboard() {
         <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl shadow-lg p-6 mb-8 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-2">ابدأ العمل الآن</h2>
-              <p className="text-primary-100">تصفح المشاريع المتاحة وقدم عروضك للعملاء</p>
+              <h2 className="text-2xl font-bold mb-2">Start working now</h2>
+              <p className="text-primary-100">Browse available projects and submit offers to clients.</p>
             </div>
             <Link
               href="/freelancer/projects"
               className="px-6 py-3 bg-white text-primary-600 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center gap-2"
             >
-              تصفح المشاريع
+              Browse projects
               <FaArrowRight />
             </Link>
           </div>
@@ -329,14 +329,14 @@ export default function FreelancerDashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">أحدث المشاريع</h2>
-              <p className="text-sm text-gray-500 mt-1">المشاريع الأحدث المتاحة للتقديم</p>
+              <h2 className="text-2xl font-bold text-gray-900">Latest projects</h2>
+              <p className="text-sm text-gray-500 mt-1">Newest open projects you can apply to</p>
             </div>
             <Link
               href="/freelancer/projects"
               className="text-primary-500 hover:text-primary-600 font-semibold flex items-center gap-2"
             >
-              عرض جميع المشاريع
+              View all projects
               <FaArrowRight />
             </Link>
           </div>
@@ -347,7 +347,7 @@ export default function FreelancerDashboard() {
               <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="ابحث في المشاريع..."
+                placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -359,11 +359,11 @@ export default function FreelancerDashboard() {
           {newestProjects.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <FaFileAlt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects found</h3>
               <p className="text-gray-600">
                 {searchQuery 
-                  ? 'جرب البحث بكلمات مختلفة' 
-                  : 'لا توجد مشاريع مفتوحة حالياً'}
+                  ? 'Try different keywords.' 
+                  : 'There are no open projects right now.'}
               </p>
             </div>
           ) : (
@@ -372,61 +372,72 @@ export default function FreelancerDashboard() {
                 {newestProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 hover:border-primary-300"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <Link href={`/freelancer/projects/${project.id}`}>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors cursor-pointer line-clamp-2">
-                          {project.title}
-                        </h3>
-                      </Link>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{project.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                          {project.category}
-                        </span>
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                  {/* Header */}
+                  <div className="mb-4">
+                    <Link href={`/projects/${project.id}`}>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors cursor-pointer line-clamp-2">
+                        {project.title}
+                      </h3>
+                    </Link>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">{project.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-xs font-medium">
+                        {project.category}
+                      </span>
+                      {project.subcategory && (
+                        <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                           {project.subcategory}
                         </span>
-                      </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <FaDollarSign className="text-green-600" />
-                        <span className="font-semibold">
-                          ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
-                        </span>
+                  {/* Project Details */}
+                  <div className="grid grid-cols-3 gap-4 mb-4 pb-4 border-b border-gray-200">
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
+                        <FaDollarSign className="text-sm" />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <FaClock className="text-blue-600" />
-                        <span>{project.deliveryTime?.replace('days', 'أيام')?.replace('day', 'يوم')?.replace('weeks', 'أسابيع')?.replace('week', 'أسبوع')?.replace('months', 'أشهر')?.replace('month', 'شهر') || project.deliveryTime}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <FaUsers className="text-purple-600" />
-                        <span>{project.proposals}</span>
-                      </div>
+                      <p className="text-lg font-bold text-gray-900">${project.budget}</p>
+                      <p className="text-xs text-gray-500">Budget</p>
                     </div>
-
-                    <Link
-                      href={`/freelancer/projects/${project.id}`}
-                      className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold text-sm"
-                    >
-                      عرض التفاصيل
-                    </Link>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
+                        <FaClock className="text-sm" />
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        {project.deliveryTime}
+                      </p>
+                      <p className="text-xs text-gray-500">Delivery time</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 text-purple-600 mb-1">
+                        <FaUsers className="text-sm" />
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">{project.proposals}</p>
+                      <p className="text-xs text-gray-500">Offers</p>
+                    </div>
                   </div>
 
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold">
+                  {/* Footer */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold">
                         {project.client.name.charAt(0)}
                       </div>
-                      <span>{project.client.name}</span>
-                      <span>⭐ {project.client.rating}</span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{project.client.name}</p>
+                      </div>
                     </div>
+                    <Link
+                      href={`/projects/${project.id}`}
+                      className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold text-sm flex items-center gap-2"
+                    >
+                      View details
+                      <FaArrowRight className="text-xs" />
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -437,13 +448,13 @@ export default function FreelancerDashboard() {
               <div className="mt-6 text-center">
                 <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6">
                   <p className="text-gray-600 mb-4">
-                    يوجد <span className="font-bold text-primary-600">{filteredProjects.length - 2}</span> مشروع إضافي متاح
+                    <span className="font-bold text-primary-600">{filteredProjects.length - 4}</span> more projects available
                   </p>
                   <Link
                     href="/freelancer/projects"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold"
                   >
-                    عرض جميع المشاريع ({filteredProjects.length})
+                    View all projects ({filteredProjects.length})
                     <FaArrowRight />
                   </Link>
                 </div>

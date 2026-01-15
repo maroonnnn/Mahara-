@@ -53,12 +53,12 @@ export default function FreelancerMessagesPage() {
         router.push(`/freelancer/messages/${existingConv.projectId}`);
       } else {
         // Project doesn't have an accepted offer yet, so messaging is not available
-        alert('لا يمكن بدء المحادثة حتى يتم قبول عرض على هذا المشروع.');
+        alert('You can’t start messaging until an offer on this project is accepted.');
         router.push(`/freelancer/projects/${projectId}`);
       }
     } catch (error) {
       console.error('Error handling project conversation:', error);
-      alert('حدث خطأ أثناء فتح المحادثة.');
+      alert('Something went wrong while opening the conversation.');
     }
   };
 
@@ -73,10 +73,10 @@ export default function FreelancerMessagesPage() {
       const mappedConversations = conversationsList.map(conv => ({
         id: conv.id,
         projectId: conv.project_id || conv.projectId,
-        projectTitle: conv.project?.title || conv.project_title || 'مشروع',
+        projectTitle: conv.project?.title || conv.project_title || 'Project',
         otherUser: {
           id: conv.other_user?.id || conv.other_user_id,
-          name: conv.other_user?.name || conv.other_user_name || 'عميل',
+          name: conv.other_user?.name || conv.other_user_name || 'Client',
           avatar: conv.other_user?.avatar || null,
           isOnline: conv.other_user?.is_online || false
         },
@@ -124,7 +124,7 @@ export default function FreelancerMessagesPage() {
     
     // Check if date is valid
     if (isNaN(dateObj.getTime())) {
-      return 'تاريخ غير صحيح';
+      return 'Invalid date';
     }
     
     const now = new Date();
@@ -133,11 +133,11 @@ export default function FreelancerMessagesPage() {
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (minutes < 1) return 'الآن';
-    if (minutes < 60) return `منذ ${minutes} دقيقة`;
-    if (hours < 24) return `منذ ${hours} ساعة`;
-    if (days < 7) return `منذ ${days} يوم`;
-    return dateObj.toLocaleDateString('ar-SA');
+    if (minutes < 1) return 'Now';
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours < 24) return `${hours} hr ago`;
+    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+    return dateObj.toLocaleDateString('en-US');
   };
 
   const filteredConversations = conversations.filter(conv => {
@@ -152,8 +152,8 @@ export default function FreelancerMessagesPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>الرسائل | Mahara</title>
-        <meta name="description" content="الرسائل والمحادثات مع العملاء" />
+        <title>Messages | Mahara</title>
+        <meta name="description" content="Messages and conversations with clients" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
@@ -162,7 +162,7 @@ export default function FreelancerMessagesPage() {
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
               <FaEnvelope className="text-primary-500" />
-              الرسائل
+              Messages
               {unreadCount > 0 && (
                 <span className="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
                   {unreadCount}
@@ -170,7 +170,7 @@ export default function FreelancerMessagesPage() {
               )}
             </h1>
           </div>
-          <p className="text-gray-600">تواصل مع العملاء حول المشاريع</p>
+          <p className="text-gray-600">Chat with clients about projects</p>
         </div>
 
         {/* Search Bar */}
@@ -179,7 +179,7 @@ export default function FreelancerMessagesPage() {
             <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="ابحث في الرسائل..."
+              placeholder="Search messages..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -192,18 +192,18 @@ export default function FreelancerMessagesPage() {
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">جاري تحميل الرسائل...</p>
+              <p className="text-gray-600">Loading messages...</p>
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className="p-12 text-center">
               <FaEnvelope className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {searchQuery ? 'لا توجد نتائج' : 'لا توجد رسائل'}
+                {searchQuery ? 'No results' : 'No messages'}
               </h3>
               <p className="text-gray-600 mb-6">
                 {searchQuery 
-                  ? 'جرب البحث بكلمات مختلفة' 
-                  : 'ستظهر الرسائل هنا عند بدء العملاء التواصل معك'}
+                  ? 'Try different keywords.' 
+                  : 'Messages will appear here when clients start a conversation.'}
               </p>
             </div>
           ) : (

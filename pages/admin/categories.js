@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fa';
 
 export default function AdminCategories() {
+  const language = 'en';
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
@@ -39,7 +40,7 @@ export default function AdminCategories() {
       setCategories(categoriesList);
     } catch (error) {
       console.error('Error loading categories:', error);
-      toast.error('فشل تحميل الفئات');
+      toast.error('Failed to load categories');
       setCategories([]);
     } finally {
       setLoading(false);
@@ -85,31 +86,31 @@ export default function AdminCategories() {
       if (editingCategory) {
         // Update existing category
         await adminService.updateCategory(editingCategory.id, formData);
-        toast.success('تم تحديث الفئة بنجاح');
+        toast.success('Category updated successfully');
       } else {
         // Add new category
         await adminService.createCategory(formData);
-        toast.success('تم إضافة الفئة بنجاح');
+        toast.success('Category created successfully');
       }
       
       loadCategories();
       handleCloseModal();
     } catch (error) {
       console.error('Error saving category:', error);
-      const message = error.response?.data?.message || 'حدث خطأ أثناء الحفظ';
+      const message = error.response?.data?.message || 'Failed to save category';
       toast.error(message);
     }
   };
 
   const handleDelete = async (id) => {
-    if (confirm('هل أنت متأكد من حذف هذه الفئة؟')) {
+    if (confirm('Are you sure you want to delete this category?')) {
       try {
         await adminService.deleteCategory(id);
-        toast.success('تم حذف الفئة بنجاح');
+        toast.success('Category deleted successfully');
         loadCategories();
       } catch (error) {
         console.error('Error deleting category:', error);
-        const message = error.response?.data?.message || 'حدث خطأ أثناء الحذف';
+        const message = error.response?.data?.message || 'Failed to delete category';
         toast.error(message);
       }
     }
@@ -123,18 +124,18 @@ export default function AdminCategories() {
       await adminService.updateCategory(id, {
         is_active: !category.is_active
       });
-      toast.success('تم تحديث حالة الفئة');
+      toast.success('Category status updated');
       loadCategories();
     } catch (error) {
       console.error('Error updating category:', error);
-      toast.error('حدث خطأ أثناء التحديث');
+      toast.error('Failed to update category');
     }
   };
 
   return (
     <>
       <Head>
-        <title>إدارة الفئات - Mahara</title>
+        <title>Category Management - Mahara</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">
@@ -143,10 +144,10 @@ export default function AdminCategories() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                إدارة الفئات
+                Category management
               </h1>
               <p className="text-gray-600">
-                إدارة فئات المشاريع والخدمات
+                Manage project and service categories
               </p>
             </div>
             <button
@@ -154,22 +155,22 @@ export default function AdminCategories() {
               className="flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold"
             >
               <FaPlus />
-              إضافة فئة جديدة
+              Add new category
             </button>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-gray-600 text-sm mb-2">إجمالي الفئات</h3>
+              <h3 className="text-gray-600 text-sm mb-2">Total categories</h3>
               <p className="text-3xl font-bold text-gray-900">{categories.length}</p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-gray-600 text-sm mb-2">الفئات النشطة</h3>
+              <h3 className="text-gray-600 text-sm mb-2">Active categories</h3>
               <p className="text-3xl font-bold text-green-600">{categories.filter(c => c.is_active).length}</p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-gray-600 text-sm mb-2">إجمالي المشاريع</h3>
+              <h3 className="text-gray-600 text-sm mb-2">Total projects</h3>
               <p className="text-3xl font-bold text-blue-600">{categories.reduce((sum, c) => sum + (c.projects_count || 0), 0)}</p>
             </div>
           </div>
@@ -178,7 +179,7 @@ export default function AdminCategories() {
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
-              <p className="text-gray-600">جاري التحميل...</p>
+              <p className="text-gray-600">Loading...</p>
             </div>
           ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -189,13 +190,13 @@ export default function AdminCategories() {
                     <div className="text-4xl">{category.icon}</div>
                     <div>
                       <h3 className="font-bold text-gray-900">{category.name}</h3>
-                      <p className="text-xs text-gray-500">{category.projects_count || 0} مشاريع</p>
+                      <p className="text-xs text-gray-500">{category.projects_count || 0} projects</p>
                     </div>
                   </div>
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     category.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {category.is_active ? 'نشط' : 'غير نشط'}
+                    {category.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
                 
@@ -210,7 +211,7 @@ export default function AdminCategories() {
                         : 'bg-green-500 text-white hover:bg-green-600'
                     }`}
                   >
-                    {category.is_active ? 'تعطيل' : 'تفعيل'}
+                    {category.is_active ? 'Disable' : 'Enable'}
                   </button>
                   <button
                     onClick={() => handleOpenModal(category)}
@@ -236,7 +237,7 @@ export default function AdminCategories() {
               <div className="bg-white rounded-lg max-w-md w-full p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {editingCategory ? 'تعديل الفئة' : 'إضافة فئة جديدة'}
+                    {editingCategory ? 'Edit category' : 'Add new category'}
                   </h2>
                   <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600">
                     <FaTimes className="w-6 h-6" />
@@ -246,7 +247,7 @@ export default function AdminCategories() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      اسم الفئة
+                      Category name
                     </label>
                     <input
                       type="text"
@@ -259,7 +260,7 @@ export default function AdminCategories() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      الوصف
+                      Description
                     </label>
                     <textarea
                       value={formData.description}
@@ -272,7 +273,7 @@ export default function AdminCategories() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      أيقونة (إيموجي)
+                      Icon (emoji)
                     </label>
                     <input
                       type="text"
@@ -293,7 +294,7 @@ export default function AdminCategories() {
                       className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                     />
                     <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
-                      الفئة نشطة
+                      Category is active
                     </label>
                   </div>
 
@@ -303,14 +304,14 @@ export default function AdminCategories() {
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold"
                     >
                       <FaSave />
-                      {language === 'ar' ? 'حفظ' : 'Save'}
+                      Save
                     </button>
                     <button
                       type="button"
                       onClick={handleCloseModal}
                       className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
                     >
-                      {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                      Cancel
                     </button>
                   </div>
                 </form>

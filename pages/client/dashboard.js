@@ -166,16 +166,16 @@ export default function ClientDashboard() {
   return (
     <DashboardLayout>
       <Head>
-        <title>لوحة التحكم | Mahara</title>
+        <title>Dashboard | Mahara</title>
       </Head>
 
       <div className="max-w-7xl mx-auto">
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            مرحباً، {user?.name || 'عميل'}
+            Welcome, {user?.name || 'Client'}
           </h1>
-          <p className="text-gray-600">إدارة مشاريعك وتتبع التقدم</p>
+          <p className="text-gray-600">Manage your projects and track progress.</p>
         </div>
 
         {/* Stats Cards */}
@@ -183,7 +183,7 @@ export default function ClientDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">إجمالي المشاريع</p>
+                <p className="text-gray-500 text-sm mb-1">Total projects</p>
                 {loading ? (
                   <div className="h-9 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -199,7 +199,7 @@ export default function ClientDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">المشاريع النشطة</p>
+                <p className="text-gray-500 text-sm mb-1">Active projects</p>
                 {loading ? (
                   <div className="h-9 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -215,7 +215,7 @@ export default function ClientDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">المكتملة</p>
+                <p className="text-gray-500 text-sm mb-1">Completed</p>
                 {loading ? (
                   <div className="h-9 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -231,7 +231,7 @@ export default function ClientDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">المصروفات</p>
+                <p className="text-gray-500 text-sm mb-1">Total spent</p>
                 {loading ? (
                   <div className="h-9 w-16 bg-gray-200 animate-pulse rounded"></div>
                 ) : (
@@ -249,15 +249,15 @@ export default function ClientDashboard() {
         <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl shadow-lg p-8 mb-8 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-2">هل لديك مشروع جديد؟</h2>
-              <p className="text-primary-100">أنشئ مشروعك الآن واحصل على عروض من أفضل المستقلين</p>
+              <h2 className="text-2xl font-bold mb-2">Have a new project?</h2>
+              <p className="text-primary-100">Post it now and receive offers from top freelancers.</p>
             </div>
             <Link
               href="/client/projects/new"
               className="px-8 py-4 bg-white text-primary-600 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center gap-2"
             >
               <FaPlus />
-              مشروع جديد
+              New project
             </Link>
           </div>
         </div>
@@ -265,12 +265,12 @@ export default function ClientDashboard() {
         {/* Recent Projects */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">مشاريعي الأخيرة</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Recent projects</h2>
             <Link
               href="/client/projects"
               className="text-primary-500 hover:text-primary-600 font-semibold flex items-center gap-2"
             >
-              عرض الكل
+              View all
               <FaChartLine />
             </Link>
           </div>
@@ -285,14 +285,14 @@ export default function ClientDashboard() {
           ) : projects.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <FaProjectDiagram className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع بعد</h3>
-              <p className="text-gray-600 mb-6">ابدأ بإنشاء مشروعك الأول واحصل على عروض من المستقلين</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects yet</h3>
+              <p className="text-gray-600 mb-6">Create your first project and receive offers from freelancers.</p>
               <Link
                 href="/client/projects/new"
                 className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
               >
                 <FaPlus />
-                إنشاء مشروع جديد
+                Create a project
               </Link>
             </div>
           ) : (
@@ -314,14 +314,14 @@ export default function ClientDashboard() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                          {project.category?.name || project.category || 'غير محدد'}
+                          {project.category?.name || project.category || 'Not specified'}
                         </span>
                         <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                          {project.status === 'open' ? 'مفتوح' : 
-                           project.status === 'active' ? 'نشط' :
-                           project.status === 'in_progress' ? 'قيد التنفيذ' :
-                           project.status === 'completed' ? 'مكتمل' :
-                           project.status === 'cancelled' ? 'ملغي' : project.status || 'مفتوح'}
+                          {project.status === 'open' ? 'Open' : 
+                           project.status === 'active' ? 'Active' :
+                           project.status === 'in_progress' ? 'In progress' :
+                           project.status === 'completed' ? 'Completed' :
+                           project.status === 'cancelled' ? 'Cancelled' : project.status || 'Open'}
                         </span>
                       </div>
                     </div>
@@ -330,12 +330,12 @@ export default function ClientDashboard() {
                       <p className="text-sm text-gray-500">
                         {project.deliveryTime 
                           ? project.deliveryTime
-                              .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} ${num === '1' ? 'يوم' : 'أيام'}`)
-                              .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} ${num === '1' ? 'أسبوع' : 'أسابيع'}`)
-                              .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} ${num === '1' ? 'شهر' : 'أشهر'}`)
+                              .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} day${num === '1' ? '' : 's'}`)
+                              .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} week${num === '1' ? '' : 's'}`)
+                              .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} month${num === '1' ? '' : 's'}`)
                           : (project.duration_days 
-                            ? `${project.duration_days} ${project.duration_days === 1 ? 'يوم' : 'أيام'}` 
-                            : 'غير محدد')}
+                            ? `${project.duration_days} ${project.duration_days === 1 ? 'day' : 'days'}` 
+                            : 'Not specified')}
                       </p>
                     </div>
                   </div>
@@ -348,12 +348,12 @@ export default function ClientDashboard() {
         {/* Other Projects Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">المشاريع المتاحة</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Open projects</h2>
             <Link
               href="/freelancer/projects"
               className="text-primary-500 hover:text-primary-600 font-semibold flex items-center gap-2"
             >
-              عرض الكل
+              View all
               <FaChartLine />
             </Link>
           </div>
@@ -377,10 +377,10 @@ export default function ClientDashboard() {
           ) : otherProjects.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <FaProjectDiagram className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع متاحة حالياً</h3>
-              <p className="text-gray-600 mb-4">لا توجد مشاريع مفتوحة من عملاء آخرين في الوقت الحالي</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No open projects right now</h3>
+              <p className="text-gray-600 mb-4">There are no open projects from other clients at the moment.</p>
               <p className="text-sm text-gray-500">
-                هذا القسم يعرض مشاريع من عملاء آخرين للإلهام والمراجعة. سيظهر المحتوى عندما يقوم عملاء آخرون بإنشاء مشاريع.
+                This section shows projects created by other clients for inspiration and review. Content will appear when other clients post new projects.
               </p>
             </div>
           ) : (
@@ -401,14 +401,14 @@ export default function ClientDashboard() {
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                        {project.category?.name || project.category || 'غير محدد'}
+                        {project.category?.name || project.category || 'Not specified'}
                       </span>
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                        {project.status === 'open' ? 'مفتوح' : 
-                         project.status === 'active' ? 'نشط' :
-                         project.status === 'in_progress' ? 'قيد التنفيذ' :
-                         project.status === 'completed' ? 'مكتمل' :
-                         project.status === 'cancelled' ? 'ملغي' : project.status || 'مفتوح'}
+                        {project.status === 'open' ? 'Open' : 
+                         project.status === 'active' ? 'Active' :
+                         project.status === 'in_progress' ? 'In progress' :
+                         project.status === 'completed' ? 'Completed' :
+                         project.status === 'cancelled' ? 'Cancelled' : project.status || 'Open'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100">
@@ -416,20 +416,15 @@ export default function ClientDashboard() {
                         <p className="text-xl font-bold text-gray-900">${project.budget}</p>
                         {project.duration_days && (
                           <p className="text-xs text-gray-500">
-                            {project.duration_days} {project.duration_days === 1 ? 'يوم' : 'أيام'}
+                            {project.duration_days} day{project.duration_days === 1 ? '' : 's'}
                           </p>
                         )}
                       </div>
                       {project.client && (
                         <div className="text-right">
                           <p className="text-sm font-medium text-gray-700">
-                            {project.client.name || project.client.name || 'عميل'}
+                            {project.client.name || project.client.name || 'Client'}
                           </p>
-                          {project.client.rating && (
-                            <p className="text-xs text-gray-500">
-                              ⭐ {project.client.rating}
-                            </p>
-                          )}
                         </div>
                       )}
                     </div>
@@ -451,8 +446,8 @@ export default function ClientDashboard() {
                 <FaProjectDiagram className="text-primary-600 text-xl" />
               </div>
               <div>
-                <p className="font-bold text-gray-900">مشاريعي</p>
-                <p className="text-sm text-gray-500">إدارة جميع المشاريع</p>
+                <p className="font-bold text-gray-900">My projects</p>
+                <p className="text-sm text-gray-500">Manage all projects</p>
               </div>
             </div>
           </Link>
@@ -466,8 +461,8 @@ export default function ClientDashboard() {
                 <FaEnvelope className="text-blue-600 text-xl" />
               </div>
               <div>
-                <p className="font-bold text-gray-900">الرسائل</p>
-                <p className="text-sm text-gray-500">التواصل مع المستقلين</p>
+                <p className="font-bold text-gray-900">Messages</p>
+                <p className="text-sm text-gray-500">Chat with freelancers</p>
               </div>
             </div>
           </Link>
@@ -481,8 +476,8 @@ export default function ClientDashboard() {
                 <FaDollarSign className="text-green-600 text-xl" />
               </div>
               <div>
-                <p className="font-bold text-gray-900">المحفظة</p>
-                <p className="text-sm text-gray-500">إدارة الرصيد</p>
+                <p className="font-bold text-gray-900">Wallet</p>
+                <p className="text-sm text-gray-500">Manage balance</p>
               </div>
             </div>
           </Link>

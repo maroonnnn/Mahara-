@@ -16,7 +16,7 @@ export default function FreelancerProjectDetailsPage() {
   return null;
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [offerSubmitted, setOfferSubmitted] = useState(false);
+  // Allow multiple offers (backend enforces max 2 offers per freelancer per project)
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [delivering, setDelivering] = useState(false);
   const { language } = useLanguage();
@@ -138,7 +138,6 @@ export default function FreelancerProjectDetailsPage() {
       
       console.log('Offer submitted successfully:', response);
       
-      setOfferSubmitted(true);
       setShowOfferForm(false);
       alert('تم تقديم العرض بنجاح! سيتم إشعار العميل وسيتمكن من رؤية عرضك في صفحة العروض.');
     } catch (error) {
@@ -307,7 +306,7 @@ export default function FreelancerProjectDetailsPage() {
               <div>
                 <p className="font-semibold text-gray-900">{project.client?.name || 'عميل'}</p>
                 <p className="text-sm text-gray-600">
-                  ⭐ {project.client?.rating || '5.0'} | {project.client?.completedProjects || 0} مشروع مكتمل
+                  {project.client?.completedProjects || 0} مشروع مكتمل
                 </p>
               </div>
             </div>

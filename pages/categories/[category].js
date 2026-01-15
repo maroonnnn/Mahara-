@@ -530,7 +530,7 @@ export default function CategoryPage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {categories
-              .filter(cat => cat.slug !== categorySlug && cat.slug !== 'trending')
+              .filter(cat => cat.slug !== categorySlug)
               .slice(0, 6)
               .map((cat, index) => (
                 <Link

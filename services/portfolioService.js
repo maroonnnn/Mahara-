@@ -73,17 +73,49 @@ export const portfolioService = {
   getMyPortfolio: async () => {
     try {
       const response = await api.get('/freelancer/portfolio');
+      // Handle paginated response
+      if (response.data && response.data.data) {
+        return response.data;
+      }
       return response.data;
     } catch (error) {
-      // Try alternative endpoint
-      try {
-        const response = await api.get('/portfolio/me');
-        return response.data;
-      } catch (err) {
-        console.error('Error fetching my portfolio:', err);
-        throw err;
-      }
+      console.error('Error fetching my portfolio:', error);
+      throw error;
+    }
+  },
+
+  // Create portfolio item
+  createItem: async (data) => {
+    try {
+      const response = await api.post('/freelancer/portfolio', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating portfolio item:', error);
+      throw error;
+    }
+  },
+
+  // Update portfolio item
+  updateItem: async (id, data) => {
+    try {
+      const response = await api.put(`/freelancer/portfolio/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating portfolio item:', error);
+      throw error;
+    }
+  },
+
+  // Delete portfolio item
+  deleteItem: async (id) => {
+    try {
+      const response = await api.delete(`/freelancer/portfolio/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting portfolio item:', error);
+      throw error;
     }
   },
 };
 
+export default portfolioService;

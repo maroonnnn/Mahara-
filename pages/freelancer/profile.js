@@ -43,6 +43,25 @@ export default function FreelancerProfile() {
 
   const [featuredProjects, setFeaturedProjects] = useState([]);
 
+  const loadPortfolioItems = async () => {
+    try {
+      const portfolioService = (await import('../../services/portfolioService')).default;
+      const response = await portfolioService.getMyPortfolio();
+      const portfolioData = response.data || response;
+      const portfolioList = Array.isArray(portfolioData) ? portfolioData : (portfolioData.data || []);
+      
+      setFeaturedProjects(portfolioList.slice(0, 3).map(item => ({
+        id: item.id,
+        title: item.title,
+        image: item.image_url || 'https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=300&fit=crop',
+        demo: item.project_url || '#',
+      })));
+    } catch (error) {
+      console.error('Error loading portfolio items:', error);
+      setFeaturedProjects([]);
+    }
+  };
+
   // Load profile data from API
   useEffect(() => {
     if (user) {
@@ -87,15 +106,8 @@ export default function FreelancerProfile() {
 
       setSkills(skillsList);
       
-      // Load portfolio items
-      if (profile.portfolioItems && Array.isArray(profile.portfolioItems)) {
-        setFeaturedProjects(profile.portfolioItems.slice(0, 3).map(item => ({
-          id: item.id,
-          title: item.title,
-          image: item.image_url || 'https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=300&fit=crop',
-          demo: item.project_url || '#',
-        })));
-      }
+      // Load portfolio items separately
+      loadPortfolioItems();
     } catch (error) {
       console.error('Error loading profile:', error);
       // If profile doesn't exist (404), initialize with user data only
@@ -112,7 +124,7 @@ export default function FreelancerProfile() {
         });
         setSkills([]);
       } else {
-        toast.error('حدث خطأ في تحميل الملف الشخصي');
+        toast.error('Failed to load your profile.');
       }
     } finally {
       setLoading(false);
@@ -156,13 +168,13 @@ export default function FreelancerProfile() {
 
       await sellerService.updateProfile(updateData);
       
-      toast.success('تم تحديث الملف الشخصي بنجاح!');
+      toast.success('Profile updated successfully!');
       
       // Reload profile to get updated data
       await loadProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.message || 'حدث خطأ في تحديث الملف الشخصي');
+      toast.error(error.response?.data?.message || 'Failed to update profile.');
     } finally {
       setSaving(false);
     }
@@ -171,22 +183,22 @@ export default function FreelancerProfile() {
   return (
     <DashboardLayout>
       <Head>
-        <title>الملف الشخصي | Mahara</title>
+        <title>Profile | Mahara</title>
       </Head>
 
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">الملف الشخصي</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Profile</h1>
 
         {loading ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <FaSpinner className="w-12 h-12 text-primary-500 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-600">جاري تحميل الملف الشخصي...</p>
+            <p className="text-gray-600">Loading profile...</p>
           </div>
         ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Picture */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">الصورة الشخصية</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Profile picture</h2>
             <div className="flex items-center gap-6">
               <div className="relative">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-3xl font-bold">
@@ -203,13 +215,13 @@ export default function FreelancerProfile() {
                 <h3 className="font-semibold text-gray-900 mb-1">{formData.name}</h3>
                 <p className="text-sm text-gray-500 mb-1">{formData.title}</p>
                 <p className="text-sm text-gray-500 mb-3">
-                  مستقل منذ {user?.created_at ? new Date(user.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long' }) : '2024'}
+                  Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : '2024'}
                 </p>
                 <button
                   type="button"
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium"
                 >
-                  تغيير الصورة
+                  Change photo
                 </button>
               </div>
             </div>
@@ -217,12 +229,12 @@ export default function FreelancerProfile() {
 
           {/* Personal Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">المعلومات الشخصية</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Personal information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  الاسم الكامل
+                  Full name
                 </label>
                 <div className="relative">
                   <FaUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -238,7 +250,7 @@ export default function FreelancerProfile() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  البريد الإلكتروني
+                  Email
                 </label>
                 <div className="relative">
                   <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -254,7 +266,7 @@ export default function FreelancerProfile() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  المسمى الوظيفي
+                  Professional title
                 </label>
                 <div className="relative">
                   <FaBriefcase className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -271,14 +283,14 @@ export default function FreelancerProfile() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  نبذة عنك
+                  About you
                 </label>
                 <textarea
                   name="bio"
                   value={formData.bio}
                   onChange={handleChange}
                   rows="4"
-                  placeholder="اكتب نبذة مختصرة عنك وعن خبراتك..."
+                  placeholder="Write a short bio about you and your experience..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 />
               </div>
@@ -287,12 +299,12 @@ export default function FreelancerProfile() {
 
           {/* Professional Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">المعلومات المهنية</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Professional information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  السعر بالساعة (USD)
+                  Hourly rate (USD)
                 </label>
                 <div className="relative">
                   <FaDollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -312,7 +324,7 @@ export default function FreelancerProfile() {
 
           {/* Skills */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">المهارات</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Skills</h2>
             
             <div className="mb-4">
               <div className="flex gap-2">
@@ -326,7 +338,7 @@ export default function FreelancerProfile() {
                       handleAddSkill();
                     }
                   }}
-                  placeholder="أضف مهارة جديدة..."
+                  placeholder="Add a new skill..."
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
                 <button
@@ -334,7 +346,7 @@ export default function FreelancerProfile() {
                   onClick={handleAddSkill}
                   className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold"
                 >
-                  إضافة
+                  Add
                 </button>
               </div>
             </div>
@@ -360,12 +372,12 @@ export default function FreelancerProfile() {
 
           {/* Social Links */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">الروابط الاجتماعية والمعرض</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Social links</h2>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  رابط معرض الأعمال (Portfolio)
+                  Portfolio link
                 </label>
                 <div className="relative">
                   <FaGlobe className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -422,9 +434,9 @@ export default function FreelancerProfile() {
               <div>
                 <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
                   <FaStar className="text-yellow-400" />
-                  التقييمات والمراجعات
+                  Reviews & ratings
                 </h2>
-                <p className="text-sm text-gray-600">شاهد تقييمات العملاء عنك</p>
+                <p className="text-sm text-gray-600">See what clients said about your work</p>
               </div>
               {user?.id && (
                 <Link 
@@ -433,7 +445,7 @@ export default function FreelancerProfile() {
                   className="flex items-center gap-2 px-4 py-2 border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-semibold text-sm"
                 >
                   <FaExternalLinkAlt />
-                  عرض الملف الشخصي العام
+                  View public profile
                 </Link>
               )}
             </div>
@@ -443,7 +455,7 @@ export default function FreelancerProfile() {
             ) : (
               <div className="text-center py-8">
                 <FaStar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-600">لا توجد تقييمات بعد</p>
+                <p className="text-gray-600">No reviews yet</p>
               </div>
             )}
           </div>
@@ -454,13 +466,13 @@ export default function FreelancerProfile() {
               <div>
                 <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
                   <FaFolderOpen className="text-primary-600" />
-                  معرض المشاريع المميزة
+                  Featured portfolio
                 </h2>
-                <p className="text-sm text-gray-600">اعرض أفضل أعمالك للعملاء المحتملين</p>
+                <p className="text-sm text-gray-600">Show your best work to potential clients</p>
               </div>
               <Link href="/freelancer/portfolio" className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold text-sm">
                 <FaPlus />
-                إدارة المشاريع
+                Manage portfolio
               </Link>
             </div>
 
@@ -492,7 +504,7 @@ export default function FreelancerProfile() {
                         className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-semibold"
                       >
                         <FaExternalLinkAlt className="w-3 h-3" />
-                        عرض المشروع
+                        View project
                       </a>
                     </div>
                   </div>
@@ -501,10 +513,10 @@ export default function FreelancerProfile() {
             ) : (
               <div className="bg-white rounded-lg p-8 text-center">
                 <FaFolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-600 mb-4">لم تقم بإضافة مشاريع بعد</p>
+                <p className="text-gray-600 mb-4">You haven’t added any portfolio items yet</p>
                 <Link href="/freelancer/portfolio" className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold">
                   <FaPlus />
-                  إضافة مشروع
+                  Add portfolio item
                 </Link>
               </div>
             )}
@@ -512,10 +524,10 @@ export default function FreelancerProfile() {
             <div className="mt-6 pt-6 border-t border-primary-200">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-primary-600">{featuredProjects.length}</span> مشاريع مميزة
+                  <span className="font-semibold text-primary-600">{featuredProjects.length}</span> featured items
                 </p>
                 <Link href="/freelancer/portfolio" className="text-sm text-primary-600 hover:text-primary-700 font-semibold flex items-center gap-1">
-                  عرض جميع المشاريع
+                  View all items
                   <FaExternalLinkAlt className="w-3 h-3" />
                 </Link>
               </div>
@@ -529,7 +541,7 @@ export default function FreelancerProfile() {
               onClick={() => window.history.back()}
               className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
             >
-              إلغاء
+              Cancel
             </button>
             <button
               type="submit"
@@ -539,12 +551,12 @@ export default function FreelancerProfile() {
               {saving ? (
                 <>
                   <FaSpinner className="animate-spin" />
-                  جاري الحفظ...
+                  Saving...
                 </>
               ) : (
                 <>
                   <FaSave />
-                  حفظ التغييرات
+                  Save changes
                 </>
               )}
             </button>

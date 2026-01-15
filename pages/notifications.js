@@ -11,7 +11,8 @@ import {
   FaTrash,
   FaCircle,
   FaProjectDiagram,
-  FaHandshake
+  FaHandshake,
+  FaEnvelope
 } from 'react-icons/fa';
 
 export default function NotificationsPage() {
@@ -36,7 +37,7 @@ export default function NotificationsPage() {
       setNotifications(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading notifications:', error);
-      toast.error('فشل تحميل الإشعارات');
+      toast.error('Failed to load notifications');
     } finally {
       setLoading(false);
     }
@@ -50,7 +51,7 @@ export default function NotificationsPage() {
       ));
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      toast.error('فشل تحديث الإشعار');
+      toast.error('Failed to update notification');
     }
   };
 
@@ -58,10 +59,10 @@ export default function NotificationsPage() {
     try {
       await notificationService.markAllAsRead();
       setNotifications(notifications.map(n => ({ ...n, is_read: true })));
-      toast.success('تم تحديد جميع الإشعارات كمقروءة');
+      toast.success('All notifications marked as read');
     } catch (error) {
       console.error('Error marking all as read:', error);
-      toast.error('فشل تحديث الإشعارات');
+      toast.error('Failed to update notifications');
     }
   };
 
@@ -69,10 +70,10 @@ export default function NotificationsPage() {
     try {
       await notificationService.deleteNotification(id);
       setNotifications(notifications.filter(n => n.id !== id));
-      toast.success('تم حذف الإشعار');
+      toast.success('Notification deleted');
     } catch (error) {
       console.error('Error deleting notification:', error);
-      toast.error('فشل حذف الإشعار');
+      toast.error('Failed to delete notification');
     }
   };
 
@@ -82,8 +83,78 @@ export default function NotificationsPage() {
         return <FaProjectDiagram className="w-5 h-5 text-blue-500" />;
       case 'offer_accepted':
         return <FaHandshake className="w-5 h-5 text-green-500" />;
+      case 'message_received':
+        return <FaEnvelope className="w-5 h-5 text-purple-500" />;
       default:
         return <FaBell className="w-5 h-5 text-gray-500" />;
+    }
+  };
+
+  const extractProjectTitle = (notification) => {
+    const candidates = [
+      notification?.data?.project?.title,
+      notification?.data?.project_title,
+      notification?.data?.title,
+      notification?.project?.title,
+    ].filter(Boolean);
+    const cleanTitle = (raw) => {
+      if (!raw) return null;
+      const original = String(raw).trim();
+      if (!original) return null;
+
+      // Often the backend message looks like: "...: <title>. <arabic system text>"
+      // Take the first segment before newlines / sentence terminators.
+      let t = original.split(/[\r\n]/)[0];
+      t = t.split(/[.!؟]/)[0].trim();
+
+      // Remove any trailing Arabic system text accidentally included after the title.
+      const stripped = t.replace(/[\u0600-\u06FF].*$/u, '').trim();
+
+      // If stripping removes everything (title itself is Arabic), keep the original.
+      return stripped || t || original;
+    };
+
+    if (candidates.length) return cleanTitle(candidates[0]);
+
+    // Try to extract from message like "....: Project Title"
+    const msg = notification?.message || '';
+    const parts = msg.split(':');
+    if (parts.length >= 2) return cleanTitle(parts.slice(1).join(':').trim());
+    return null;
+  };
+
+  const getDisplayText = (notification) => {
+    const type = notification?.type;
+    const projectTitle = extractProjectTitle(notification);
+
+    switch (type) {
+      case 'offer_submitted':
+        return {
+          title: 'New offer on your project',
+          message: projectTitle
+            ? `A freelancer submitted a new offer for: ${projectTitle}`
+            : 'A freelancer submitted a new offer on your project.',
+        };
+      case 'offer_accepted':
+        return {
+          title: 'Offer accepted',
+          message: projectTitle
+            ? `An offer was accepted for: ${projectTitle}`
+            : 'An offer was accepted.',
+        };
+      case 'message_received':
+        return {
+          title: 'New message',
+          message: projectTitle
+            ? `You received a new message about: ${projectTitle}`
+            : 'You received a new message.',
+        };
+      default:
+        // Fallback: if backend provides Arabic, prefer a neutral English line instead.
+        return {
+          title: 'Notification',
+          message: 'You have a new notification.',
+        };
     }
   };
 
@@ -93,7 +164,15 @@ export default function NotificationsPage() {
     }
     
     // Navigate based on notification type
-    if (notification.related_type === 'project' && notification.related_id) {
+    if (notification.type === 'message_received' && notification.related_type === 'project' && notification.related_id) {
+      // For message notifications, navigate to the messages page with the project ID
+      if (user?.role === 'client') {
+        router.push(`/client/messages/${notification.related_id}`);
+      } else if (user?.role === 'freelancer') {
+        router.push(`/freelancer/messages/${notification.related_id}`);
+      }
+    } else if (notification.related_type === 'project' && notification.related_id) {
+      // For project notifications (offers, etc.), navigate to project details
       if (user?.role === 'client') {
         router.push(`/client/projects/${notification.related_id}`);
       } else if (user?.role === 'freelancer') {
@@ -116,15 +195,15 @@ export default function NotificationsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>الإشعارات - Mahara</title>
+        <title>Notifications - Mahara</title>
       </Head>
 
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">الإشعارات</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Notifications</h1>
             <p className="text-gray-600">
-              {unreadCount > 0 ? `${unreadCount} إشعار غير مقروء` : 'لا توجد إشعارات غير مقروءة'}
+              {unreadCount > 0 ? `${unreadCount} unread` : 'No unread notifications'}
             </p>
           </div>
           {unreadCount > 0 && (
@@ -133,7 +212,7 @@ export default function NotificationsPage() {
               className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-semibold flex items-center gap-2"
             >
               <FaCheck />
-              تحديد الكل كمقروء
+              Mark all as read
             </button>
           )}
         </div>
@@ -141,12 +220,12 @@ export default function NotificationsPage() {
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
-            <p className="text-gray-600">جاري التحميل...</p>
+            <p className="text-gray-600">Loading...</p>
           </div>
         ) : notifications.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
             <FaBell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">لا توجد إشعارات</p>
+            <p className="text-gray-500 text-lg">No notifications</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -166,13 +245,13 @@ export default function NotificationsPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 mb-1">
-                          {notification.title}
+                          {getDisplayText(notification).title}
                         </h3>
                         <p className="text-gray-600 text-sm mb-2">
-                          {notification.message}
+                          {getDisplayText(notification).message}
                         </p>
                         <p className="text-xs text-gray-400">
-                          {new Date(notification.created_at).toLocaleDateString('ar-SA', {
+                          {new Date(notification.created_at).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',

@@ -235,11 +235,12 @@ class AdminController extends Controller
             ->latest()
             ->get();
 
-        // Calculate deposit fees (5% platform fee on deposits)
+        // Calculate deposit fees (no platform fee on deposits anymore)
         $deposits = $allTransactions->where('type', 'deposit')->map(function($transaction) {
             $details = is_string($transaction->details) ? json_decode($transaction->details, true) : ($transaction->details ?? []);
             $amount = abs((float) $transaction->amount);
-            $fee = $amount * 0.05; // 5% platform fee
+            // No commission on deposits
+            $fee = 0;
             
             return [
                 'id' => $transaction->id,
@@ -251,12 +252,12 @@ class AdminController extends Controller
             ];
         })->values();
 
-        // Calculate withdrawal fees (5% platform fee on withdrawals)
+        // Calculate withdrawal fees (no platform fee on withdrawals anymore)
         $withdrawals = $allTransactions->where('type', 'withdraw')->map(function($transaction) {
             $details = is_string($transaction->details) ? json_decode($transaction->details, true) : ($transaction->details ?? []);
             $amount = abs((float) $transaction->amount);
-            // Calculate 5% platform fee if not stored in details
-            $fee = $details['platform_fee'] ?? ($amount * 0.05);
+            // No commission on withdrawals – ignore any stored platform_fee
+            $fee = 0;
             
             return [
                 'id' => $transaction->id,
@@ -286,8 +287,8 @@ class AdminController extends Controller
         })->values();
 
         // Calculate totals
-        $totalDepositFees = $deposits->sum('fee');
-        $totalWithdrawalFees = $withdrawals->sum('fee');
+        $totalDepositFees = 0;
+        $totalWithdrawalFees = 0;
         $totalCommissions = $commissions->sum('fee');
         $grandTotal = $totalDepositFees + $totalWithdrawalFees + $totalCommissions;
 

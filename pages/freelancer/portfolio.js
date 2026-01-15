@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
+import portfolioService from '../../services/portfolioService';
+import categoryService from '../../services/categoryService';
+import { toast } from 'react-toastify';
 import { 
   FaPlus,
   FaEdit,
@@ -16,42 +19,16 @@ import {
   FaPlay,
   FaChevronLeft,
   FaChevronRight,
-  FaCode
+  FaCode,
+  FaSpinner
 } from 'react-icons/fa';
 
 export default function FreelancerPortfolioPage() {
   const { user } = useAuth();
-  const [portfolios, setPortfolios] = useState([
-    {
-      id: 1,
-      title: 'تصميم شعار لشركة تكنولوجيا',
-      description: 'تصميم شعار عصري وحديث لشركة متخصصة في التكنولوجيا',
-      category: 'Graphics & Design',
-      images: [
-        'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400&h=300&fit=crop'
-      ],
-      liveDemo: 'https://example.com/portfolio1',
-      githubLink: '',
-      technologies: ['Adobe Illustrator', 'Photoshop'],
-      createdAt: '2024-01-10'
-    },
-    {
-      id: 2,
-      title: 'تطوير موقع إلكتروني للتجارة الإلكترونية',
-      description: 'موقع متكامل للتجارة الإلكترونية باستخدام React وNode.js مع نظام دفع آمن وإدارة المنتجات',
-      category: 'Programming & Tech',
-      images: [
-        'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop'
-      ],
-      liveDemo: 'https://example.com/portfolio2',
-      githubLink: 'https://github.com/username/ecommerce-project',
-      technologies: ['React', 'Node.js', 'MongoDB', 'Tailwind CSS'],
-      createdAt: '2024-01-05'
-    },
-  ]);
-
+  const [portfolios, setPortfolios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [viewingProject, setViewingProject] = useState(null);
@@ -61,26 +38,74 @@ export default function FreelancerPortfolioPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
-    liveDemo: '',
-    githubLink: '',
-    technologies: [],
-    images: []
+    category_id: '',
+    project_url: '',
+    image_url: ''
   });
   
   const [newTech, setNewTech] = useState('');
 
+  // Load portfolio items and categories on mount
+  useEffect(() => {
+    if (user) {
+      loadPortfolios();
+      loadCategories();
+    }
+  }, [user]);
+
+  const loadPortfolios = async () => {
+    try {
+      setLoading(true);
+      const response = await portfolioService.getMyPortfolio();
+      // Handle paginated response
+      const portfolioData = response.data || response;
+      const portfolioList = Array.isArray(portfolioData) ? portfolioData : (portfolioData.data || []);
+      
+      // Map backend data to frontend format
+      const mappedPortfolios = portfolioList.map(item => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        category: item.category?.name || '',
+        category_id: item.category_id,
+        images: item.image_url ? [item.image_url] : [],
+        liveDemo: item.project_url || '',
+        project_url: item.project_url,
+        image_url: item.image_url,
+        completion_date: item.completion_date,
+        createdAt: item.created_at || item.completion_date
+      }));
+      
+      setPortfolios(mappedPortfolios);
+    } catch (error) {
+      console.error('Error loading portfolios:', error);
+      toast.error('فشل تحميل أعمال الحافظة');
+      setPortfolios([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const response = await categoryService.getCategories();
+      const categoriesData = response.data || [];
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
   const handleAddPortfolio = () => {
+    setEditingId(null);
     setShowAddForm(true);
     setImagePreview([]);
     setFormData({
       title: '',
       description: '',
-      category: '',
-      liveDemo: '',
-      githubLink: '',
-      technologies: [],
-      images: []
+      category_id: '',
+      project_url: '',
+      image_url: ''
     });
   };
 
@@ -90,94 +115,96 @@ export default function FreelancerPortfolioPage() {
     setImagePreview(portfolio.images || []);
     setFormData({
       title: portfolio.title,
-      description: portfolio.description,
-      category: portfolio.category,
-      liveDemo: portfolio.liveDemo || '',
-      githubLink: portfolio.githubLink || '',
-      technologies: portfolio.technologies || [],
-      images: portfolio.images || []
+      description: portfolio.description || '',
+      category_id: portfolio.category_id || '',
+      project_url: portfolio.project_url || portfolio.liveDemo || '',
+      image_url: portfolio.image_url || (portfolio.images && portfolio.images[0]) || ''
     });
   };
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-    // Create preview URLs
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setImagePreview(prev => [...prev, ...newPreviews]);
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview([previewUrl]);
     
-    // In a real app, you'd upload to a server here
-    // For now, we'll use placeholder URLs
-    const newImageUrls = files.map((file, index) => 
-      `https://images.unsplash.com/photo-${Date.now() + index}?w=400&h=300&fit=crop`
-    );
+    // For now, we'll use a placeholder URL
+    // In production, you'd upload to a server and get the URL
+    const imageUrl = `https://images.unsplash.com/photo-${Date.now()}?w=400&h=300&fit=crop`;
     setFormData(prev => ({
       ...prev,
-      images: [...prev.images, ...newImageUrls]
+      image_url: imageUrl
     }));
   };
 
-  const handleRemoveImage = (index) => {
-    setImagePreview(prev => prev.filter((_, i) => i !== index));
+  const handleRemoveImage = () => {
+    setImagePreview([]);
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      image_url: ''
     }));
   };
 
-  const handleAddTechnology = () => {
-    if (newTech.trim() && !formData.technologies.includes(newTech.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        technologies: [...prev.technologies, newTech.trim()]
-      }));
-      setNewTech('');
-    }
-  };
 
-  const handleRemoveTechnology = (tech) => {
-    setFormData(prev => ({
-      ...prev,
-      technologies: prev.technologies.filter(t => t !== tech)
-    }));
-  };
-
-  const handleSavePortfolio = (e) => {
+  const handleSavePortfolio = async (e) => {
     e.preventDefault();
     
-    if (editingId) {
-      // Update existing
-      setPortfolios(prev => prev.map(p => 
-        p.id === editingId ? { ...p, ...formData } : p
-      ));
-    } else {
-      // Add new
-      const newPortfolio = {
-        id: Date.now(),
-        ...formData,
-        createdAt: new Date().toISOString().split('T')[0]
+    try {
+      setSaving(true);
+      
+      // Prepare data for API
+      const portfolioData = {
+        title: formData.title,
+        description: formData.description || null,
+        image_url: formData.image_url || null,
+        project_url: formData.project_url || null,
+        category_id: formData.category_id || null,
+        completion_date: new Date().toISOString().split('T')[0]
       };
-      setPortfolios(prev => [...prev, newPortfolio]);
+
+      if (editingId) {
+        // Update existing
+        await portfolioService.updateItem(editingId, portfolioData);
+        toast.success('تم تحديث العمل بنجاح');
+      } else {
+        // Add new
+        await portfolioService.createItem(portfolioData);
+        toast.success('تم إضافة العمل بنجاح');
+      }
+      
+      // Reload portfolios
+      await loadPortfolios();
+      
+      setShowAddForm(false);
+      setEditingId(null);
+      setImagePreview([]);
+      setFormData({
+        title: '',
+        description: '',
+        category_id: '',
+        project_url: '',
+        image_url: ''
+      });
+    } catch (error) {
+      console.error('Error saving portfolio:', error);
+      toast.error(error.response?.data?.message || 'حدث خطأ في حفظ العمل');
+    } finally {
+      setSaving(false);
     }
-    
-    setShowAddForm(false);
-    setEditingId(null);
-    setImagePreview([]);
-    setFormData({
-      title: '',
-      description: '',
-      category: '',
-      liveDemo: '',
-      githubLink: '',
-      technologies: [],
-      images: []
-    });
   };
 
-  const handleDeletePortfolio = (id) => {
+  const handleDeletePortfolio = async (id) => {
     if (confirm('هل أنت متأكد من حذف هذا العمل من الحافظة؟')) {
-      setPortfolios(prev => prev.filter(p => p.id !== id));
+      try {
+        await portfolioService.deleteItem(id);
+        toast.success('تم حذف العمل بنجاح');
+        await loadPortfolios();
+      } catch (error) {
+        console.error('Error deleting portfolio:', error);
+        toast.error('حدث خطأ في حذف العمل');
+      }
     }
   };
 
@@ -269,99 +296,33 @@ export default function FreelancerPortfolioPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  الفئة <span className="text-red-500">*</span>
+                  الفئة
                 </label>
                 <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  value={formData.category_id}
+                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  required
                 >
                   <option value="">اختر الفئة</option>
-                  <option value="Graphics & Design">Graphics & Design</option>
-                  <option value="Programming & Tech">Programming & Tech</option>
-                  <option value="Writing & Translation">Writing & Translation</option>
-                  <option value="Video & Animation">Video & Animation</option>
-                  <option value="Digital Marketing">Digital Marketing</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
 
-              {/* Live Demo & GitHub Links */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <FaPlay className="text-green-500" />
-                    رابط العرض المباشر (Live Demo)
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.liveDemo}
-                    onChange={(e) => setFormData({ ...formData, liveDemo: e.target.value })}
-                    placeholder="https://your-project.com"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <FaGithub className="text-gray-800" />
-                    رابط GitHub
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.githubLink}
-                    onChange={(e) => setFormData({ ...formData, githubLink: e.target.value })}
-                    placeholder="https://github.com/username/repo"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Technologies Used */}
+              {/* Project URL */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <FaCode className="text-blue-500" />
-                  التقنيات المستخدمة
+                  <FaPlay className="text-green-500" />
+                  رابط المشروع (Project URL)
                 </label>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={newTech}
-                    onChange={(e) => setNewTech(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddTechnology();
-                      }
-                    }}
-                    placeholder="مثال: React, Node.js, Photoshop"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddTechnology}
-                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
-                  >
-                    إضافة
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {formData.technologies.map((tech, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-2"
-                    >
-                      {tech}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTechnology(tech)}
-                        className="hover:text-blue-900"
-                      >
-                        <FaTimes className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
+                <input
+                  type="url"
+                  value={formData.project_url}
+                  onChange={(e) => setFormData({ ...formData, project_url: e.target.value })}
+                  placeholder="https://your-project.com"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
               </div>
 
               {/* Image Upload */}
@@ -387,25 +348,23 @@ export default function FreelancerPortfolioPage() {
                   <p className="text-xs text-gray-500 mt-2">JPG, PNG, GIF (حجم أقصى 5 ميجابايت لكل صورة)</p>
                 </div>
 
-                {/* Image Previews */}
+                {/* Image Preview */}
                 {imagePreview.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                    {imagePreview.map((img, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={img}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(index)}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <FaTimes className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <div className="relative inline-block group">
+                      <img
+                        src={imagePreview[0]}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FaTimes className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -413,10 +372,20 @@ export default function FreelancerPortfolioPage() {
               <div className="flex gap-3">
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                  disabled={saving}
+                  className="flex-1 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FaSave />
-                  حفظ
+                  {saving ? (
+                    <>
+                      <FaSpinner className="animate-spin" />
+                      جاري الحفظ...
+                    </>
+                  ) : (
+                    <>
+                      <FaSave />
+                      حفظ
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"
@@ -434,7 +403,12 @@ export default function FreelancerPortfolioPage() {
         )}
 
         {/* Portfolio Grid */}
-        {portfolios.length === 0 ? (
+        {loading ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <FaSpinner className="w-12 h-12 text-primary-500 mx-auto mb-4 animate-spin" />
+            <p className="text-gray-600">جاري تحميل أعمال الحافظة...</p>
+          </div>
+        ) : portfolios.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <FaFileAlt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد أعمال في الحافظة</h3>
@@ -462,19 +436,12 @@ export default function FreelancerPortfolioPage() {
                     setCurrentImageIndex(0);
                   }}
                 >
-                  {portfolio.images && portfolio.images.length > 0 ? (
-                    <>
-                      <img
-                        src={portfolio.images[0]}
-                        alt={portfolio.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      {portfolio.images.length > 1 && (
-                        <div className="absolute bottom-3 right-3 px-2 py-1 bg-black bg-opacity-70 text-white text-xs rounded-full">
-                          +{portfolio.images.length - 1}
-                        </div>
-                      )}
-                    </>
+                  {portfolio.image_url ? (
+                    <img
+                      src={portfolio.image_url}
+                      alt={portfolio.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <FaImage className="w-16 h-16 text-gray-300" />
@@ -522,34 +489,15 @@ export default function FreelancerPortfolioPage() {
                     {portfolio.description}
                   </p>
                   
-                  {/* Technologies */}
-                  {portfolio.technologies && portfolio.technologies.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {portfolio.technologies.slice(0, 3).map((tech, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs font-medium"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                      {portfolio.technologies.length > 3 && (
-                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-medium">
-                          +{portfolio.technologies.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
                   {/* Category & Links */}
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     <span className="px-2.5 py-1 bg-primary-100 text-primary-700 rounded-md text-xs font-semibold">
-                      {portfolio.category}
+                      {portfolio.category || 'غير محدد'}
                     </span>
                     <div className="flex items-center gap-3">
-                      {portfolio.liveDemo && (
+                      {portfolio.project_url && (
                         <a
-                          href={portfolio.liveDemo}
+                          href={portfolio.project_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
@@ -557,18 +505,6 @@ export default function FreelancerPortfolioPage() {
                           title="عرض مباشر"
                         >
                           <FaExternalLinkAlt className="w-4 h-4" />
-                        </a>
-                      )}
-                      {portfolio.githubLink && (
-                        <a
-                          href={portfolio.githubLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-gray-800 hover:text-gray-900 transition-colors"
-                          title="GitHub"
-                        >
-                          <FaGithub className="w-4 h-4" />
                         </a>
                       )}
                     </div>
@@ -595,43 +531,13 @@ export default function FreelancerPortfolioPage() {
               </div>
 
               {/* Image Gallery */}
-              {viewingProject.images && viewingProject.images.length > 0 && (
+              {viewingProject.image_url && (
                 <div className="relative bg-gray-900">
                   <img
-                    src={viewingProject.images[currentImageIndex]}
+                    src={viewingProject.image_url}
                     alt={viewingProject.title}
                     className="w-full h-96 object-contain"
                   />
-                  
-                  {viewingProject.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center transition-all"
-                      >
-                        <FaChevronLeft className="text-gray-800" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full flex items-center justify-center transition-all"
-                      >
-                        <FaChevronRight className="text-gray-800" />
-                      </button>
-                      
-                      {/* Image indicators */}
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        {viewingProject.images.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setCurrentImageIndex(idx)}
-                            className={`w-2 h-2 rounded-full transition-all ${
-                              idx === currentImageIndex ? 'bg-white w-8' : 'bg-white bg-opacity-50'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
                 </div>
               )}
 
@@ -650,51 +556,18 @@ export default function FreelancerPortfolioPage() {
                   <p className="text-gray-700 leading-relaxed">{viewingProject.description}</p>
                 </div>
 
-                {/* Technologies */}
-                {viewingProject.technologies && viewingProject.technologies.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <FaCode className="text-blue-500" />
-                      التقنيات المستخدمة
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {viewingProject.technologies.map((tech, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-200"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Links */}
-                {(viewingProject.liveDemo || viewingProject.githubLink) && (
+                {viewingProject.project_url && (
                   <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-                    {viewingProject.liveDemo && (
-                      <a
-                        href={viewingProject.liveDemo}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold"
-                      >
-                        <FaExternalLinkAlt />
-                        عرض مباشر
-                      </a>
-                    )}
-                    {viewingProject.githubLink && (
-                      <a
-                        href={viewingProject.githubLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-semibold"
-                      >
-                        <FaGithub />
-                        GitHub
-                      </a>
-                    )}
+                    <a
+                      href={viewingProject.project_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold"
+                    >
+                      <FaExternalLinkAlt />
+                      عرض مباشر
+                    </a>
                   </div>
                 )}
               </div>

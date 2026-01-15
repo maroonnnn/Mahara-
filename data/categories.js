@@ -1,14 +1,6 @@
 // Centralized category data used across the application
 export const categories = [
   { 
-    name: 'Trending', 
-    emoji: '🔥', 
-    slug: 'trending',
-    href: '/trending',
-    description: 'Discover the hottest and most trending services on our platform',
-    subCategories: []
-  },
-  { 
     name: 'Graphics & Design', 
     slug: 'graphics-design',
     emoji: '🎨',
@@ -194,48 +186,6 @@ export const categories = [
       { name: 'Online Music Lessons', slug: 'online-lessons', href: '/categories/music-audio/online-lessons' },
       { name: 'Music Transcription', slug: 'transcription', href: '/categories/music-audio/transcription' },
       { name: 'Music Therapy', slug: 'music-therapy', href: '/categories/music-audio/music-therapy' },
-    ]
-  },
-  { 
-    name: 'Data', 
-    slug: 'data',
-    emoji: '📊',
-    href: '/categories/data',
-    description: 'Learn your business with data analytics & insights',
-    heroColor: 'bg-gradient-to-br from-amber-600 via-yellow-600 to-orange-600',
-    subCategories: [
-      { name: 'Data Entry', slug: 'data-entry', href: '/categories/data/data-entry' },
-      { name: 'Data Processing', slug: 'data-processing', href: '/categories/data/data-processing' },
-      { name: 'Data Analytics', slug: 'data-analytics', href: '/categories/data/data-analytics' },
-      { name: 'Data Visualization', slug: 'data-visualization', href: '/categories/data/data-visualization' },
-      { name: 'Data Mining', slug: 'data-mining', href: '/categories/data/data-mining' },
-      { name: 'Data Scraping', slug: 'data-scraping', href: '/categories/data/data-scraping' },
-      { name: 'Data Science', slug: 'data-science', href: '/categories/data/data-science' },
-      { name: 'Excel', slug: 'excel', href: '/categories/data/excel' },
-      { name: 'Database Building', slug: 'database-building', href: '/categories/data/database-building' },
-      { name: 'CRM Management', slug: 'crm-management', href: '/categories/data/crm-management' },
-    ]
-  },
-  { 
-    name: 'Business', 
-    slug: 'business',
-    emoji: '💼',
-    href: '/categories/business',
-    description: 'Consultants for any business need',
-    heroColor: 'bg-gradient-to-br from-slate-700 via-gray-700 to-zinc-800',
-    subCategories: [
-      { name: 'Business Plans', slug: 'business-plans', href: '/categories/business/business-plans' },
-      { name: 'Market Research', slug: 'market-research', href: '/categories/business/market-research' },
-      { name: 'Brand Identity & Strategy', slug: 'brand-identity-strategy', href: '/categories/business/brand-identity-strategy' },
-      { name: 'Business Consulting', slug: 'business-consulting', href: '/categories/business/business-consulting' },
-      { name: 'Financial Consulting', slug: 'financial-consulting', href: '/categories/business/financial-consulting' },
-      { name: 'Legal Consulting', slug: 'legal-consulting', href: '/categories/business/legal-consulting' },
-      { name: 'HR Consulting', slug: 'hr-consulting', href: '/categories/business/hr-consulting' },
-      { name: 'Presentation Design', slug: 'presentation-design', href: '/categories/business/presentation-design' },
-      { name: 'Lead Generation', slug: 'lead-generation', href: '/categories/business/lead-generation' },
-      { name: 'Virtual Assistant', slug: 'virtual-assistant', href: '/categories/business/virtual-assistant' },
-      { name: 'E-Commerce Management', slug: 'ecommerce-management', href: '/categories/business/ecommerce-management' },
-      { name: 'Project Management', slug: 'project-management', href: '/categories/business/project-management' },
     ]
   },
 ];

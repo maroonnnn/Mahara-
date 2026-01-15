@@ -24,10 +24,7 @@ export default function LandingPage() {
     { key: 'digitalMarketing', icon: '📱' },
     { key: 'writingTranslation', icon: '✍️' },
     { key: 'videoAnimation', icon: '🎥' },
-    { key: 'aiServices', icon: '🤖' },
-    { key: 'musicAudio', icon: '🎵' },
-    { key: 'business', icon: '💼' },
-    { key: 'consulting', icon: '📊' },
+  
   ];
 
   const trustedBy = [

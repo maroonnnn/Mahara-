@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import { useLanguage } from '../../contexts/LanguageContext';
 import adminService from '../../services/adminService';
 import { toast } from 'react-toastify';
 import { 
@@ -16,7 +15,6 @@ import {
 } from 'react-icons/fa';
 
 export default function AdminUsers() {
-  const { language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
@@ -50,7 +48,7 @@ export default function AdminUsers() {
       setUsers(usersList);
     } catch (error) {
       console.error('Error loading users:', error);
-      toast.error(language === 'ar' ? 'فشل تحميل المستخدمين' : 'Failed to load users');
+      toast.error('Failed to load users');
       setUsers([]);
     } finally {
       setLoading(false);
@@ -80,23 +78,23 @@ export default function AdminUsers() {
       await adminService.updateUser(userId, { 
         status: users.find(u => u.id === userId)?.status === 'active' ? 'suspended' : 'active' 
       });
-      toast.success(language === 'ar' ? 'تم تحديث حالة المستخدم' : 'User status updated');
+      toast.success('User status updated');
       loadUsers(); // Reload users
     } catch (error) {
       console.error('Error updating user:', error);
-      toast.error(language === 'ar' ? 'فشل تحديث المستخدم' : 'Failed to update user');
+      toast.error('Failed to update user');
     }
   };
 
   const handleDeleteUser = async (userId) => {
-    if (confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا المستخدم؟' : 'Are you sure you want to delete this user?')) {
+    if (confirm('Are you sure you want to delete this user?')) {
       try {
         await adminService.deleteUser(userId);
-        toast.success(language === 'ar' ? 'تم حذف المستخدم' : 'User deleted successfully');
+        toast.success('User deleted successfully');
         loadUsers(); // Reload users
       } catch (error) {
         console.error('Error deleting user:', error);
-        toast.error(language === 'ar' ? 'فشل حذف المستخدم' : 'Failed to delete user');
+        toast.error('Failed to delete user');
       }
     }
   };
@@ -104,7 +102,7 @@ export default function AdminUsers() {
   return (
     <>
       <Head>
-        <title>{language === 'ar' ? 'إدارة المستخدمين - Mahara' : 'User Management - Mahara'}</title>
+        <title>User Management - Mahara</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">
@@ -112,10 +110,10 @@ export default function AdminUsers() {
           {/* Page Header */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {language === 'ar' ? 'إدارة المستخدمين' : 'User Management'}
+              User Management
             </h1>
             <p className="text-gray-600">
-              {language === 'ar' ? 'إدارة ومراقبة جميع المستخدمين' : 'Manage and monitor all platform users'}
+              Manage and monitor all platform users
             </p>
           </div>
 
@@ -128,7 +126,7 @@ export default function AdminUsers() {
                   <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder={language === 'ar' ? 'البحث عن مستخدم...' : 'Search users...'}
+                    placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -143,10 +141,10 @@ export default function AdminUsers() {
                   onChange={(e) => setFilterRole(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">{language === 'ar' ? 'جميع الأدوار' : 'All Roles'}</option>
-                  <option value="client">{language === 'ar' ? 'عميل' : 'Client'}</option>
-                  <option value="freelancer">{language === 'ar' ? 'مستقل' : 'Freelancer'}</option>
-                  <option value="admin">{language === 'ar' ? 'مدير' : 'Admin'}</option>
+                  <option value="all">All roles</option>
+                  <option value="client">Client</option>
+                  <option value="freelancer">Freelancer</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 
@@ -157,9 +155,9 @@ export default function AdminUsers() {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">{language === 'ar' ? 'جميع الحالات' : 'All Status'}</option>
-                  <option value="active">{language === 'ar' ? 'نشط' : 'Active'}</option>
-                  <option value="suspended">{language === 'ar' ? 'موقوف' : 'Suspended'}</option>
+                  <option value="all">All statuses</option>
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
                 </select>
               </div>
             </div>
@@ -170,11 +168,11 @@ export default function AdminUsers() {
             {loading ? (
               <div className="p-12 text-center">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
-                <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+                <p className="text-gray-600">Loading...</p>
               </div>
             ) : filteredUsers.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-gray-600">{language === 'ar' ? 'لا توجد مستخدمين' : 'No users found'}</p>
+                <p className="text-gray-600">No users found</p>
               </div>
             ) : (
             <div className="overflow-x-auto">
@@ -182,25 +180,25 @@ export default function AdminUsers() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'المستخدم' : 'User'}
+                      User
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'الدور' : 'Role'}
+                      Role
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'الحالة' : 'Status'}
+                      Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'المشاريع' : 'Projects'}
+                      Projects
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'الإيرادات' : 'Revenue'}
+                      Revenue
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'تاريخ الانضمام' : 'Join Date'}
+                      Join date
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {language === 'ar' ? 'الإجراءات' : 'Actions'}
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -219,9 +217,9 @@ export default function AdminUsers() {
                           user.role === 'freelancer' ? 'bg-blue-100 text-blue-800' :
                           'bg-green-100 text-green-800'
                         }`}>
-                          {user.role === 'admin' ? (language === 'ar' ? 'مدير' : 'Admin') :
-                           user.role === 'freelancer' ? (language === 'ar' ? 'مستقل' : 'Freelancer') :
-                           (language === 'ar' ? 'عميل' : 'Client')}
+                          {user.role === 'admin' ? 'Admin' :
+                           user.role === 'freelancer' ? 'Freelancer' :
+                           'Client'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -231,10 +229,10 @@ export default function AdminUsers() {
                           user.status === 'banned' ? 'bg-red-100 text-red-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
-                          {user.status === 'active' ? (language === 'ar' ? 'نشط' : 'Active') :
-                           user.status === 'suspended' ? (language === 'ar' ? 'معلق' : 'Suspended') :
-                           user.status === 'banned' ? (language === 'ar' ? 'محظور' : 'Banned') :
-                           (language === 'ar' ? 'نشط' : 'Active')}
+                          {user.status === 'active' ? 'Active' :
+                           user.status === 'suspended' ? 'Suspended' :
+                           user.status === 'banned' ? 'Banned' :
+                           'Active'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -244,27 +242,27 @@ export default function AdminUsers() {
                         ${(user.revenue || 0).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {user.created_at ? new Date(user.created_at).toLocaleDateString('ar-SA') : '-'}
+                        {user.created_at ? new Date(user.created_at).toLocaleDateString('en-US') : '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
-                          <button className="text-blue-600 hover:text-blue-900" title={language === 'ar' ? 'عرض' : 'View'}>
+                          <button className="text-blue-600 hover:text-blue-900" title="View">
                             <FaEye className="w-4 h-4" />
                           </button>
-                          <button className="text-green-600 hover:text-green-900" title={language === 'ar' ? 'تعديل' : 'Edit'}>
+                          <button className="text-green-600 hover:text-green-900" title="Edit">
                             <FaEdit className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => handleSuspendUser(user.id)}
                             className={`${user.status === 'active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
-                            title={user.status === 'active' ? (language === 'ar' ? 'تعليق' : 'Suspend') : (language === 'ar' ? 'تفعيل' : 'Activate')}
+                            title={user.status === 'active' ? 'Suspend' : 'Activate'}
                           >
                             <FaBan className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => handleDeleteUser(user.id)}
                             className="text-red-600 hover:text-red-900"
-                            title={language === 'ar' ? 'حذف' : 'Delete'}
+                            title="Delete"
                           >
                             <FaTrash className="w-4 h-4" />
                           </button>
@@ -281,14 +279,14 @@ export default function AdminUsers() {
           {/* Pagination */}
           <div className="flex items-center justify-between bg-white px-6 py-4 rounded-lg shadow-md">
             <div className="text-sm text-gray-700">
-              {language === 'ar' ? 'عرض' : 'Showing'} <span className="font-semibold">1</span> {language === 'ar' ? 'إلى' : 'to'} <span className="font-semibold">{filteredUsers.length}</span> {language === 'ar' ? 'من' : 'of'} <span className="font-semibold">{users.length}</span> {language === 'ar' ? 'النتائج' : 'results'}
+              Showing <span className="font-semibold">1</span> to <span className="font-semibold">{filteredUsers.length}</span> of <span className="font-semibold">{users.length}</span> results
             </div>
             <div className="flex gap-2">
               <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                {language === 'ar' ? 'السابق' : 'Previous'}
+                Previous
               </button>
               <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                {language === 'ar' ? 'التالي' : 'Next'}
+                Next
               </button>
             </div>
           </div>

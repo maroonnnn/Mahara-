@@ -12,16 +12,16 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  // Initialize with 'ar' for Arabic (default)
+  // Initialize with 'en' for English (default)
   // Only update after mount to prevent hydration mismatch
-  const [language, setLanguage] = useState('ar');
-  const [isRTL, setIsRTL] = useState(true);
+  const [language, setLanguage] = useState('en');
+  const [isRTL, setIsRTL] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   // Initialize language from localStorage only on client after mount
   useEffect(() => {
     setMounted(true);
-    const savedLanguage = localStorage.getItem('language') || 'ar';
+    const savedLanguage = localStorage.getItem('language') || 'en';
     setLanguage(savedLanguage);
     setIsRTL(savedLanguage === 'ar');
     

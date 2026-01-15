@@ -14,41 +14,41 @@ use Illuminate\Support\Facades\DB;
 class AuthController extends Controller
 {
     /**
-     * وظيفة لإنشاء حساب مستخدم جديد.
+     * Function to create a new user account.
      */
     public function register(Request $request)
     {
-        // 1. التحقق من صحة البيانات المدخلة
+        // 1. Validate input data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:191',
             'email' => 'required|string|email|max:191|unique:users',
-            'password' => 'required|string|min:8|confirmed', // confirmed يتأكد من وجود حقل password_confirmation مطابق
+            'password' => 'required|string|min:8|confirmed', // confirmed ensures password_confirmation field matches
             'role' => 'required|in:client,freelancer',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422); // إرجاع أخطاء التحقق
+            return response()->json($validator->errors(), 422); // Return validation errors
         }
 
-        // 2. استخدام Transaction لضمان تنفيذ كل العمليات معاً أو لا شيء
+        // 2. Use Transaction to ensure all operations execute together or nothing
         try {
             $user = DB::transaction(function () use ($request) {
-                // إنشاء المستخدم
+                // Create user
                 $user = User::create([
                     'name' => $request->name,
                     'email' => $request->email,
-                    'password' => Hash::make($request->password), // تشفير كلمة المرور
+                    'password' => Hash::make($request->password), // Hash password
                     'role' => $request->role,
                 ]);
 
-                // إنشاء محفظة تلقائياً للمستخدم الجديد
+                // Automatically create wallet for new user
                 Wallet::create(['user_id' => $user->id]);
                     
-                // إذا كان المستخدم مستقلاً، أنشئ له ملف تعريف فارغ
+                // If user is freelancer, create empty profile
                 if ($request->role === 'freelancer') {
                     FreelancerProfile::create([
                         'user_id' => $user->id,
-                        'display_name' => $user->name, // اسم مبدئي
+                        'display_name' => $user->name, // Initial name
                         'title' => 'New Freelancer'
                     ]);
                 }
@@ -56,10 +56,10 @@ class AuthController extends Controller
                 return $user;
             });
 
-            // 3. إنشاء توكن للمستخدم الجديد
+            // 3. Create token for new user
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // 4. إرجاع رد ناجح مع بيانات المستخدم والتوكن
+            // 4. Return success response with user data and token
             return response()->json([
                 'message' => 'User registered successfully!',
                 'user' => $user,
@@ -67,7 +67,7 @@ class AuthController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            // في حال حدوث أي خطأ أثناء العملية
+            // In case of any error during the process
             return response()->json(['message' => 'Registration failed!', 'error' => $e->getMessage()], 500);
         }
     }

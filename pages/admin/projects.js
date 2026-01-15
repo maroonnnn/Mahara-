@@ -41,18 +41,18 @@ export default function AdminProjects() {
       const formattedProjects = projectsList.map(project => ({
         id: project.id,
         title: project.title,
-        client: project.client?.name || 'غير محدد',
+        client: project.client?.name || 'Not specified',
         freelancer: project.accepted_offer?.freelancer?.name || project.acceptedOffer?.freelancer?.name || '-',
         budget: parseFloat(project.budget || 0),
         status: project.status,
-        deadline: project.deadline ? new Date(project.deadline).toLocaleDateString('ar-SA') : '-',
-        category: project.category?.name || 'غير محدد'
+        deadline: project.deadline ? new Date(project.deadline).toLocaleDateString('en-US') : '-',
+        category: project.category?.name || 'Not specified'
       }));
       
       setProjects(formattedProjects);
     } catch (error) {
       console.error('Error loading projects:', error);
-      toast.error('فشل تحميل المشاريع');
+      toast.error('Failed to load projects');
       setProjects([]);
     } finally {
       setLoading(false);
@@ -85,32 +85,32 @@ export default function AdminProjects() {
         return {
           icon: <FaClock />,
           classes: 'bg-blue-100 text-blue-800',
-          text: 'قيد التنفيذ'
+          text: 'In progress'
         };
       case 'completed':
         return {
           icon: <FaCheckCircle />,
           classes: 'bg-green-100 text-green-800',
-          text: 'مكتمل'
+          text: 'Completed'
         };
       case 'open':
         return {
           icon: <FaClock />,
           classes: 'bg-yellow-100 text-yellow-800',
-          text: 'مفتوح'
+          text: 'Open'
         };
       case 'cancelled':
         return {
           icon: <FaTimesCircle />,
           classes: 'bg-red-100 text-red-800',
-          text: 'ملغى'
+          text: 'Cancelled'
         };
       case 'active':
       case 'pending':
         return {
           icon: <FaClock />,
           classes: 'bg-blue-100 text-blue-800',
-          text: 'نشط'
+          text: 'Active'
         };
       default:
         return {
@@ -124,7 +124,7 @@ export default function AdminProjects() {
   return (
     <>
       <Head>
-        <title>إدارة المشاريع - Mahara</title>
+        <title>Project Management - Mahara</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">
@@ -132,10 +132,10 @@ export default function AdminProjects() {
           {/* Page Header */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              إدارة المشاريع
+              Project Management
             </h1>
             <p className="text-gray-600">
-              مراقبة وإدارة جميع المشاريع على المنصة
+              Monitor and manage all projects on the platform
             </p>
           </div>
 
@@ -144,7 +144,7 @@ export default function AdminProjects() {
             <div className="bg-white rounded-lg shadow-md p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm">إجمالي المشاريع</p>
+                  <p className="text-gray-600 text-sm">Total projects</p>
                   <p className="text-2xl font-bold text-gray-900">{projects.length}</p>
                 </div>
                 <FaSearch className="text-gray-400 w-8 h-8" />
@@ -153,7 +153,7 @@ export default function AdminProjects() {
             <div className="bg-white rounded-lg shadow-md p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm">المشاريع النشطة</p>
+                  <p className="text-gray-600 text-sm">Active projects</p>
                   <p className="text-2xl font-bold text-blue-600">
                     {projects.filter(p => p.status === 'in_progress' || p.status === 'active').length}
                   </p>
@@ -164,7 +164,7 @@ export default function AdminProjects() {
             <div className="bg-white rounded-lg shadow-md p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm">المكتملة</p>
+                  <p className="text-gray-600 text-sm">Completed</p>
                   <p className="text-2xl font-bold text-green-600">
                     {projects.filter(p => p.status === 'completed').length}
                   </p>
@@ -175,7 +175,7 @@ export default function AdminProjects() {
             <div className="bg-white rounded-lg shadow-md p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm">المعلقة</p>
+                  <p className="text-gray-600 text-sm">Pending</p>
                   <p className="text-2xl font-bold text-yellow-600">
                     {projects.filter(p => p.status === 'pending').length}
                   </p>
@@ -192,7 +192,7 @@ export default function AdminProjects() {
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="البحث عن مشروع..."
+                    placeholder="Search projects..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -204,11 +204,11 @@ export default function AdminProjects() {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">جميع الحالات</option>
-                  <option value="open">مفتوح</option>
-                  <option value="in_progress">قيد التنفيذ</option>
-                  <option value="completed">مكتمل</option>
-                  <option value="cancelled">ملغي</option>
+                  <option value="all">All statuses</option>
+                  <option value="open">Open</option>
+                  <option value="in_progress">In progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
             </div>
@@ -219,11 +219,11 @@ export default function AdminProjects() {
             {loading ? (
               <div className="p-12 text-center">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
-                <p className="text-gray-600">جاري التحميل...</p>
+                <p className="text-gray-600">Loading...</p>
               </div>
             ) : filteredProjects.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-gray-500">لا توجد مشاريع</p>
+                <p className="text-gray-500">No projects found</p>
               </div>
             ) : (
             <div className="overflow-x-auto">
@@ -231,25 +231,25 @@ export default function AdminProjects() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      المشروع
+                      Project
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      العميل
+                      Client
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      المستقل
+                      Freelancer
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      الميزانية
+                      Budget
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      الحالة
+                      Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      الموعد النهائي
+                      Deadline
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      الإجراءات
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -284,10 +284,10 @@ export default function AdminProjects() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end gap-2">
-                            <button className="text-blue-600 hover:text-blue-900" title="عرض">
+                            <button className="text-blue-600 hover:text-blue-900" title="View">
                               <FaEye className="w-4 h-4" />
                             </button>
-                            <button className="text-red-600 hover:text-red-900" title="حذف">
+                            <button className="text-red-600 hover:text-red-900" title="Delete">
                               <FaTrash className="w-4 h-4" />
                             </button>
                           </div>

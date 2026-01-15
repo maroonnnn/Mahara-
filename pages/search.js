@@ -303,7 +303,7 @@ export default function SearchPage() {
                       <div className="text-right">
                         <div className="mb-4">
                           <p className="text-sm text-gray-500 mb-1">الميزانية</p>
-                          <p className="text-3xl font-bold text-gray-900">{project.budget} ريال</p>
+                          <p className="text-3xl font-bold text-gray-900">${project.budget}</p>
                         </div>
                         {project.offers_count > 0 && (
                           <div className="mb-4">

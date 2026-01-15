@@ -19,7 +19,6 @@ import {
 export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [proMenuOpen, setProMenuOpen] = useState(false);
   const [exploreMenuOpen, setExploreMenuOpen] = useState(false);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const [openCategoryIndex, setOpenCategoryIndex] = useState(null);
@@ -29,7 +28,6 @@ export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const { language, changeLanguage } = useLanguage();
   const userMenuRef = useRef(null);
-  const proMenuRef = useRef(null);
   const exploreMenuRef = useRef(null);
   const languageMenuRef = useRef(null);
   const categoryRefs = useRef({});
@@ -74,9 +72,6 @@ export default function Header() {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
-      }
-      if (proMenuRef.current && !proMenuRef.current.contains(event.target)) {
-        setProMenuOpen(false);
       }
       if (exploreMenuRef.current && !exploreMenuRef.current.contains(event.target)) {
         setExploreMenuOpen(false);
@@ -146,9 +141,6 @@ export default function Header() {
             <div className="hidden lg:flex items-center space-x-4">
               {isAuthenticated ? (
                 <>
-                  <Link href="/pro" className="text-gray-700 hover:text-primary-500 text-sm font-medium">
-                    Upgrade to Pro
-                  </Link>
                   <Link href="/notifications" className="text-gray-700 hover:text-primary-500 relative">
                     <FaBell className="w-5 h-5" />
                     {unreadCount > 0 && (
@@ -226,40 +218,11 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  {/* Mahara Pro Dropdown */}
-                  <div className="relative" ref={proMenuRef}>
-                    <button
-                      onClick={() => {
-                        setProMenuOpen(!proMenuOpen);
-                        setExploreMenuOpen(false);
-                        setLanguageMenuOpen(false);
-                      }}
-                      className="flex items-center gap-1 text-gray-700 hover:text-primary-500 text-sm font-medium transition-colors"
-                    >
-                      Mahara Pro
-                      <FaChevronDown className={`w-3 h-3 transition-transform ${proMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    {proMenuOpen && (
-                      <div className={`absolute mt-2 w-56 bg-white rounded-lg shadow-xl py-2 border border-gray-200 z-50 ${language === 'ar' ? 'left-0' : 'right-0'}`}>
-                        <Link href="/pro" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
-                          Explore Mahara Pro
-                        </Link>
-                        <Link href="/pro/sellers" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
-                          Pro Services
-                        </Link>
-                        <Link href="/pro/business" className="block px-4 py-2 text-gray-700 hover:text-primary-500 text-sm">
-                          Pro for Business
-                        </Link>
-                  </div>
-                )}
-              </div>
-
                   {/* Explore Dropdown */}
                   <div className="relative" ref={exploreMenuRef}>
                     <button
                       onClick={() => {
                         setExploreMenuOpen(!exploreMenuOpen);
-                        setProMenuOpen(false);
                         setLanguageMenuOpen(false);
                       }}
                       className="flex items-center gap-1 text-gray-700 hover:text-primary-500 text-sm font-medium transition-colors"
@@ -297,7 +260,6 @@ export default function Header() {
                     <button
                       onClick={() => {
                         setLanguageMenuOpen(!languageMenuOpen);
-                        setProMenuOpen(false);
                         setExploreMenuOpen(false);
                       }}
                       className="flex items-center gap-1 text-gray-700 hover:text-primary-500 text-sm font-medium transition-colors"

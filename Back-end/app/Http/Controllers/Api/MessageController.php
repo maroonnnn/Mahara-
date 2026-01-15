@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Project;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
 {
     /**
-     * جلب قائمة المشاريع التي يمكن للمستخدم المراسلة فيها (المشاريع التي تم قبول عرض عليها).
+     * Get list of projects where the user can message (projects with accepted offers).
      */
     public function conversations(Request $request)
     {
@@ -67,7 +68,10 @@ class MessageController extends Controller
                     'timestamp' => $lastMessage->created_at,
                     'sender_id' => $lastMessage->sender_id,
                 ] : null,
-                'unread_count' => 0, // TODO: Implement unread count
+                'unread_count' => Message::where('project_id', $project->id)
+                    ->where('receiver_id', $user->id)
+                    ->where('sender_id', '!=', $user->id) // Only count messages from others
+                    ->count(), // Count all received messages as unread (can be improved with read_at field later)
                 'updated_at' => $project->updated_at,
             ];
         });
@@ -76,7 +80,7 @@ class MessageController extends Controller
     }
 
     /**
-     * جلب المحادثة الخاصة بمشروع بعد قبول العرض.
+     * Get conversation for a project after offer acceptance.
      */
     public function index(Project $project, Request $request)
     {
@@ -93,7 +97,7 @@ class MessageController extends Controller
     }
 
     /**
-     * إرسال رسالة بين العميل والمستقل بعد قبول العرض.
+     * Send a message between client and freelancer after offer acceptance.
      */
     public function store(Project $project, Request $request)
     {
@@ -124,11 +128,30 @@ class MessageController extends Controller
             'content' => $request->content,
         ]);
 
+        // Create notification for the receiver
+        $project->load(['client', 'acceptedOffer.freelancer']);
+        $receiver = \App\Models\User::find($receiverId);
+        
+        if ($receiver) {
+            $senderName = $user->name;
+            $projectTitle = $project->title;
+            $messagePreview = mb_substr($request->content, 0, 100);
+            
+            Notification::create([
+                'user_id' => $receiverId,
+                'type' => 'message_received',
+                'title' => 'New message from ' . $senderName,
+                'message' => "New message in project \"{$projectTitle}\": {$messagePreview}",
+                'related_type' => 'project', // Store as project so we can navigate to the conversation
+                'related_id' => $project->id, // Store project ID for navigation
+            ]);
+        }
+
         return response()->json(['message' => 'Message sent', 'data' => $message], 201);
     }
 
     /**
-     * يتحقق من إمكانية المستخدم المشاركة في محادثة المشروع.
+     * Check if user can participate in project conversation.
      */
     private function userCanAccessProject(Project $project, int $userId): bool
     {
@@ -139,7 +162,7 @@ class MessageController extends Controller
     }
 
     /**
-     * تحديد المستقبل بناءً على دور المستخدم الحالي.
+     * Determine receiver based on current user role.
      */
     private function resolveReceiverId(Project $project, int $senderId): ?int
     {

@@ -20,8 +20,8 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const roleOptions = [
-    { value: 'client', label: 'عميل (أبحث عن خدمات)' },
-    { value: 'freelancer', label: 'مستقل (أقدم خدمات)' },
+    { value: 'client', label: 'Client (I’m looking for services)' },
+    { value: 'freelancer', label: 'Freelancer (I provide services)' },
   ];
 
   const handleChange = (e) => {
@@ -35,15 +35,15 @@ export default function RegisterPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = 'الاسم مطلوب';
-    if (!formData.email) newErrors.email = 'البريد الإلكتروني مطلوب';
-    if (!formData.password) newErrors.password = 'كلمة المرور مطلوبة';
+    if (!formData.name) newErrors.name = 'Full name is required';
+    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.password) newErrors.password = 'Password is required';
     // Backend requires minimum 8 characters
-    if (formData.password.length < 8) newErrors.password = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+    if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
     if (formData.password !== formData.password_confirmation) {
-      newErrors.password_confirmation = 'كلمة المرور غير متطابقة';
+      newErrors.password_confirmation = 'Passwords do not match';
     }
-    if (!formData.role) newErrors.role = 'يجب اختيار نوع الحساب';
+    if (!formData.role) newErrors.role = 'Please select an account type';
     return newErrors;
   };
 
@@ -79,7 +79,7 @@ export default function RegisterPage() {
   return (
     <>
       <Head>
-        <title>إنشاء حساب - FreelanceHub</title>
+        <title>Create Account - Mahara</title>
       </Head>
 
       <PublicLayout>
@@ -87,10 +87,10 @@ export default function RegisterPage() {
           <div className="max-w-md w-full">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                إنشاء حساب جديد
+                Create your account
               </h1>
               <p className="text-gray-600">
-                انضم إلى آلاف المستخدمين على المنصة
+                Join thousands of users on Mahara.
               </p>
             </div>
 
@@ -103,7 +103,7 @@ export default function RegisterPage() {
                 )}
 
                 <Input
-                  label="الاسم الكامل"
+                  label="Full name"
                   type="text"
                   name="name"
                   value={formData.name}
@@ -114,7 +114,7 @@ export default function RegisterPage() {
                 />
 
                 <Input
-                  label="البريد الإلكتروني"
+                  label="Email"
                   type="email"
                   name="email"
                   value={formData.email}
@@ -125,7 +125,7 @@ export default function RegisterPage() {
                 />
 
                 <Select
-                  label="نوع الحساب"
+                  label="Account type"
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                 />
 
                 <Input
-                  label="كلمة المرور"
+                  label="Password"
                   type="password"
                   name="password"
                   value={formData.password}
@@ -147,7 +147,7 @@ export default function RegisterPage() {
                 />
 
                 <Input
-                  label="تأكيد كلمة المرور"
+                  label="Confirm password"
                   type="password"
                   name="password_confirmation"
                   value={formData.password_confirmation}
@@ -163,14 +163,14 @@ export default function RegisterPage() {
                   fullWidth
                   disabled={loading}
                 >
-                  {loading ? 'جاري إنشاء الحساب...' : 'إنشاء حساب'}
+                  {loading ? 'Creating account...' : 'Create account'}
                 </Button>
 
                 <div className="mt-6 text-center">
                   <p className="text-gray-600">
-                    لديك حساب بالفعل؟{' '}
+                    Already have an account?{' '}
                     <Link href="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
-                      تسجيل الدخول
+                      Sign in
                     </Link>
                   </p>
                 </div>

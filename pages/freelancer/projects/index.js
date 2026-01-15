@@ -30,19 +30,19 @@ export default function FreelancerProjectsPage() {
 
     // Role-based access control
     if (!isAuthenticated) {
-      alert('يجب تسجيل الدخول أولاً');
+      alert('Please sign in first.');
       router.push('/login');
       return;
     }
 
     if (isClient) {
-      alert('❌ هذه الصفحة للمستقلين (البائعين) فقط.\n\nكعميل، يمكنك إنشاء مشروع جديد من لوحة التحكم.');
+      alert('❌ This page is for freelancers only.\n\nAs a client, you can create a new project from your dashboard.');
       router.push('/client/projects');
       return;
     }
 
     if (!isFreelancer) {
-      alert('❌ فقط المستقلين يمكنهم الوصول لهذه الصفحة.');
+      alert('❌ Only freelancers can access this page.');
       router.push('/');
       return;
     }
@@ -81,19 +81,19 @@ export default function FreelancerProjectsPage() {
         id: p.id,
         title: p.title,
         description: p.description,
-        category: p.category?.name || p.category_name || 'غير محدد',
+        category: p.category?.name || p.category_name || 'Not specified',
         subcategory: p.subcategory || '',
         budget: parseFloat(p.budget || 0),
         budgetType: p.budget_type || 'fixed',
         deliveryTime: p.duration_days 
-          ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
-          : (p.delivery_time || 'غير محدد'),
+          ? `${p.duration_days} ${p.duration_days === 1 ? 'day' : 'days'}` 
+          : (p.delivery_time || 'Not specified'),
         status: p.status || 'open',
         proposals: p.offers_count || 0,
         views: p.views || 0,
         createdAt: p.created_at || p.createdAt,
         client: p.client || {
-          name: 'عميل',
+          name: 'Client',
           rating: 5.0
         }
       }));
@@ -112,7 +112,7 @@ export default function FreelancerProjectsPage() {
   const mockProjects = [
     {
       id: 1,
-      title: 'تصميم شعار احترافي لشركتي',
+      title: 'Professional logo design for my company',
       category: 'Graphics & Design',
       subcategory: 'Logo Design',
       budget: 500,
@@ -122,7 +122,7 @@ export default function FreelancerProjectsPage() {
       proposals: 12,
       views: 45,
       createdAt: '2024-01-20',
-      description: 'أحتاج إلى تصميم شعار احترافي يعكس هوية شركتي في مجال التكنولوجيا. يجب أن يكون عصري وبسيط ويمكن استخدامه في مختلف الوسائط.',
+      description: 'I need a professional logo that reflects my company’s identity in the tech space. It should be modern, minimal, and usable across multiple mediums.',
       client: {
         name: 'Abdalrhmn bobes',
         rating: 4.8
@@ -130,7 +130,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 2,
-      title: 'تطوير موقع إلكتروني للتجارة الإلكترونية',
+      title: 'Build an e-commerce website',
       category: 'Programming & Tech',
       subcategory: 'Website Development',
       budget: 75,
@@ -140,7 +140,7 @@ export default function FreelancerProjectsPage() {
       proposals: 8,
       views: 32,
       createdAt: '2024-01-19',
-      description: 'بحاجة لتطوير متجر إلكتروني متكامل باستخدام React وNode.js مع دعم الدفع الإلكتروني وإدارة المخزون.',
+      description: 'Need a full e-commerce store built with React and Node.js, including online payments and inventory management.',
       client: {
         name: 'Tech Company',
         rating: 5.0
@@ -148,7 +148,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 3,
-      title: 'تصميم بنر إعلاني للسوشيال ميديا',
+      title: 'Social media ad banner design',
       category: 'Graphics & Design',
       subcategory: 'Social Media Design',
       budget: 150,
@@ -158,7 +158,7 @@ export default function FreelancerProjectsPage() {
       proposals: 20,
       views: 89,
       createdAt: '2024-01-18',
-      description: 'أحتاج إلى تصميم 10 بنرات إعلانية لحملة تسويقية على فيسبوك وإنستغرام بتصاميم جذابة واحترافية.',
+      description: 'I need 10 ad banners for a Facebook/Instagram marketing campaign with attractive, professional designs.',
       client: {
         name: 'Digital Marketing Pro',
         rating: 4.9
@@ -166,7 +166,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 4,
-      title: 'كتابة محتوى تسويقي لموقع الشركة',
+      title: 'Marketing website copywriting',
       category: 'Writing & Translation',
       subcategory: 'Content Writing',
       budget: 300,
@@ -176,7 +176,7 @@ export default function FreelancerProjectsPage() {
       proposals: 15,
       views: 67,
       createdAt: '2024-01-17',
-      description: 'أبحث عن كاتب محتوى محترف لكتابة محتوى تسويقي جذاب لصفحات الموقع الرئيسية.',
+      description: 'Looking for a professional copywriter to create compelling marketing content for the main website pages.',
       client: {
         name: 'Marketing Agency',
         rating: 4.9
@@ -184,7 +184,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 5,
-      title: 'تطوير تطبيق جوال iOS و Android',
+      title: 'iOS & Android mobile app development',
       category: 'Programming & Tech',
       subcategory: 'Mobile Apps',
       budget: 3500,
@@ -194,7 +194,7 @@ export default function FreelancerProjectsPage() {
       proposals: 5,
       views: 120,
       createdAt: '2024-01-16',
-      description: 'مطلوب تطوير تطبيق جوال لحجز المواعيد الطبية باستخدام React Native مع نظام إشعارات وإدارة المواعيد.',
+      description: 'Build a medical appointment booking app using React Native, with notifications and appointment management.',
       client: {
         name: 'HealthCare Solutions',
         rating: 4.6
@@ -202,7 +202,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 6,
-      title: 'تحرير فيديو ترويجي للمنتج',
+      title: 'Product promo video editing',
       category: 'Video & Animation',
       subcategory: 'Video Editing',
       budget: 400,
@@ -212,7 +212,7 @@ export default function FreelancerProjectsPage() {
       proposals: 6,
       views: 28,
       createdAt: '2024-01-15',
-      description: 'أحتاج إلى محرر فيديو محترف لإنشاء فيديو ترويجي مدته دقيقتين مع موسيقى ومؤثرات احترافية.',
+      description: 'Need a professional video editor to create a 2-minute product promo with music and high-quality effects.',
       client: {
         name: 'Media Company',
         rating: 4.7
@@ -220,7 +220,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 7,
-      title: 'ترجمة محتوى من الإنجليزية للعربية',
+      title: 'Translate content from English to Arabic',
       category: 'Writing & Translation',
       subcategory: 'Translation',
       budget: 200,
@@ -230,7 +230,7 @@ export default function FreelancerProjectsPage() {
       proposals: 18,
       views: 56,
       createdAt: '2024-01-14',
-      description: 'مطلوب ترجمة احترافية لمحتوى موقع تقني من الإنجليزية للعربية بحوالي 5000 كلمة.',
+      description: 'Professional translation needed for a tech website from English to Arabic (~5,000 words).',
       client: {
         name: 'Global Content',
         rating: 4.8
@@ -238,7 +238,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 8,
-      title: 'تصميم واجهة مستخدم UI/UX لتطبيق',
+      title: 'UI/UX design for a mobile app',
       category: 'Graphics & Design',
       subcategory: 'UI/UX Design',
       budget: 800,
@@ -248,7 +248,7 @@ export default function FreelancerProjectsPage() {
       proposals: 10,
       views: 95,
       createdAt: '2024-01-13',
-      description: 'بحاجة لتصميم واجهة مستخدم عصرية وجذابة لتطبيق توصيل طعام مع تجربة مستخدم سلسة.',
+      description: 'Need a modern, attractive UI/UX design for a food delivery app with a smooth user experience.',
       client: {
         name: 'Food Delivery Inc',
         rating: 5.0
@@ -256,7 +256,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 9,
-      title: 'إنشاء حملة إعلانية على جوجل',
+      title: 'Create and manage a Google Ads campaign',
       category: 'Digital Marketing',
       subcategory: 'Google Ads',
       budget: 600,
@@ -266,7 +266,7 @@ export default function FreelancerProjectsPage() {
       proposals: 7,
       views: 44,
       createdAt: '2024-01-12',
-      description: 'أحتاج لمتخصص Google Ads لإنشاء وإدارة حملة إعلانية لمتجر إلكتروني.',
+      description: 'Need a Google Ads specialist to create and manage a campaign for an e-commerce store.',
       client: {
         name: 'E-commerce Store',
         rating: 4.5
@@ -274,7 +274,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 10,
-      title: 'كتابة وتحسين SEO لموقع',
+      title: 'SEO improvement + SEO-friendly copywriting',
       category: 'Digital Marketing',
       subcategory: 'SEO',
       budget: 450,
@@ -284,7 +284,7 @@ export default function FreelancerProjectsPage() {
       proposals: 14,
       views: 78,
       createdAt: '2024-01-11',
-      description: 'مطلوب خبير SEO لتحسين محركات البحث وكتابة محتوى متوافق مع السيو لـ 20 صفحة.',
+      description: 'Need an SEO expert to improve search visibility and write SEO-friendly content for 20 pages.',
       client: {
         name: 'Online Business',
         rating: 4.7
@@ -292,7 +292,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 11,
-      title: 'تطوير نظام إدارة محتوى CMS',
+      title: 'Custom CMS development',
       category: 'Programming & Tech',
       subcategory: 'WordPress',
       budget: 1200,
@@ -302,7 +302,7 @@ export default function FreelancerProjectsPage() {
       proposals: 9,
       views: 65,
       createdAt: '2024-01-10',
-      description: 'بحاجة لتطوير نظام إدارة محتوى مخصص باستخدام WordPress مع إضافات خاصة.',
+      description: 'Need a custom CMS built with WordPress and custom plugins.',
       client: {
         name: 'News Portal',
         rating: 4.6
@@ -310,7 +310,7 @@ export default function FreelancerProjectsPage() {
     },
     {
       id: 12,
-      title: 'تصميم إنفوجرافيك احترافي',
+      title: 'Professional infographic design',
       category: 'Graphics & Design',
       subcategory: 'Infographic Design',
       budget: 180,
@@ -320,7 +320,7 @@ export default function FreelancerProjectsPage() {
       proposals: 22,
       views: 102,
       createdAt: '2024-01-09',
-      description: 'أحتاج إلى تصميم 5 إنفوجرافيك احترافي لعرض إحصائيات ومعلومات بشكل جذاب.',
+      description: 'Need 5 professional infographics to present stats and information in an engaging way.',
       client: {
         name: 'Research Institute',
         rating: 4.9
@@ -344,15 +344,15 @@ export default function FreelancerProjectsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المشاريع المتاحة | Mahara</title>
-        <meta name="description" content="تصفح المشاريع المفتوحة وقدم عروضك للعملاء" />
+        <title>Available Projects | Mahara</title>
+        <meta name="description" content="Browse open projects and submit your offers" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">المشاريع المتاحة</h1>
-          <p className="text-gray-600">تصفح المشاريع المفتوحة وقدم عروضك</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Available Projects</h1>
+          <p className="text-gray-600">Browse open projects and submit your offers.</p>
         </div>
 
         {/* Search and Filters */}
@@ -363,7 +363,7 @@ export default function FreelancerProjectsPage() {
               <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="ابحث في المشاريع..."
+                placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -380,7 +380,7 @@ export default function FreelancerProjectsPage() {
               >
                 {categories.map(cat => (
                   <option key={cat} value={cat}>
-                    {cat === 'all' ? 'جميع الفئات' : cat}
+                    {cat === 'all' ? 'All categories' : cat}
                   </option>
                 ))}
               </select>
@@ -393,11 +393,11 @@ export default function FreelancerProjectsPage() {
           {filteredProjects.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <FaFileAlt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects found</h3>
               <p className="text-gray-600">
                 {searchQuery || selectedCategory !== 'all' 
-                  ? 'جرب البحث بكلمات مختلفة أو اختر فئة أخرى'
-                  : 'لا توجد مشاريع مفتوحة حالياً'}
+                  ? 'Try different keywords or pick another category.'
+                  : 'There are no open projects right now.'}
               </p>
             </div>
           ) : (
@@ -430,33 +430,32 @@ export default function FreelancerProjectsPage() {
                     <div className="flex items-center gap-2">
                       <FaDollarSign className="text-green-600" />
                       <span className="font-semibold">
-                        ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
+                        ${project.budget} {project.budgetType === 'hourly' ? '/hr' : ''}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <FaClock className="text-blue-600" />
-                      <span>{project.deliveryTime?.replace('days', 'أيام')?.replace('day', 'يوم')?.replace('weeks', 'أسابيع')?.replace('week', 'أسبوع')?.replace('months', 'أشهر')?.replace('month', 'شهر') || project.deliveryTime}</span>
+                      <span>{project.deliveryTime}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <FaUsers className="text-purple-600" />
-                      <span>{project.proposals || 0} عروض</span>
+                      <span>{project.proposals || 0} offers</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <FaEye className="text-gray-400" />
-                      <span>{project.views || 0} مشاهدة</span>
+                      <span>{project.views || 0} views</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900">{project.client?.name || 'عميل'}</p>
-                      <p className="text-xs text-gray-500">⭐ {project.client?.rating || '5.0'}</p>
+                      <p className="text-sm font-semibold text-gray-900">{project.client?.name || 'Client'}</p>
                     </div>
                     <Link
                       href={`/freelancer/projects/${project.id}`}
                       className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold"
                     >
-                      عرض التفاصيل
+                      View details
                     </Link>
                   </div>
                 </div>

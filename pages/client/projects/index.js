@@ -32,19 +32,19 @@ export default function ClientProjectsPage() {
 
     // Role-based access control
     if (!isAuthenticated) {
-      alert('يجب تسجيل الدخول أولاً');
+      toast.error('Please sign in first.');
       router.push('/login');
       return;
     }
 
     if (isFreelancer) {
-      alert('❌ هذه الصفحة للعملاء فقط.\n\nكمستقل، يمكنك تصفح المشاريع المتاحة وتقديم عروض.');
+      toast.error('This page is for clients only.');
       router.push('/freelancer/projects');
       return;
     }
 
     if (!isClient) {
-      alert('❌ فقط العملاء يمكنهم الوصول لهذه الصفحة.');
+      toast.error('Only clients can access this page.');
       router.push('/');
       return;
     }
@@ -73,18 +73,18 @@ export default function ClientProjectsPage() {
           id: p.id,
           title: p.title,
           description: p.description,
-          category: p.category?.name || p.category_name || 'غير محدد',
+          category: p.category?.name || p.category_name || 'Not specified',
           subcategory: p.subcategory || '',
           budget: parseFloat(p.budget || 0),
           budgetType: p.budget_type || 'fixed',
           deliveryTime: p.duration_days 
-            ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
+            ? `${p.duration_days} ${p.duration_days === 1 ? 'day' : 'days'}` 
             : (p.delivery_time 
               ? p.delivery_time
-                  .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} ${num === '1' ? 'يوم' : 'أيام'}`)
-                  .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} ${num === '1' ? 'أسبوع' : 'أسابيع'}`)
-                  .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} ${num === '1' ? 'شهر' : 'أشهر'}`)
-              : 'غير محدد'),
+                  .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} day${num === '1' ? '' : 's'}`)
+                  .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} week${num === '1' ? '' : 's'}`)
+                  .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} month${num === '1' ? '' : 's'}`)
+              : 'Not specified'),
           status: p.status || 'open',
           proposals: p.offers_count || p.proposals || 0,
           views: p.views || 0,
@@ -121,12 +121,12 @@ export default function ClientProjectsPage() {
           createdAt: p.createdAt || new Date().toISOString(),
           deliveryTime: p.deliveryTime 
             ? p.deliveryTime
-                .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} ${num === '1' ? 'يوم' : 'أيام'}`)
-                .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} ${num === '1' ? 'أسبوع' : 'أسابيع'}`)
-                .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} ${num === '1' ? 'شهر' : 'أشهر'}`)
+                .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} day${num === '1' ? '' : 's'}`)
+                .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} week${num === '1' ? '' : 's'}`)
+                .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} month${num === '1' ? '' : 's'}`)
             : (p.duration_days 
-              ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
-              : 'غير محدد')
+              ? `${p.duration_days} ${p.duration_days === 1 ? 'day' : 'days'}` 
+              : 'Not specified')
         }));
         setProjects(mappedProjects);
       } else {
@@ -134,7 +134,7 @@ export default function ClientProjectsPage() {
       }
     } catch (error) {
       console.error('Error loading projects:', error);
-      toast.error('فشل تحميل المشاريع');
+      toast.error('Failed to load projects.');
       setProjects([]);
     } finally {
       setLoading(false);
@@ -145,7 +145,7 @@ export default function ClientProjectsPage() {
   const mockProjects = [
     {
       id: 1,
-      title: 'تصميم شعار احترافي لشركتي',
+      title: 'Professional logo design for my company',
       category: 'Graphics & Design',
       subcategory: 'Logo Design',
       budget: 500,
@@ -155,11 +155,11 @@ export default function ClientProjectsPage() {
       proposals: 12,
       views: 45,
       createdAt: '2024-01-15',
-      description: 'أحتاج إلى تصميم شعار احترافي يعكس هوية شركتي في مجال التكنولوجيا...'
+      description: 'I need a professional logo that reflects my company’s identity in the tech space...'
     },
     {
       id: 2,
-      title: 'تطوير موقع إلكتروني للتجارة الإلكترونية',
+      title: 'Build an e-commerce website',
       category: 'Programming & Tech',
       subcategory: 'Website Development',
       budget: 75,
@@ -170,11 +170,11 @@ export default function ClientProjectsPage() {
       views: 32,
       createdAt: '2024-01-10',
       selectedFreelancer: 'Ahmed Mohamed',
-      description: 'بحاجة لتطوير متجر إلكتروني متكامل باستخدام React وNode.js...'
+      description: 'Need a full e-commerce store built with React and Node.js...'
     },
     {
       id: 3,
-      title: 'كتابة محتوى تسويقي لموقع الشركة',
+      title: 'Marketing website copywriting',
       category: 'Writing & Translation',
       subcategory: 'Content Writing',
       budget: 300,
@@ -185,11 +185,11 @@ export default function ClientProjectsPage() {
       views: 67,
       createdAt: '2023-12-20',
       completedAt: '2023-12-28',
-      description: 'أبحث عن كاتب محتوى محترف لكتابة محتوى تسويقي جذاب...'
+      description: 'Looking for a professional copywriter to create compelling marketing content...'
     },
     {
       id: 4,
-      title: 'تحرير فيديو ترويجي للمنتج',
+      title: 'Product promo video editing',
       category: 'Video & Animation',
       subcategory: 'Video Editing',
       budget: 400,
@@ -199,18 +199,18 @@ export default function ClientProjectsPage() {
       proposals: 6,
       views: 28,
       createdAt: '2023-12-15',
-      description: 'أحتاج إلى محرر فيديو محترف لإنشاء فيديو ترويجي مدته دقيقتين...'
+      description: 'Need a professional video editor to create a 2-minute product promo...'
     },
   ];
 
   const getStatusBadge = (status) => {
     const badges = {
-      open: { text: 'مفتوح', color: 'bg-blue-100 text-blue-700', icon: <FaClock /> },
-      active: { text: 'نشط', color: 'bg-green-100 text-green-700', icon: <FaCheckCircle /> },
-      in_progress: { text: 'قيد التنفيذ', color: 'bg-blue-100 text-blue-700', icon: <FaSpinner /> },
-      completed: { text: 'مكتمل', color: 'bg-gray-100 text-gray-700', icon: <FaCheckCircle /> },
-      cancelled: { text: 'ملغي', color: 'bg-red-100 text-red-700', icon: <FaTimesCircle /> },
-      done: { text: 'مكتمل', color: 'bg-gray-100 text-gray-700', icon: <FaCheckCircle /> },
+      open: { text: 'Open', color: 'bg-blue-100 text-blue-700', icon: <FaClock /> },
+      active: { text: 'Active', color: 'bg-green-100 text-green-700', icon: <FaCheckCircle /> },
+      in_progress: { text: 'In progress', color: 'bg-blue-100 text-blue-700', icon: <FaSpinner /> },
+      completed: { text: 'Completed', color: 'bg-gray-100 text-gray-700', icon: <FaCheckCircle /> },
+      cancelled: { text: 'Cancelled', color: 'bg-red-100 text-red-700', icon: <FaTimesCircle /> },
+      done: { text: 'Completed', color: 'bg-gray-100 text-gray-700', icon: <FaCheckCircle /> },
     };
     const badge = badges[status] || badges.open;
     return (
@@ -239,23 +239,23 @@ export default function ClientProjectsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>مشاريعي | Mahara</title>
-        <meta name="description" content="إدارة جميع مشاريعك في مكان واحد" />
+        <title>My Projects | Mahara</title>
+        <meta name="description" content="Manage all your projects in one place" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">مشاريعي</h1>
-            <p className="text-gray-600">إدارة جميع مشاريعك في مكان واحد</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Projects</h1>
+            <p className="text-gray-600">Manage all your projects in one place</p>
           </div>
           <Link
             href="/client/projects/new"
             className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center gap-2"
           >
             <FaPlus />
-            مشروع جديد
+            New project
           </Link>
         </div>
 
@@ -264,7 +264,7 @@ export default function ClientProjectsPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">جميع المشاريع</p>
+                <p className="text-gray-500 text-sm mb-1">All projects</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.all}</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -276,7 +276,7 @@ export default function ClientProjectsPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">المشاريع النشطة</p>
+                <p className="text-gray-500 text-sm mb-1">Active</p>
                 <p className="text-3xl font-bold text-green-600">{stats.active}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -288,7 +288,7 @@ export default function ClientProjectsPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">قيد التنفيذ</p>
+                <p className="text-gray-500 text-sm mb-1">In progress</p>
                 <p className="text-3xl font-bold text-blue-600">{stats.in_progress}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -300,7 +300,7 @@ export default function ClientProjectsPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm mb-1">المكتملة</p>
+                <p className="text-gray-500 text-sm mb-1">Completed</p>
                 <p className="text-3xl font-bold text-gray-600">{stats.completed}</p>
               </div>
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -314,10 +314,10 @@ export default function ClientProjectsPage() {
         <div className="bg-white rounded-t-xl shadow-sm border border-gray-200 border-b-0">
           <div className="flex gap-1 p-2">
             {[
-              { id: 'all', label: 'الكل', count: stats.all },
-              { id: 'active', label: 'نشط', count: stats.active },
-              { id: 'in_progress', label: 'قيد التنفيذ', count: stats.in_progress },
-              { id: 'completed', label: 'مكتمل', count: stats.completed },
+              { id: 'all', label: 'All', count: stats.all },
+              { id: 'active', label: 'Active', count: stats.active },
+              { id: 'in_progress', label: 'In progress', count: stats.in_progress },
+              { id: 'completed', label: 'Completed', count: stats.completed },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -339,21 +339,21 @@ export default function ClientProjectsPage() {
           {loading ? (
             <div className="text-center py-16">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mb-4"></div>
-              <p className="text-gray-600">جاري التحميل...</p>
+              <p className="text-gray-600">Loading...</p>
             </div>
           ) : filteredProjects.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaClock className="text-gray-400 text-3xl" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع</h3>
-              <p className="text-gray-600 mb-6">ابدأ بإنشاء مشروعك الأول</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects</h3>
+              <p className="text-gray-600 mb-6">Create your first project to get started.</p>
               <Link
                 href="/client/projects/new"
                 className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
               >
                 <FaPlus />
-                إنشاء مشروع جديد
+                Create a project
               </Link>
             </div>
           ) : (
@@ -387,7 +387,7 @@ export default function ClientProjectsPage() {
                       <div className="flex items-center gap-2">
                         <FaDollarSign className="text-green-600" />
                         <span className="font-semibold">
-                          ${project.budget} {project.budgetType === 'hourly' ? '/ساعة' : ''}
+                          ${project.budget} {project.budgetType === 'hourly' ? '/hr' : ''}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -396,11 +396,11 @@ export default function ClientProjectsPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <FaUsers className="text-purple-600" />
-                        <span>{project.proposals} عروض</span>
+                        <span>{project.proposals} offers</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <FaEye className="text-gray-400" />
-                        <span>{project.views} مشاهدة</span>
+                        <span>{project.views} views</span>
                       </div>
                     </div>
 
@@ -409,14 +409,14 @@ export default function ClientProjectsPage() {
                         href={`/client/projects/${project.id}`}
                         className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm"
                       >
-                        عرض التفاصيل
+                        View details
                       </Link>
                       {project.status === 'active' && (
                         <Link
                           href={`/client/projects/${project.id}/proposals`}
                           className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium text-sm"
                         >
-                          العروض ({project.proposals})
+                          Offers ({project.proposals})
                         </Link>
                       )}
                     </div>
@@ -425,7 +425,7 @@ export default function ClientProjectsPage() {
                   {project.selectedFreelancer && (
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <p className="text-sm text-gray-600">
-                        المستقل المختار: <span className="font-semibold text-gray-900">{project.selectedFreelancer}</span>
+                        Selected freelancer: <span className="font-semibold text-gray-900">{project.selectedFreelancer}</span>
                       </p>
                     </div>
                   )}

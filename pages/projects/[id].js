@@ -286,9 +286,6 @@ export default function ProjectDetailsPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{project.client.name}</h3>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <FaStar className="text-yellow-400" />
-                      <span>{project.client.rating || 5.0}</span>
-                      <span className="mx-2">•</span>
                       <span>{project.client.completedProjects || 0} مشروع مكتمل</span>
                     </div>
                   </div>

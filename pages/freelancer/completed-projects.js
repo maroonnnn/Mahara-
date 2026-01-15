@@ -40,17 +40,17 @@ export default function FreelancerCompletedProjectsPage() {
           title: p.title,
           client: {
             id: p.client?.id || p.client_id,
-            name: p.client?.name || 'عميل'
+            name: p.client?.name || 'Client'
           },
           budget: parseFloat(p.budget || 0),
           budgetType: p.budget_type || 'fixed',
           deliveryTime: p.duration_days 
-            ? `${p.duration_days} ${p.duration_days === 1 ? 'يوم' : 'أيام'}` 
-            : 'غير محدد',
+            ? `${p.duration_days} ${p.duration_days === 1 ? 'day' : 'days'}` 
+            : 'Not specified',
           status: p.status || 'completed',
           completedAt: p.updated_at || p.created_at,
           review: p.reviews && p.reviews.length > 0 ? p.reviews[0] : null,
-          category: p.category?.name || 'غير محدد'
+          category: p.category?.name || 'Not specified'
         };
       });
       
@@ -66,7 +66,7 @@ export default function FreelancerCompletedProjectsPage() {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -76,31 +76,31 @@ export default function FreelancerCompletedProjectsPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المشاريع المكتملة | Mahara</title>
-        <meta name="description" content="مشاريعك المكتملة" />
+        <title>Completed Projects | Mahara</title>
+        <meta name="description" content="Your completed projects" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">المشاريع المكتملة</h1>
-          <p className="text-gray-600">المشاريع التي قمت بتسليمها أو تم إكمالها</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Completed Projects</h1>
+          <p className="text-gray-600">Projects you delivered or were marked as completed</p>
         </div>
 
         {loading ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري تحميل المشاريع المكتملة...</p>
+            <p className="text-gray-600">Loading completed projects...</p>
           </div>
         ) : projects.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <FaFileAlt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مشاريع مكتملة</h3>
-            <p className="text-gray-600 mb-6">المشاريع التي تقوم بتسليمها ستظهر هنا</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No completed projects</h3>
+            <p className="text-gray-600 mb-6">Projects you complete will show up here</p>
             <Link
               href="/freelancer/active-projects"
               className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
             >
-              عرض المشاريع النشطة
+              View active projects
             </Link>
           </div>
         ) : (
@@ -136,17 +136,17 @@ export default function FreelancerCompletedProjectsPage() {
                       {project.status === 'delivered' ? (
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
                           <FaClock className="text-yellow-600" />
-                          في انتظار موافقة العميل
+                          Awaiting client approval
                         </div>
                       ) : (
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
                           <FaCheckCircle className="text-green-600" />
-                          مكتمل
+                          Completed
                         </div>
                       )}
                       {project.completedAt && (
                         <span className="ml-3 text-sm text-gray-500">
-                          تم التسليم: {formatDate(project.completedAt)}
+                          Delivered: {formatDate(project.completedAt)}
                         </span>
                       )}
                     </div>
@@ -191,7 +191,7 @@ export default function FreelancerCompletedProjectsPage() {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">{project.client.name}</p>
-                      <p className="text-xs text-gray-500">العميل</p>
+                      <p className="text-xs text-gray-500">Client</p>
                     </div>
                   </div>
 
@@ -200,7 +200,7 @@ export default function FreelancerCompletedProjectsPage() {
                       href={`/freelancer/projects/${project.id}`}
                       className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
                     >
-                      عرض التفاصيل
+                      View details
                     </Link>
                   </div>
                 </div>

@@ -64,8 +64,8 @@ export default function AdminDashboard() {
         activities.push({
           id: `user-${user.id}`,
           type: 'user',
-          message: `انضم مستخدم جديد: ${user.name}`,
-          time: new Date(user.created_at).toLocaleDateString('ar-SA')
+          message: `New user joined: ${user.name}`,
+          time: new Date(user.created_at).toLocaleDateString('en-US')
         });
       });
 
@@ -74,15 +74,15 @@ export default function AdminDashboard() {
         activities.push({
           id: `project-${project.id}`,
           type: 'project',
-          message: `مشروع جديد: ${project.title}`,
-          time: new Date(project.created_at).toLocaleDateString('ar-SA')
+          message: `New project: ${project.title}`,
+          time: new Date(project.created_at).toLocaleDateString('en-US')
         });
       });
 
       setRecentActivities(activities);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      toast.error('فشل تحميل البيانات');
+      toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
 
   const statsCards = [
     {
-      title: 'إجمالي المستخدمين',
+      title: 'Total users',
       value: stats.totalUsers,
       change: '+12%',
       isIncrease: true,
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
       link: '/admin/users'
     },
     {
-      title: 'إجمالي المشاريع',
+      title: 'Total projects',
       value: stats.totalProjects,
       change: '+8%',
       isIncrease: true,
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
       link: '/admin/projects'
     },
     {
-      title: 'إجمالي الإيرادات',
+      title: 'Total revenue',
       value: `$${stats.totalRevenue.toLocaleString()}`,
       change: '+15%',
       isIncrease: true,
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
       link: '/admin/transactions'
     },
     {
-      title: 'المشاريع النشطة',
+      title: 'Active projects',
       value: stats.activeProjects,
       change: '-3%',
       isIncrease: false,
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
   return (
     <>
       <Head>
-        <title>لوحة تحكم المدير - Mahara</title>
+        <title>Admin Dashboard - Mahara</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">
@@ -138,10 +138,10 @@ export default function AdminDashboard() {
           {/* Page Header */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              لوحة تحكم المدير
+              Admin dashboard
             </h1>
             <p className="text-gray-600">
-              مرحباً بك، {user?.name || 'المدير'}
+              Welcome, {user?.name || 'Admin'}
             </p>
           </div>
 
@@ -186,30 +186,30 @@ export default function AdminDashboard() {
             {/* Quick Stats */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                إحصائيات سريعة
+                Quick stats
               </h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">
-                    مستخدمون جدد هذا الشهر
+                    New users this month
                   </span>
                   <span className="text-lg font-semibold text-gray-900">{stats.newUsersThisMonth}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">
-                    المشاريع المكتملة
+                    Completed projects
                   </span>
                   <span className="text-lg font-semibold text-gray-900">{stats.completedProjects}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">
-                    المعاملات المعلقة
+                    Pending transactions
                   </span>
                   <span className="text-lg font-semibold text-orange-500">{stats.pendingTransactions}</span>
                 </div>
                 <div className="flex items-center justify-between py-3">
                   <span className="text-gray-600">
-                    إجمالي الفئات
+                    Total categories
                   </span>
                   <span className="text-lg font-semibold text-gray-900">{stats.totalCategories}</span>
                 </div>
@@ -220,16 +220,16 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-gray-900">
-                  الأنشطة الأخيرة
+                  Recent activity
                 </h2>
                 <Link href="/admin/activities" className="text-primary-500 hover:text-primary-600 text-sm font-semibold">
-                  عرض الكل
+                  View all
                 </Link>
               </div>
               <div className="space-y-4">
                 {recentActivities.length === 0 ? (
                   <p className="text-gray-500 text-center py-4">
-                    لا توجد أنشطة حديثة
+                    No recent activity
                   </p>
                 ) : (
                   recentActivities.map((activity) => (
@@ -257,31 +257,31 @@ export default function AdminDashboard() {
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              إجراءات سريعة
+              Quick actions
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link href="/admin/users" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaUsers className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  إدارة المستخدمين
+                  Manage users
                 </span>
               </Link>
               <Link href="/admin/projects" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaProjectDiagram className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  إدارة المشاريع
+                  Manage projects
                 </span>
               </Link>
               <Link href="/admin/transactions" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaDollarSign className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  المعاملات المالية
+                  Transactions
                 </span>
               </Link>
               <Link href="/admin/reports" className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaChartLine className="w-8 h-8 text-primary-500 mb-2" />
                 <span className="text-sm font-semibold text-gray-700">
-                  التقارير
+                  Reports
                 </span>
               </Link>
             </div>

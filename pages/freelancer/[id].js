@@ -124,13 +124,6 @@ export default function FreelancerPublicProfile() {
               )}
               
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
-                {freelancer.user?.rating || freelancer.rating ? (
-                  <div className="flex items-center gap-1">
-                    <FaStar className="text-yellow-500" />
-                    <span className="font-semibold">{freelancer.user?.rating || freelancer.rating}</span>
-                    <span className="text-gray-400">({freelancer.reviews_count || 0} تقييم)</span>
-                  </div>
-                ) : null}
                 {freelancer.location && (
                   <div className="flex items-center gap-1">
                     <FaMapMarkerAlt className="text-gray-400" />

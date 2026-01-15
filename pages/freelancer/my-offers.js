@@ -37,16 +37,16 @@ export default function MyOffersPage() {
         id: offer.id,
         project: {
           id: offer.project?.id || offer.project_id,
-          title: offer.project?.title || offer.project_title || 'مشروع',
+          title: offer.project?.title || offer.project_title || 'Project',
           client: {
-            name: offer.project?.client?.name || offer.client_name || 'عميل',
+            name: offer.project?.client?.name || offer.client_name || 'Client',
             rating: offer.project?.client?.rating || offer.client_rating || 5.0
           }
         },
         amount: parseFloat(offer.amount || 0),
         duration: offer.duration_days 
-          ? `${offer.duration_days} ${offer.duration_days === 1 ? 'يوم' : 'أيام'}` 
-          : (offer.duration || 'غير محدد'),
+          ? `${offer.duration_days} ${offer.duration_days === 1 ? 'day' : 'days'}` 
+          : (offer.duration || 'Not specified'),
         message: offer.message || offer.description || '',
         status: offer.status || 'pending',
         createdAt: offer.created_at || offer.createdAt,
@@ -68,17 +68,17 @@ export default function MyOffersPage() {
   const getStatusBadge = (status) => {
     const badges = {
       pending: { 
-        text: 'قيد المراجعة', 
+        text: 'Pending', 
         color: 'bg-yellow-100 text-yellow-700', 
         icon: <FaHourglassHalf /> 
       },
       accepted: { 
-        text: 'مقبول', 
+        text: 'Accepted', 
         color: 'bg-green-100 text-green-700', 
         icon: <FaCheckCircle /> 
       },
       rejected: { 
-        text: 'مرفوض', 
+        text: 'Rejected', 
         color: 'bg-red-100 text-red-700', 
         icon: <FaTimesCircle /> 
       },
@@ -108,12 +108,12 @@ export default function MyOffersPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>عروضي | Mahara</title>
+          <title>My Offers | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري التحميل...</p>
+            <p className="text-gray-600">Loading...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -123,33 +123,33 @@ export default function MyOffersPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>عروضي | Mahara</title>
-        <meta name="description" content="جميع العروض التي قدمتها على المشاريع" />
+        <title>My Offers | Mahara</title>
+        <meta name="description" content="All offers you have submitted to projects" />
       </Head>
 
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">عروضي</h1>
-          <p className="text-gray-600">جميع العروض التي قدمتها على المشاريع</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Offers</h1>
+          <p className="text-gray-600">All offers you have submitted to projects</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">إجمالي العروض</p>
+            <p className="text-sm text-gray-500 mb-2">Total offers</p>
             <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">قيد المراجعة</p>
+            <p className="text-sm text-gray-500 mb-2">Pending</p>
             <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">مقبولة</p>
+            <p className="text-sm text-gray-500 mb-2">Accepted</p>
             <p className="text-3xl font-bold text-green-600">{stats.accepted}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">مرفوضة</p>
+            <p className="text-sm text-gray-500 mb-2">Rejected</p>
             <p className="text-3xl font-bold text-red-600">{stats.rejected}</p>
           </div>
         </div>
@@ -158,10 +158,10 @@ export default function MyOffersPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
           <div className="flex gap-1 p-2">
             {[
-              { id: 'all', label: 'الكل', count: stats.total },
-              { id: 'pending', label: 'قيد المراجعة', count: stats.pending },
-              { id: 'accepted', label: 'مقبولة', count: stats.accepted },
-              { id: 'rejected', label: 'مرفوضة', count: stats.rejected },
+              { id: 'all', label: 'All', count: stats.total },
+              { id: 'pending', label: 'Pending', count: stats.pending },
+              { id: 'accepted', label: 'Accepted', count: stats.accepted },
+              { id: 'rejected', label: 'Rejected', count: stats.rejected },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -183,17 +183,17 @@ export default function MyOffersPage() {
           {filteredOffers.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
               <FaFileAlt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد عروض</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No offers</h3>
               <p className="text-gray-600 mb-6">
                 {filter !== 'all' 
-                  ? `لا توجد عروض ${filter === 'pending' ? 'قيد المراجعة' : filter === 'accepted' ? 'مقبولة' : 'مرفوضة'}`
-                  : 'لم تقدم أي عروض بعد'}
+                  ? `No ${filter} offers`
+                  : 'You haven’t submitted any offers yet.'}
               </p>
               <Link
                 href="/freelancer/projects"
                 className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
               >
-                تصفح المشاريع المتاحة
+                Browse available projects
               </Link>
             </div>
           ) : (
@@ -223,7 +223,6 @@ export default function MyOffersPage() {
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-gray-900">{offer.project.client.name}</p>
-                          <p className="text-xs text-gray-500">⭐ {offer.project.client.rating}</p>
                         </div>
                       </div>
                     </div>
@@ -244,10 +243,10 @@ export default function MyOffersPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <FaEye className="text-gray-400" />
-                      <span>{offer.views} مشاهدة</span>
+                      <span>{offer.views} views</span>
                     </div>
                     <div className="text-xs text-gray-500">
-                      تم الإرسال: {offer.createdAt}
+                      Sent: {offer.createdAt}
                     </div>
                   </div>
 
@@ -258,14 +257,14 @@ export default function MyOffersPage() {
                         className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center gap-2 text-sm"
                       >
                         <FaEnvelope />
-                        فتح المحادثة
+                        Open chat
                       </Link>
                     )}
                     <Link
                       href={`/freelancer/projects/${offer.project.id}`}
                       className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold text-sm"
                     >
-                      عرض المشروع
+                      View project
                     </Link>
                   </div>
                 </div>
@@ -273,7 +272,7 @@ export default function MyOffersPage() {
                 {offer.status === 'accepted' && offer.acceptedAt && (
                   <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-sm text-green-700">
-                      🎉 <strong>تهانينا!</strong> تم قبول عرضك في {offer.acceptedAt}
+                      🎉 <strong>Congrats!</strong> Your offer was accepted on {offer.acceptedAt}
                     </p>
                   </div>
                 )}
@@ -281,7 +280,7 @@ export default function MyOffersPage() {
                 {offer.status === 'rejected' && offer.rejectedAt && (
                   <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-sm text-red-700">
-                      تم رفض العرض في {offer.rejectedAt}. لا تقلق، هناك الكثير من الفرص الأخرى!
+                      Your offer was rejected on {offer.rejectedAt}. Don’t worry—there are plenty of other opportunities!
                     </p>
                   </div>
                 )}
@@ -293,13 +292,13 @@ export default function MyOffersPage() {
         {/* Tips */}
         {offers.length > 0 && (
           <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
-            <h3 className="font-bold text-blue-900 mb-2">💡 نصائح لتحسين فرص قبول عروضك</h3>
+            <h3 className="font-bold text-blue-900 mb-2">💡 Tips to increase your chances</h3>
             <ul className="space-y-2 text-sm text-blue-800">
-              <li>• اكتب عروض مخصصة لكل مشروع وتجنب النسخ واللصق</li>
-              <li>• اذكر خبراتك السابقة المشابهة للمشروع</li>
-              <li>• قدم أسعار تنافسية ومنطقية</li>
-              <li>• التزم بمدة تسليم واقعية</li>
-              <li>• أظهر اهتمامك بالمشروع واطرح أسئلة توضيحية</li>
+              <li>- Write tailored offers for each project (avoid copy/paste).</li>
+              <li>- Mention relevant experience and similar work.</li>
+              <li>- Offer competitive, realistic pricing.</li>
+              <li>- Commit to a realistic delivery timeline.</li>
+              <li>- Ask clarifying questions to show you understand the requirements.</li>
             </ul>
           </div>
         )}

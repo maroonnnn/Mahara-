@@ -65,26 +65,26 @@ export default function WithdrawPage() {
     e.preventDefault();
     
     if (!amount || parseFloat(amount) < 10) {
-      alert('❌ الحد الأدنى للسحب هو 10 دولار');
+      alert('❌ Minimum withdrawal amount is $10.');
       return;
     }
 
     const withdrawAmount = parseFloat(amount);
 
     if (withdrawAmount > walletBalance) {
-      alert('❌ الرصيد غير كافي. الرصيد الحالي: $' + walletBalance.toFixed(2));
+      alert('❌ Insufficient balance. Current balance: $' + walletBalance.toFixed(2));
       return;
     }
 
     if (withdrawAmount > 10000) {
-      alert('❌ الحد الأقصى للسحب هو 10,000 دولار في المرة الواحدة');
+      alert('❌ Maximum withdrawal per transaction is $10,000.');
       return;
     }
 
     // Validate bank details for bank transfer
     if (withdrawMethod === 'bank_transfer') {
       if (!bankDetails.accountName || !bankDetails.accountNumber || !bankDetails.bankName) {
-        alert('❌ يرجى إدخال جميع بيانات الحساب البنكي');
+        alert('❌ Please fill in all required bank account details.');
         return;
       }
     }
@@ -95,7 +95,7 @@ export default function WithdrawPage() {
       const withdrawData = {
         amount: withdrawAmount,
         method: withdrawMethod,
-        description: `سحب رصيد ${withdrawAmount.toFixed(2)} دولار عبر ${withdrawMethod === 'bank_transfer' ? 'تحويل بنكي' : withdrawMethod === 'paypal' ? 'PayPal' : 'بطاقة'}`,
+        description: `Withdraw $${withdrawAmount.toFixed(2)} via ${withdrawMethod === 'bank_transfer' ? 'Bank transfer' : withdrawMethod === 'paypal' ? 'PayPal' : 'Card'}`,
         bank_details: withdrawMethod === 'bank_transfer' ? bankDetails : null
       };
 
@@ -106,12 +106,12 @@ export default function WithdrawPage() {
       const updatedWallet = await walletService.getWallet();
       const newBalance = parseFloat(updatedWallet.data?.balance || updatedWallet.data?.data?.balance || 0);
 
-      alert(`✅ تم تقديم طلب السحب بنجاح!\n\n💰 المبلغ المطلوب سحبه: $${withdrawAmount.toFixed(2)}\n📊 الرصيد المتبقي: $${newBalance.toFixed(2)}\n\n⏳ سيتم معالجة طلبك خلال 1-3 أيام عمل`);
+      alert(`✅ Withdrawal request submitted!\n\n💰 Amount: $${withdrawAmount.toFixed(2)}\n📊 Remaining balance: $${newBalance.toFixed(2)}\n\n⏳ Processing time: 1–3 business days`);
       
       router.push('/client/wallet');
     } catch (error) {
       console.error('Withdraw error:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'حدث خطأ أثناء السحب';
+      const errorMessage = error.response?.data?.message || error.message || 'Withdrawal failed';
       alert(`❌ ${errorMessage}`);
     } finally {
       setProcessing(false);
@@ -121,7 +121,7 @@ export default function WithdrawPage() {
   return (
     <DashboardLayout>
       <Head>
-        <title>سحب رصيد | Mahara</title>
+        <title>Withdraw | Mahara</title>
       </Head>
 
       <div className="max-w-4xl mx-auto">
@@ -131,13 +131,13 @@ export default function WithdrawPage() {
           className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <FaArrowRight />
-          <span>العودة</span>
+          <span>Back</span>
         </button>
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">سحب رصيد</h1>
-          <p className="text-gray-600">سحب الأموال من محفظتك إلى حسابك البنكي</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Withdraw</h1>
+          <p className="text-gray-600">Withdraw funds from your wallet to your bank account</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -146,7 +146,7 @@ export default function WithdrawPage() {
             <form onSubmit={handleWithdraw} className="space-y-6">
               {/* Current Balance */}
               <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg p-6 text-white">
-                <p className="text-white/80 mb-2">الرصيد الحالي</p>
+                <p className="text-white/80 mb-2">Current balance</p>
                 {loading ? (
                   <div className="h-12 w-32 bg-white/20 animate-pulse rounded"></div>
                 ) : (
@@ -156,11 +156,11 @@ export default function WithdrawPage() {
 
               {/* Amount Selection */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">المبلغ المراد سحبه</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Withdrawal amount</h2>
                 
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    أدخل المبلغ (USD)
+                    Enter amount (USD)
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">$</span>
@@ -182,11 +182,11 @@ export default function WithdrawPage() {
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    الحد الأدنى: $10 | الحد الأقصى: ${walletBalance.toFixed(2)}
+                    Min: $10 | Max: ${walletBalance.toFixed(2)}
                   </p>
                   {amount && parseFloat(amount) > walletBalance && (
                     <p className="text-xs text-red-500 mt-1">
-                      ⚠️ المبلغ المطلوب أكبر من الرصيد المتاح
+                      ⚠️ Amount exceeds available balance
                     </p>
                   )}
                 </div>
@@ -215,7 +215,7 @@ export default function WithdrawPage() {
 
               {/* Withdraw Method */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">طريقة السحب</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Withdrawal method</h2>
                 
                 <div className="space-y-3">
                   {/* Bank Transfer */}
@@ -234,8 +234,8 @@ export default function WithdrawPage() {
                     />
                     <FaUniversity className="text-2xl text-gray-600" />
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900">تحويل بنكي</p>
-                      <p className="text-xs text-gray-500">يستغرق 1-3 أيام عمل</p>
+                      <p className="font-semibold text-gray-900">Bank transfer</p>
+                      <p className="text-xs text-gray-500">Takes 1–3 business days</p>
                     </div>
                   </label>
 
@@ -256,7 +256,7 @@ export default function WithdrawPage() {
                     <FaCreditCard className="text-2xl text-blue-600" />
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900">PayPal</p>
-                      <p className="text-xs text-gray-500">سحب فوري (يستغرق 24 ساعة)</p>
+                      <p className="text-xs text-gray-500">Instant withdrawal (takes 24 hours)</p>
                     </div>
                   </label>
                 </div>
@@ -265,19 +265,19 @@ export default function WithdrawPage() {
               {/* Bank Details (if bank transfer selected) */}
               {withdrawMethod === 'bank_transfer' && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">معلومات الحساب البنكي</h2>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Bank account details</h2>
                   
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        اسم صاحب الحساب
+                        Account holder name
                       </label>
                       <input
                         type="text"
                         name="accountName"
                         value={bankDetails.accountName}
                         onChange={handleBankChange}
-                        placeholder="أحمد محمد"
+                        placeholder="John Smith"
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
@@ -285,7 +285,7 @@ export default function WithdrawPage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        رقم الحساب
+                        Account number
                       </label>
                       <input
                         type="text"
@@ -300,14 +300,14 @@ export default function WithdrawPage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        اسم البنك
+                        Bank name
                       </label>
                       <input
                         type="text"
                         name="bankName"
                         value={bankDetails.bankName}
                         onChange={handleBankChange}
-                        placeholder="البنك الأهلي السعودي"
+                        placeholder="Your bank name"
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
@@ -315,7 +315,7 @@ export default function WithdrawPage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        IBAN (اختياري)
+                        IBAN (optional)
                       </label>
                       <input
                         type="text"
@@ -333,11 +333,11 @@ export default function WithdrawPage() {
               {/* PayPal Email (if PayPal selected) */}
               {withdrawMethod === 'paypal' && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">معلومات PayPal</h2>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">PayPal details</h2>
                   
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      البريد الإلكتروني المرتبط بـ PayPal
+                      PayPal email
                     </label>
                     <input
                       type="email"
@@ -357,7 +357,7 @@ export default function WithdrawPage() {
                   onClick={() => router.back()}
                   className="flex-1 px-6 py-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
                 >
-                  إلغاء
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -367,12 +367,12 @@ export default function WithdrawPage() {
                   {processing ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      جاري المعالجة...
+                      Processing...
                     </>
                   ) : (
                     <>
                       <FaCheckCircle />
-                      تأكيد السحب
+                      Confirm withdrawal
                     </>
                   )}
                 </button>
@@ -383,28 +383,28 @@ export default function WithdrawPage() {
           {/* Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">ملخص العملية</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Summary</h3>
               
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">الرصيد الحالي</span>
+                  <span className="text-gray-600">Current balance</span>
                   <span className="font-semibold text-gray-900">${walletBalance.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">المبلغ المطلوب سحبه</span>
+                  <span className="text-gray-600">Withdrawal amount</span>
                   <span className="font-semibold text-gray-900">
                     ${amount ? parseFloat(amount).toFixed(2) : '0.00'}
                   </span>
                 </div>
                 <div className="border-t border-gray-200 pt-3 flex justify-between">
-                  <span className="font-bold text-gray-900">الرصيد المتبقي</span>
+                  <span className="font-bold text-gray-900">Remaining balance</span>
                   <span className="font-bold text-primary-600 text-xl">
                     ${amount ? (walletBalance - parseFloat(amount)).toFixed(2) : walletBalance.toFixed(2)}
                   </span>
                 </div>
                 {amount && parseFloat(amount) > 0 && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-700">
-                    💡 سيتم خصم ${parseFloat(amount).toFixed(2)} من محفظتك بعد معالجة الطلب
+                    💡 $${parseFloat(amount).toFixed(2)} will be deducted from your wallet after the request is processed
                   </div>
                 )}
               </div>
@@ -412,24 +412,24 @@ export default function WithdrawPage() {
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 text-yellow-700 mb-2">
                   <FaExclamationTriangle />
-                  <span className="font-semibold text-sm">مهم</span>
+                  <span className="font-semibold text-sm">Important</span>
                 </div>
                 <p className="text-xs text-yellow-600">
-                  • معالجة طلبات السحب تستغرق 1-3 أيام عمل
+                  - Withdrawal processing takes 1–3 business days
                   <br />
-                  • تأكد من صحة بيانات الحساب البنكي
+                  - Make sure your bank details are correct
                   <br />
-                  • لا يمكن إلغاء الطلب بعد التأكيد
+                  - You can’t cancel after confirmation
                 </p>
               </div>
 
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 text-green-700 mb-2">
                   <FaLock />
-                  <span className="font-semibold text-sm">آمن ومحمي</span>
+                  <span className="font-semibold text-sm">Secure</span>
                 </div>
                 <p className="text-xs text-green-600">
-                  جميع المعاملات مشفرة ومحمية بأحدث تقنيات الأمان
+                  All transactions are encrypted and protected using modern security standards
                 </p>
               </div>
             </div>

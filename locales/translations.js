@@ -46,7 +46,6 @@ export const translations = {
       home: 'الرئيسية',
       explore: 'استكشف',
       categories: 'الفئات',
-      trending: 'الشائع',
       howItWorks: 'كيف تعمل Mahara',
       becomeSeller: 'كن بائعاً',
       maharaPro: 'Mahara Pro',
@@ -87,10 +86,7 @@ export const translations = {
       digitalMarketing: 'التسويق الرقمي',
       writingTranslation: 'الكتابة والترجمة',
       videoAnimation: 'الفيديو والأنيميشن',
-      aiServices: 'خدمات الذكاء الاصطناعي',
       musicAudio: 'الموسيقى والصوتيات',
-      business: 'الأعمال',
-      consulting: 'الاستشارات',
     },
 
     // Services
@@ -228,7 +224,6 @@ export const translations = {
       home: 'Home',
       explore: 'Explore',
       categories: 'Categories',
-      trending: 'Trending',
       howItWorks: 'How Mahara Works',
       becomeSeller: 'Become a Seller',
       maharaPro: 'Mahara Pro',
@@ -269,10 +264,7 @@ export const translations = {
       digitalMarketing: 'Digital Marketing',
       writingTranslation: 'Writing & Translation',
       videoAnimation: 'Video & Animation',
-      aiServices: 'AI Services',
       musicAudio: 'Music & Audio',
-      business: 'Business',
-      consulting: 'Consulting',
     },
 
     // Services

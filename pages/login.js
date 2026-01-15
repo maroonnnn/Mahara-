@@ -26,8 +26,8 @@ export default function LoginPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email) newErrors.email = 'البريد الإلكتروني مطلوب';
-    if (!formData.password) newErrors.password = 'كلمة المرور مطلوبة';
+    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.password) newErrors.password = 'Password is required';
     return newErrors;
   };
 
@@ -52,7 +52,7 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>تسجيل الدخول - FreelanceHub</title>
+        <title>Sign In - Mahara</title>
       </Head>
 
       <PublicLayout>
@@ -60,10 +60,10 @@ export default function LoginPage() {
           <div className="max-w-md w-full">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                تسجيل الدخول
+                Sign in
               </h1>
               <p className="text-gray-600">
-                مرحباً بعودتك! سجّل دخولك للمتابعة
+                Welcome back! Sign in to continue.
               </p>
             </div>
 
@@ -76,7 +76,7 @@ export default function LoginPage() {
                 )}
 
                 <Input
-                  label="البريد الإلكتروني"
+                  label="Email"
                   type="email"
                   name="email"
                   value={formData.email}
@@ -87,7 +87,7 @@ export default function LoginPage() {
                 />
 
                 <Input
-                  label="كلمة المرور"
+                  label="Password"
                   type="password"
                   name="password"
                   value={formData.password}
@@ -103,14 +103,14 @@ export default function LoginPage() {
                   fullWidth
                   disabled={loading}
                 >
-                  {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+                  {loading ? 'Signing in...' : 'Sign in'}
                 </Button>
 
                 <div className="mt-6 text-center">
                   <p className="text-gray-600">
-                    ليس لديك حساب؟{' '}
+                    Don’t have an account?{' '}
                     <Link href="/register" className="text-primary-600 hover:text-primary-700 font-semibold">
-                      إنشاء حساب جديد
+                      Create one
                     </Link>
                   </p>
                 </div>

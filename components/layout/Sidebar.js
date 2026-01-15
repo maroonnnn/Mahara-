@@ -24,35 +24,35 @@ export default function Sidebar() {
 
   // Client menu items
   const clientMenu = [
-    { name: 'لوحة التحكم', path: '/client/dashboard', icon: <FaTachometerAlt /> },
-    { name: 'مشاريعي', path: '/client/projects', icon: <FaProjectDiagram /> },
-    { name: 'مشروع جديد', path: '/client/projects/new', icon: <FaPlus /> },
-    { name: 'الرسائل', path: '/client/messages', icon: <FaEnvelope /> },
-    { name: 'المحفظة', path: '/client/wallet', icon: <FaWallet /> },
-    { name: 'الملف الشخصي', path: '/client/profile', icon: <FaUser /> },
+    { name: 'Dashboard', path: '/client/dashboard', icon: <FaTachometerAlt /> },
+    { name: 'My Projects', path: '/client/projects', icon: <FaProjectDiagram /> },
+    { name: 'New Project', path: '/client/projects/new', icon: <FaPlus /> },
+    { name: 'Messages', path: '/client/messages', icon: <FaEnvelope /> },
+    { name: 'Wallet', path: '/client/wallet', icon: <FaWallet /> },
+    { name: 'Profile', path: '/client/profile', icon: <FaUser /> },
   ];
 
   // Freelancer menu items
   const freelancerMenu = [
-    { name: 'لوحة التحكم', path: '/freelancer/dashboard', icon: <FaTachometerAlt /> },
-    { name: 'المشاريع المتاحة', path: '/freelancer/projects', icon: <FaProjectDiagram /> },
-    { name: 'عروضي', path: '/freelancer/my-offers', icon: <FaFileContract /> },
-    { name: 'المشاريع النشطة', path: '/freelancer/active-projects', icon: <FaComments /> },
-    { name: 'المشاريع المكتملة', path: '/freelancer/completed-projects', icon: <FaChartBar /> },
-    { name: 'الرسائل', path: '/freelancer/messages', icon: <FaEnvelope /> },
-    { name: 'المحفظة', path: '/freelancer/wallet', icon: <FaWallet /> },
-    { name: 'الملف الشخصي', path: '/freelancer/profile', icon: <FaUser /> },
+    { name: 'Dashboard', path: '/freelancer/dashboard', icon: <FaTachometerAlt /> },
+    { name: 'Available Projects', path: '/freelancer/projects', icon: <FaProjectDiagram /> },
+    { name: 'My Offers', path: '/freelancer/my-offers', icon: <FaFileContract /> },
+    { name: 'Active Projects', path: '/freelancer/active-projects', icon: <FaComments /> },
+    { name: 'Completed Projects', path: '/freelancer/completed-projects', icon: <FaChartBar /> },
+    { name: 'Messages', path: '/freelancer/messages', icon: <FaEnvelope /> },
+    { name: 'Wallet', path: '/freelancer/wallet', icon: <FaWallet /> },
+    { name: 'Profile', path: '/freelancer/profile', icon: <FaUser /> },
   ];
 
   // Admin menu items
   const adminMenu = [
-    { name: 'لوحة التحكم', path: '/admin/dashboard', icon: <FaTachometerAlt /> },
-    { name: 'الإيرادات والأرباح', path: '/admin/revenue', icon: <FaDollarSign /> },
-    { name: 'المستخدمون', path: '/admin/users', icon: <FaUsers /> },
-    { name: 'المشاريع', path: '/admin/projects', icon: <FaProjectDiagram /> },
-    { name: 'المعاملات المالية', path: '/admin/transactions', icon: <FaWallet /> },
-    { name: 'الفئات', path: '/admin/categories', icon: <FaCog /> },
-    { name: 'التقارير', path: '/admin/reports', icon: <FaChartBar /> },
+    { name: 'Dashboard', path: '/admin/dashboard', icon: <FaTachometerAlt /> },
+    { name: 'Revenue', path: '/admin/revenue', icon: <FaDollarSign /> },
+    { name: 'Users', path: '/admin/users', icon: <FaUsers /> },
+    { name: 'Projects', path: '/admin/projects', icon: <FaProjectDiagram /> },
+    { name: 'Transactions', path: '/admin/transactions', icon: <FaWallet /> },
+    { name: 'Categories', path: '/admin/categories', icon: <FaCog /> },
+    { name: 'Reports', path: '/admin/reports', icon: <FaChartBar /> },
   ];
 
   // Portfolio menu (accessible without full authentication)
@@ -70,16 +70,16 @@ export default function Sidebar() {
     <aside className="w-64 bg-white shadow-lg min-h-screen p-6 hidden lg:block">
       <div className="mb-6">
         <p className="text-sm text-gray-500">
-          {user ? 'مرحباً،' : 'Welcome'}
+          {user ? 'Welcome,' : 'Welcome'}
         </p>
         <p className="text-lg font-semibold text-gray-800">
           {user?.name || 'Guest'}
         </p>
         {user && (
           <p className="text-xs text-gray-400">
-            {isClient && 'عميل'}
-            {isFreelancer && 'مستقل'}
-            {isAdmin && 'مدير'}
+            {isClient && 'Client'}
+            {isFreelancer && 'Freelancer'}
+            {isAdmin && 'Admin'}
           </p>
         )}
       </div>

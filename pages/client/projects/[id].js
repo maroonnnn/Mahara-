@@ -38,19 +38,19 @@ export default function ClientProjectDetailsPage() {
 
     // Role-based access control
     if (!isAuthenticated) {
-      alert('يجب تسجيل الدخول أولاً');
+      toast.error('Please sign in first.');
       router.push('/login');
       return;
     }
 
     if (isFreelancer) {
-      alert('❌ هذه الصفحة للعملاء فقط.\n\nيمكنك عرض تفاصيل المشروع وتقديم عرض من صفحة المشاريع المتاحة.');
+      toast.error('This page is for clients only.');
       router.push('/freelancer/projects');
       return;
     }
 
     if (!isClient) {
-      alert('❌ فقط العملاء يمكنهم الوصول لهذه الصفحة.');
+      toast.error('Only clients can access this page.');
       router.push('/');
       return;
     }
@@ -71,7 +71,7 @@ export default function ClientProjectDetailsPage() {
   }, [authLoading, id, isAuthenticated, isClient, isFreelancer]);
   
   const handleCompleteProject = async () => {
-    if (!confirm('هل أنت متأكد من إكمال المشروع؟ سيتم تحويل المبلغ للمستقل.')) {
+    if (!confirm('Are you sure you want to complete this project? The payment will be released to the freelancer.')) {
       return;
     }
 
@@ -80,14 +80,14 @@ export default function ClientProjectDetailsPage() {
       const projectService = (await import('../../../services/projectService')).default;
       await projectService.completeProject(id);
       
-      alert('تم إكمال المشروع بنجاح! تم تحويل المبلغ للمستقل.');
+      alert('Project completed successfully! Payment has been released to the freelancer.');
       
       // Reload project to update status
       loadProjectAndOffers();
       checkReviewStatus();
     } catch (error) {
       console.error('Error completing project:', error);
-      const message = error.response?.data?.message || 'حدث خطأ أثناء إكمال المشروع';
+      const message = error.response?.data?.message || 'Something went wrong while completing the project.';
       alert(message);
     } finally {
       setCompleting(false);
@@ -125,15 +125,15 @@ export default function ClientProjectDetailsPage() {
         id: offer.id,
         freelancer: {
           id: offer.freelancer?.id || offer.freelancer_id,
-          name: offer.freelancer?.name || offer.freelancer_name || 'مستقل',
+          name: offer.freelancer?.name || offer.freelancer_name || 'Freelancer',
           rating: offer.freelancer?.rating || offer.freelancer_rating || 0,
           completedProjects: offer.freelancer?.completed_projects || offer.freelancer?.completedProjects || 0,
           avatar: offer.freelancer?.avatar || null
         },
         amount: parseFloat(offer.amount || 0),
         duration: offer.delivery_days 
-          ? `${offer.delivery_days} ${offer.delivery_days === 1 ? 'يوم' : 'أيام'}` 
-          : (offer.duration || 'غير محدد'),
+          ? `${offer.delivery_days} ${offer.delivery_days === 1 ? 'day' : 'days'}` 
+          : (offer.duration || 'Not specified'),
         message: offer.cover_message || offer.message || offer.description || '',
         status: offer.status || 'pending',
         createdAt: offer.created_at || offer.createdAt
@@ -163,13 +163,13 @@ export default function ClientProjectDetailsPage() {
             id: projectData.id,
             title: projectData.title,
             description: projectData.description,
-            category: projectData.category?.name || projectData.category_name || 'غير محدد',
+            category: projectData.category?.name || projectData.category_name || 'Not specified',
             subcategory: projectData.subcategory || '',
             budget: parseFloat(projectData.budget || 0),
             budgetType: projectData.budget_type || 'fixed',
             deliveryTime: projectData.duration_days 
-              ? `${projectData.duration_days} ${projectData.duration_days === 1 ? 'يوم' : 'أيام'}` 
-              : (projectData.delivery_time || 'غير محدد'),
+              ? `${projectData.duration_days} ${projectData.duration_days === 1 ? 'day' : 'days'}` 
+              : (projectData.delivery_time || 'Not specified'),
             status: projectData.status || 'open',
             skills: projectData.skills || [],
             createdAt: projectData.created_at || projectData.createdAt,
@@ -201,18 +201,18 @@ export default function ClientProjectDetailsPage() {
               id: foundProject.id,
               title: foundProject.title,
               description: foundProject.description,
-              category: foundProject.category || 'غير محدد',
+              category: foundProject.category || 'Not specified',
               subcategory: foundProject.subcategory || '',
               budget: parseFloat(foundProject.budget || 0),
               budgetType: foundProject.budgetType || 'fixed',
               deliveryTime: foundProject.deliveryTime 
                 ? foundProject.deliveryTime
-                    .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} ${num === '1' ? 'يوم' : 'أيام'}`)
-                    .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} ${num === '1' ? 'أسبوع' : 'أسابيع'}`)
-                    .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} ${num === '1' ? 'شهر' : 'أشهر'}`)
+                    .replace(/\b(\d+)\s*days?\b/gi, (match, num) => `${num} day${num === '1' ? '' : 's'}`)
+                    .replace(/\b(\d+)\s*weeks?\b/gi, (match, num) => `${num} week${num === '1' ? '' : 's'}`)
+                    .replace(/\b(\d+)\s*months?\b/gi, (match, num) => `${num} month${num === '1' ? '' : 's'}`)
                 : (foundProject.duration_days 
-                  ? `${foundProject.duration_days} ${foundProject.duration_days === 1 ? 'يوم' : 'أيام'}` 
-                  : 'غير محدد'),
+                  ? `${foundProject.duration_days} ${foundProject.duration_days === 1 ? 'day' : 'days'}` 
+                  : 'Not specified'),
               status: foundProject.status || 'open',
               skills: foundProject.skills || [],
               createdAt: foundProject.createdAt || foundProject.created_at,
@@ -250,15 +250,15 @@ export default function ClientProjectDetailsPage() {
           id: offer.id,
           freelancer: {
             id: offer.freelancer?.id || offer.freelancer_id,
-            name: offer.freelancer?.name || offer.freelancer_name || 'مستقل',
+            name: offer.freelancer?.name || offer.freelancer_name || 'Freelancer',
             rating: offer.freelancer?.rating || offer.freelancer_rating || 0,
             completedProjects: offer.freelancer?.completed_projects || offer.freelancer?.completedProjects || 0,
             avatar: offer.freelancer?.avatar || null
           },
           amount: parseFloat(offer.amount || 0),
           duration: offer.delivery_days 
-            ? `${offer.delivery_days} ${offer.delivery_days === 1 ? 'يوم' : 'أيام'}` 
-            : (offer.duration || 'غير محدد'),
+            ? `${offer.delivery_days} ${offer.delivery_days === 1 ? 'day' : 'days'}` 
+            : (offer.duration || 'Not specified'),
           message: offer.cover_message || offer.message || offer.description || '',
           status: offer.status || 'pending',
           createdAt: offer.created_at || offer.createdAt
@@ -292,7 +292,7 @@ export default function ClientProjectDetailsPage() {
       // Find the offer to get the amount
       const offer = offers.find(o => o.id === offerId);
       if (!offer) {
-        alert('❌ العرض غير موجود');
+        alert('❌ Offer not found.');
         return;
       }
 
@@ -309,7 +309,7 @@ export default function ClientProjectDetailsPage() {
         currentBalance = parseFloat(walletData.balance || 0);
       } catch (error) {
         console.error('Error loading wallet:', error);
-        alert('❌ فشل تحميل رصيد المحفظة. يرجى المحاولة مرة أخرى.');
+        alert('❌ Failed to load wallet balance. Please try again.');
         return;
       }
 
@@ -317,11 +317,11 @@ export default function ClientProjectDetailsPage() {
       if (currentBalance < offerAmount) {
         const shortage = offerAmount - currentBalance;
         const confirmDeposit = window.confirm(
-          `❌ رصيدك غير كافٍ!\n\n` +
-          `💵 مبلغ العرض: $${offerAmount.toFixed(2)}\n` +
-          `💰 رصيدك الحالي: $${currentBalance.toFixed(2)}\n` +
-          `⚠️ ينقصك: $${shortage.toFixed(2)}\n\n` +
-          `هل تريد الذهاب لصفحة الإيداع لإضافة رصيد؟`
+        `❌ Insufficient balance!\n\n` +
+        `💵 Offer amount: $${offerAmount.toFixed(2)}\n` +
+        `💰 Your balance: $${currentBalance.toFixed(2)}\n` +
+        `⚠️ Shortage: $${shortage.toFixed(2)}\n\n` +
+        `Do you want to go to the deposit page to add funds?`
         );
         
         if (confirmDeposit) {
@@ -332,11 +332,11 @@ export default function ClientProjectDetailsPage() {
 
       // Confirm acceptance
       const confirmed = window.confirm(
-        `هل أنت متأكد من قبول هذا العرض؟\n\n` +
-        `💵 مبلغ العرض: $${offerAmount.toFixed(2)}\n` +
-        `⏱ المدة: ${offer.duration}\n` +
-        `👤 المستقل: ${offer.freelancer.name}\n\n` +
-        `سيتم خصم المبلغ من محفظتك وحجزه حتى إتمام المشروع.`
+        `Are you sure you want to accept this offer?\n\n` +
+        `💵 Offer amount: $${offerAmount.toFixed(2)}\n` +
+        `⏱ Duration: ${offer.duration}\n` +
+        `👤 Freelancer: ${offer.freelancer.name}\n\n` +
+        `The amount will be deducted from your wallet and held until the project is completed.`
       );
 
       if (!confirmed) return;
@@ -346,7 +346,7 @@ export default function ClientProjectDetailsPage() {
       // Accept offer via API (needs both projectId and offerId)
       await offerService.acceptOffer(id, offerId);
       
-      toast.success('✅ تم قبول العرض بنجاح! سيتم إشعار المستقل وبدء العمل على المشروع.');
+      toast.success('✅ Offer accepted successfully! The freelancer will be notified and work can start.');
       
       // Reload project and offers to see updated status
       await loadProjectAndOffers();
@@ -361,20 +361,20 @@ export default function ClientProjectDetailsPage() {
       // Show more detailed error message
       const errorMessage = error.response?.data?.message || 
                           error.message || 
-                          'خطأ غير معروف';
+                          'Unknown error';
       
       if (error.response?.status === 422 && errorMessage.includes('Insufficient')) {
         const confirmDeposit = window.confirm(
-          `❌ رصيدك غير كافٍ!\n\n` +
+          `❌ Insufficient balance!\n\n` +
           `${errorMessage}\n\n` +
-          `هل تريد الذهاب لصفحة الإيداع لإضافة رصيد؟`
+          `Do you want to go to the deposit page to add funds?`
         );
         
         if (confirmDeposit) {
           router.push('/client/wallet');
         }
       } else {
-        alert(`❌ حدث خطأ أثناء قبول العرض.\n\n${errorMessage}\n\nيرجى المحاولة مرة أخرى.`);
+        toast.error(`Failed to accept offer: ${errorMessage}`);
       }
     }
   };
@@ -383,14 +383,14 @@ export default function ClientProjectDetailsPage() {
     try {
       const offerService = (await import('../../../services/offerService')).default;
       
-      if (window.confirm('هل أنت متأكد من رفض هذا العرض؟')) {
+      if (window.confirm('Are you sure you want to reject this offer?')) {
         await offerService.rejectOffer(offerId);
-        alert('تم رفض العرض');
+        toast.success('Offer rejected.');
         loadProjectAndOffers();
       }
     } catch (error) {
       console.error('Error rejecting offer:', error);
-      alert('حدث خطأ أثناء رفض العرض');
+      toast.error('Failed to reject offer.');
     }
   };
 
@@ -402,12 +402,12 @@ export default function ClientProjectDetailsPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>تفاصيل المشروع | Mahara</title>
+          <title>Project Details | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري التحميل...</p>
+            <p className="text-gray-600">Loading...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -418,16 +418,16 @@ export default function ClientProjectDetailsPage() {
     return (
       <DashboardLayout>
         <Head>
-          <title>المشروع غير موجود | Mahara</title>
+          <title>Project Not Found | Mahara</title>
         </Head>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">المشروع غير موجود</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Project not found</h2>
             <Link
               href="/client/projects"
               className="text-primary-500 hover:text-primary-600 font-semibold"
             >
-              العودة إلى مشاريعي
+              Back to my projects
             </Link>
           </div>
         </div>
@@ -449,7 +449,7 @@ export default function ClientProjectDetailsPage() {
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <FaArrowRight />
-          <span>العودة إلى مشاريعي</span>
+          <span>Back to my projects</span>
         </Link>
 
         {/* Project Header */}
@@ -465,36 +465,36 @@ export default function ClientProjectDetailsPage() {
             </span>
             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
               <FaCheckCircle />
-              {project.status === 'open' ? 'مفتوح' : 
-               project.status === 'active' ? 'نشط' :
-               project.status === 'in_progress' ? 'قيد التنفيذ' :
-               project.status === 'delivered' ? 'تم التسليم - في انتظار الموافقة' :
-               project.status === 'completed' ? 'مكتمل' :
-               project.status === 'cancelled' ? 'ملغي' : project.status}
+              {project.status === 'open' ? 'Open' : 
+               project.status === 'active' ? 'Active' :
+               project.status === 'in_progress' ? 'In progress' :
+               project.status === 'delivered' ? 'Delivered - awaiting approval' :
+               project.status === 'completed' ? 'Completed' :
+               project.status === 'cancelled' ? 'Cancelled' : project.status}
             </span>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
             <div>
-              <p className="text-xs text-gray-500 mb-1">الميزانية</p>
+              <p className="text-xs text-gray-500 mb-1">Budget</p>
               <p className="font-bold text-gray-900 flex items-center gap-1">
                 <FaDollarSign className="text-green-600" />
                 ${project.budget} {project.budgetType === 'hourly' ? '/hr' : ''}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">وقت التسليم</p>
+              <p className="text-xs text-gray-500 mb-1">Delivery time</p>
               <p className="font-bold text-gray-900 flex items-center gap-1">
                 <FaClock className="text-blue-600" />
                 {project.deliveryTime}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">العروض المستلمة</p>
+              <p className="text-xs text-gray-500 mb-1">Offers received</p>
               <p className="font-bold text-gray-900 text-primary-600">{offers.length}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">المشاهدات</p>
+              <p className="text-xs text-gray-500 mb-1">Views</p>
               <p className="font-bold text-gray-900 flex items-center gap-1">
                 <FaEye className="text-gray-400" />
                 {project.views}
@@ -508,10 +508,10 @@ export default function ClientProjectDetailsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    تم تسليم المشروع من المستقل
+                    The freelancer has delivered the project
                   </h3>
                   <p className="text-gray-600">
-                    يرجى مراجعة العمل المقدم. إذا كان كل شيء على ما يرام، اضغط على "إكمال المشروع" لتحويل المبلغ للمستقل.
+                    Please review the delivered work. If everything looks good, click “Complete project” to release the payment.
                   </p>
                 </div>
                 <button
@@ -520,7 +520,7 @@ export default function ClientProjectDetailsPage() {
                   className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   <FaCheckCircle />
-                  {completing ? 'جاري الإكمال...' : 'إكمال المشروع'}
+                  {completing ? 'Completing...' : 'Complete project'}
                 </button>
               </div>
             </div>
@@ -538,7 +538,7 @@ export default function ClientProjectDetailsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              تفاصيل المشروع
+              Project details
             </button>
             <button
               onClick={() => setActiveTab('offers')}
@@ -548,7 +548,7 @@ export default function ClientProjectDetailsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              العروض ({offers.length})
+              Offers ({offers.length})
             </button>
             {project?.status === 'completed' && (
               <button
@@ -559,7 +559,7 @@ export default function ClientProjectDetailsPage() {
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {hasReview ? 'التقييم' : 'قيم المستقل'}
+                {hasReview ? 'Review' : 'Leave a review'}
               </button>
             )}
           </div>
@@ -569,13 +569,13 @@ export default function ClientProjectDetailsPage() {
             {activeTab === 'details' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900 mb-3">وصف المشروع</h2>
+                  <h2 className="text-lg font-bold text-gray-900 mb-3">Project description</h2>
                   <p className="text-gray-700 whitespace-pre-line leading-relaxed">{project.description}</p>
                 </div>
 
                 {project.skills && project.skills.length > 0 && (
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900 mb-3">المهارات المطلوبة</h2>
+                    <h2 className="text-lg font-bold text-gray-900 mb-3">Required skills</h2>
                     <div className="flex flex-wrap gap-2">
                       {project.skills.map((skill, index) => (
                         <span
@@ -591,7 +591,7 @@ export default function ClientProjectDetailsPage() {
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-800">
-                    <strong>💡 نصيحة:</strong> راجع العروض المستلمة واختر المستقل الأنسب بناءً على السعر، الوقت، والخبرة.
+                    <strong>💡 Tip:</strong> Review incoming offers and choose the best freelancer based on price, delivery time, and experience.
                   </p>
                 </div>
               </div>
@@ -605,8 +605,8 @@ export default function ClientProjectDetailsPage() {
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <FaUser className="text-gray-400 text-3xl" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد عروض بعد</h3>
-                    <p className="text-gray-600">عندما يقدم المستقلون عروضهم، ستظهر هنا</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No offers yet</h3>
+                    <p className="text-gray-600">When freelancers submit offers, they will appear here.</p>
                   </div>
                 ) : (
                   offers.map((offer) => (
@@ -629,19 +629,14 @@ export default function ClientProjectDetailsPage() {
                               </h3>
                             </Link>
                             <div className="flex items-center gap-3 text-sm text-gray-600">
-                              <div className="flex items-center gap-1">
-                                <FaStar className="text-yellow-500" />
-                                <span className="font-semibold">{offer.freelancer.rating}</span>
-                              </div>
-                              <span>•</span>
-                              <span>{offer.freelancer.completedProjects} مشروع مكتمل</span>
+                              <span>{offer.freelancer.completedProjects} completed projects</span>
                               <span>•</span>
                               <Link
                                 href={`/freelancer/${offer.freelancer.id}`}
                                 className="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1"
                               >
                                 <FaUser className="text-xs" />
-                                عرض الملف الشخصي
+                                View profile
                               </Link>
                             </div>
                           </div>
@@ -663,21 +658,21 @@ export default function ClientProjectDetailsPage() {
                             className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2"
                           >
                             <FaCheckCircle />
-                            قبول العرض
+                            Accept
                           </button>
                           <button
                             onClick={() => startConversation(offer.freelancer.id)}
                             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center gap-2"
                           >
                             <FaEnvelope />
-                            مراسلة
+                            Message
                           </button>
                           <button
                             onClick={() => handleRejectOffer(offer.id)}
                             className="px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-semibold flex items-center gap-2"
                           >
                             <FaTimesCircle />
-                            رفض
+                            Reject
                           </button>
                         </div>
                       )}
@@ -686,7 +681,7 @@ export default function ClientProjectDetailsPage() {
                         <div className="pt-4 border-t border-gray-200">
                           <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2 text-green-700">
                             <FaCheckCircle />
-                            <span className="font-semibold">تم قبول هذا العرض</span>
+                            <span className="font-semibold">This offer was accepted</span>
                           </div>
                         </div>
                       )}
@@ -695,7 +690,7 @@ export default function ClientProjectDetailsPage() {
                         <div className="pt-4 border-t border-gray-200">
                           <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2 text-red-700">
                             <FaTimesCircle />
-                            <span className="font-semibold">تم رفض هذا العرض</span>
+                            <span className="font-semibold">This offer was rejected</span>
                           </div>
                         </div>
                       )}
@@ -712,10 +707,10 @@ export default function ClientProjectDetailsPage() {
                   <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
                     <FaCheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      تم إرسال التقييم بنجاح
+                      Review submitted successfully
                     </h3>
                     <p className="text-gray-600">
-                      شكراً لك على تقييم المستقل. تم حفظ تقييمك بنجاح.
+                      Thanks for your review. Your feedback has been saved.
                     </p>
                   </div>
                 ) : (

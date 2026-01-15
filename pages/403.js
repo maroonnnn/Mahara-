@@ -10,13 +10,13 @@ export default function ForbiddenPage() {
           <FaExclamationTriangle className="text-6xl text-yellow-500 mx-auto mb-6" />
           <h1 className="text-4xl font-bold text-gray-900 mb-4">403</h1>
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            غير مصرّح لك بالوصول
+            Access denied
           </h2>
           <p className="text-gray-600 mb-8">
-            ليس لديك الصلاحيات اللازمة للوصول إلى هذه الصفحة
+            You don’t have permission to access this page.
           </p>
           <Link href="/" className="btn-primary inline-block">
-            العودة إلى الصفحة الرئيسية
+            Back to home
           </Link>
         </div>
       </div>

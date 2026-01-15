@@ -117,33 +117,33 @@ export default function ClientWallet() {
                 title = description;
               } else if (method) {
                 const methodNames = {
-                  'credit_card': 'بطاقة ائتمان',
+                  'credit_card': 'Credit card',
                   'paypal': 'PayPal',
-                  'bank_transfer': 'تحويل بنكي',
-                  'unknown': 'إيداع'
+                  'bank_transfer': 'Bank transfer',
+                  'unknown': 'Deposit'
                 };
-                title = `إيداع رصيد عبر ${methodNames[method] || method}`;
+                title = `Deposit via ${methodNames[method] || method}`;
               } else {
-                title = 'إيداع رصيد';
+                title = 'Deposit';
               }
             } else if (t.type === 'withdraw') {
-              title = description || 'سحب رصيد';
+              title = description || 'Withdraw';
             } else if (t.type === 'payment') {
-              title = description || 'دفع مشروع';
+              title = description || 'Project payment';
             } else if (t.type === 'refund') {
-              title = description || 'استرداد مبلغ';
+              title = description || 'Refund';
             } else {
-              title = description || 'معاملة';
+              title = description || 'Transaction';
             }
             
             // Format date
             const date = t.created_at 
-              ? new Date(t.created_at).toLocaleDateString('ar-SA', {
+              ? new Date(t.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })
-              : new Date().toLocaleDateString('ar-SA');
+              : new Date().toLocaleDateString('en-US');
             
             return {
               id: t.id,
@@ -180,17 +180,17 @@ export default function ClientWallet() {
   return (
     <DashboardLayout>
       <Head>
-        <title>المحفظة | Mahara</title>
+        <title>Wallet | Mahara</title>
       </Head>
 
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">المحفظة</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Wallet</h1>
 
         {/* Balance Card */}
         <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg p-8 text-white mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/80 mb-2">الرصيد الحالي</p>
+              <p className="text-white/80 mb-2">Current balance</p>
               {loading ? (
                 <div className="h-16 w-32 bg-white/20 animate-pulse rounded"></div>
               ) : (
@@ -201,10 +201,10 @@ export default function ClientWallet() {
           </div>
           <div className="mt-6 flex gap-4">
             <Link href="/client/wallet/deposit" className="px-6 py-2 bg-white text-primary-600 rounded-lg hover:bg-gray-100 transition-colors font-semibold">
-              إضافة رصيد
+              Add funds
             </Link>
             <Link href="/client/wallet/withdraw" className="px-6 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors font-semibold">
-              سحب الرصيد
+              Withdraw
             </Link>
           </div>
         </div>
@@ -212,23 +212,23 @@ export default function ClientWallet() {
         {/* Transactions */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">المعاملات الأخيرة</h2>
+            <h2 className="text-xl font-bold text-gray-900">Recent transactions</h2>
           </div>
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">جاري تحميل المعاملات...</p>
+              <p className="text-gray-600">Loading transactions...</p>
             </div>
           ) : transactions.length === 0 ? (
             <div className="p-12 text-center">
               <FaWallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد معاملات</h3>
-              <p className="text-gray-600 mb-6">لم تقم بأي معاملات بعد</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No transactions</h3>
+              <p className="text-gray-600 mb-6">You haven’t made any transactions yet.</p>
               <Link
                 href="/client/wallet/deposit"
                 className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors font-semibold"
               >
-                إضافة رصيد
+                Add funds
               </Link>
             </div>
           ) : (
@@ -248,18 +248,18 @@ export default function ClientWallet() {
                   <div>
                     <p className="font-semibold text-gray-900">
                       {transaction.title || transaction.description || 
-                       (transaction.type === 'deposit' ? 'إيداع رصيد' : 
-                        transaction.type === 'withdraw' ? 'سحب رصيد' :
-                        transaction.type === 'payment' ? 'دفع مشروع' :
-                        transaction.type === 'refund' ? 'استرداد مبلغ' :
-                        'معاملة')}
+                       (transaction.type === 'deposit' ? 'Deposit' : 
+                        transaction.type === 'withdraw' ? 'Withdraw' :
+                        transaction.type === 'payment' ? 'Project payment' :
+                        transaction.type === 'refund' ? 'Refund' :
+                        'Transaction')}
                     </p>
                     <p className="text-sm text-gray-500">{transaction.date}</p>
                     {transaction.method && (
                       <p className="text-xs text-gray-400 mt-1">
-                        {transaction.method === 'credit_card' ? 'بطاقة ائتمان' :
+                        {transaction.method === 'credit_card' ? 'Credit card' :
                          transaction.method === 'paypal' ? 'PayPal' :
-                         transaction.method === 'bank_transfer' ? 'تحويل بنكي' :
+                         transaction.method === 'bank_transfer' ? 'Bank transfer' :
                          transaction.method}
                       </p>
                     )}
@@ -280,9 +280,9 @@ export default function ClientWallet() {
                       ? 'bg-yellow-100 text-yellow-700'
                       : 'bg-red-100 text-red-700'
                   }`}>
-                    {transaction.status === 'completed' ? 'مكتمل' : 
-                     transaction.status === 'pending' ? 'معلق' : 
-                     'فاشل'}
+                    {transaction.status === 'completed' ? 'Completed' : 
+                     transaction.status === 'pending' ? 'Pending' : 
+                     'Failed'}
                   </span>
                 </div>
               </div>

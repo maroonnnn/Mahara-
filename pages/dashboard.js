@@ -35,7 +35,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-primary-500 mb-4"></div>
-          <p className="text-xl font-semibold text-gray-700">جاري التوجيه إلى لوحة التحكم...</p>
+          <p className="text-xl font-semibold text-gray-700">Redirecting to your dashboard...</p>
           <p className="text-sm text-gray-500 mt-2">Redirecting to your dashboard...</p>
         </div>
       </div>

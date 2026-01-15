@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class ProjectController extends Controller
 {
     /**
-     * إنشاء مشروع جديد من قبل العميل.
+     * Create a new project by client.
      */
     public function store(Request $request)
     {
@@ -68,26 +68,26 @@ class ProjectController extends Controller
     }
 
     /**
-     * عرض قائمة المشاريع المفتوحة مع إمكانية التصفية حسب الفئة أو الميزانية.
-     * مخصص لواجهة المستقل لتصفح الفرص المتاحة.
+     * Display list of open projects with filtering by category or budget.
+     * Designed for freelancer interface to browse available opportunities.
      * 
-     * هذا الـ endpoint متاح للجميع (مع أو بدون مصادقة) لعرض المشاريع المفتوحة.
+     * This endpoint is available to everyone (with or without authentication) to view open projects.
      */
     public function openProjects(Request $request)
     {
         $query = Project::with(['category', 'client'])
-            ->withCount('offers') // إضافة عدد العروض لكل مشروع
+            ->withCount('offers') // Add offer count for each project
             ->where('status', 'open');
 
-        // استثناء مشاريع المستقل نفسه (إذا كان مسجل دخول)
-        // المستقلون لا يجب أن يروا مشاريعهم الخاصة
+        // Exclude freelancer's own projects (if logged in)
+        // Freelancers should not see their own projects
         if ($request->user() && $request->user()->role === 'freelancer') {
-            // لا نستثني أي شيء - المستقلون يمكنهم رؤية جميع المشاريع المفتوحة
-            // لكن يمكن إضافة استثناء إذا كان المستقل هو العميل أيضاً
+            // We don't exclude anything - freelancers can see all open projects
+            // But can add exclusion if freelancer is also a client
         }
 
-        // استثناء مشاريع العميل نفسه (إذا كان مسجل دخول كعميل)
-        // هذا يسمح للعملاء برؤية مشاريع العملاء الآخرين (للإلهام أو المراجعة)
+        // Exclude client's own projects (if logged in as client)
+        // This allows clients to see other clients' projects (for inspiration or review)
         if ($request->user() && $request->user()->role === 'client') {
             $query->where('client_id', '!=', $request->user()->id);
         }

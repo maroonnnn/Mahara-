@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 class OfferController extends Controller
 {
     /**
-     * إنشاء عرض جديد من قبل المستقل على مشروع مفتوح.
+     * Create a new offer by freelancer on an open project.
      */
     public function store(Request $request, Project $project)
     {
@@ -42,13 +42,15 @@ class OfferController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // منع تكرار العروض على نفس المشروع من نفس المستقل
-        $existing = Offer::where('project_id', $project->id)
+        // Allow maximum of 2 offers from the same freelancer on the same project
+        $offersCountForThisProject = Offer::where('project_id', $project->id)
             ->where('freelancer_id', $user->id)
-            ->first();
+            ->count();
 
-        if ($existing) {
-            return response()->json(['message' => 'You already submitted an offer for this project'], 422);
+        if ($offersCountForThisProject >= 2) {
+            return response()->json([
+                'message' => 'You can submit a maximum of 2 offers on this project'
+            ], 422);
         }
 
         $offer = Offer::create([
@@ -65,8 +67,8 @@ class OfferController extends Controller
             Notification::create([
                 'user_id' => $project->client_id,
                 'type' => 'offer_submitted',
-                'title' => 'عرض جديد على مشروعك',
-                'message' => "قدم المستقل {$user->name} عرضاً جديداً على مشروعك: {$project->title}",
+                'title' => 'New offer on your project',
+                'message' => "Freelancer {$user->name} submitted a new offer on your project: {$project->title}",
                 'related_type' => 'project',
                 'related_id' => $project->id,
             ]);
@@ -76,7 +78,7 @@ class OfferController extends Controller
     }
 
     /**
-     * استعراض عروض المستقل مع حالة كل عرض والمشروع المرتبط به.
+     * View freelancer's offers with status of each offer and associated project.
      */
     public function myOffers(Request $request)
     {
@@ -95,7 +97,7 @@ class OfferController extends Controller
     }
 
     /**
-     * عرض جميع العروض المقدمة على مشروع معين (من وجهة نظر العميل).
+     * View all offers submitted on a specific project (from client's perspective).
      */
     public function projectOffers(Project $project, Request $request)
     {
@@ -118,7 +120,7 @@ class OfferController extends Controller
     }
 
     /**
-     * قبول عرض معين من قِبل العميل والدفع من المحفظة مع حجز المبلغ.
+     * Accept a specific offer by the client and pay from wallet with amount reservation.
      */
     public function acceptOffer(Project $project, Offer $offer, Request $request)
     {
@@ -154,7 +156,7 @@ class OfferController extends Controller
                 'details' => ['offer_id' => $offer->id],
             ]);
 
-            // تحديث حالة العرض المختار ورفض البقية
+            // Update selected offer status and reject the rest
             $offer->update(['status' => 'accepted']);
             Offer::where('project_id', $project->id)
                 ->where('id', '<>', $offer->id)
@@ -171,8 +173,8 @@ class OfferController extends Controller
                 Notification::create([
                     'user_id' => $offer->freelancer_id,
                     'type' => 'offer_accepted',
-                    'title' => 'تم قبول عرضك',
-                    'message' => "تم قبول عرضك على المشروع: {$project->title}. يمكنك الآن البدء بالعمل!",
+                    'title' => 'Your offer has been accepted',
+                    'message' => "Your offer on project: {$project->title} has been accepted. You can now start working!",
                     'related_type' => 'project',
                     'related_id' => $project->id,
                 ]);

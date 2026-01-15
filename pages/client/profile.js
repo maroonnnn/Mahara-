@@ -43,7 +43,7 @@ export default function ClientProfile() {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      toast.error('حدث خطأ في تحميل الملف الشخصي');
+      toast.error('Failed to load your profile.');
     } finally {
       setLoading(false);
     }
@@ -62,13 +62,13 @@ export default function ClientProfile() {
       const clientService = (await import('../../services/clientService')).default;
       await clientService.updateProfile(formData);
       
-      toast.success('تم تحديث الملف الشخصي بنجاح!');
+      toast.success('Profile updated successfully!');
       
       // Reload profile to get updated data
       await loadProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.message || 'حدث خطأ في تحديث الملف الشخصي');
+      toast.error(error.response?.data?.message || 'Failed to update profile.');
     } finally {
       setSaving(false);
     }
@@ -77,11 +77,11 @@ export default function ClientProfile() {
   return (
     <DashboardLayout>
       <Head>
-        <title>الملف الشخصي | Mahara</title>
+        <title>Profile | Mahara</title>
       </Head>
 
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">الملف الشخصي</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Profile</h1>
 
         {loading ? (
           <div className="flex justify-center items-center py-12">
@@ -91,7 +91,7 @@ export default function ClientProfile() {
           <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Picture */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">الصورة الشخصية</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Profile picture</h2>
             <div className="flex items-center gap-6">
               <div className="relative">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-3xl font-bold">
@@ -106,12 +106,12 @@ export default function ClientProfile() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">{formData.name}</h3>
-                <p className="text-sm text-gray-500 mb-3">عميل منذ يناير 2024</p>
+                <p className="text-sm text-gray-500 mb-3">Client since January 2024</p>
                 <button
                   type="button"
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium"
                 >
-                  تغيير الصورة
+                  Change photo
                 </button>
               </div>
             </div>
@@ -119,12 +119,12 @@ export default function ClientProfile() {
 
           {/* Personal Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">المعلومات الشخصية</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Personal information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  الاسم الكامل
+                  Full name
                 </label>
                 <div className="relative">
                   <FaUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -140,7 +140,7 @@ export default function ClientProfile() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  البريد الإلكتروني
+                  Email
                 </label>
                 <div className="relative">
                   <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -156,7 +156,7 @@ export default function ClientProfile() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  رقم الهاتف
+                  Phone
                 </label>
                 <div className="relative">
                   <FaPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -172,7 +172,7 @@ export default function ClientProfile() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  الموقع
+                  Location
                 </label>
                 <div className="relative">
                   <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -188,7 +188,7 @@ export default function ClientProfile() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  نبذة عنك
+                  About you
                 </label>
                 <textarea
                   name="bio"
@@ -203,12 +203,12 @@ export default function ClientProfile() {
 
           {/* Company Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">معلومات الشركة (اختياري)</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Company information (optional)</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  اسم الشركة
+                  Company name
                 </label>
                 <input
                   type="text"
@@ -221,7 +221,7 @@ export default function ClientProfile() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  الموقع الإلكتروني
+                  Website
                 </label>
                 <input
                   type="url"
@@ -242,7 +242,7 @@ export default function ClientProfile() {
               className="px-8 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FaSave />
-              {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+              {saving ? 'Saving...' : 'Save changes'}
             </button>
           </div>
         </form>

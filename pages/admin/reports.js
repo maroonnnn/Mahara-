@@ -75,7 +75,7 @@ export default function AdminReports() {
       setTopCategories(data.topCategories || []);
     } catch (error) {
       console.error('Error loading reports:', error);
-      toast.error('فشل تحميل التقارير');
+      toast.error('Failed to load reports');
     } finally {
       setLoading(false);
     }
@@ -84,34 +84,34 @@ export default function AdminReports() {
   const reportTypes = [
     {
       id: 'overview',
-      title: 'نظرة عامة',
+      title: 'Overview',
       icon: <FaChartLine className="w-6 h-6" />,
-      description: 'ملخص شامل للأداء'
+      description: 'High-level performance summary'
     },
     {
       id: 'users',
-      title: 'تقرير المستخدمين',
+      title: 'Users report',
       icon: <FaUsers className="w-6 h-6" />,
-      description: 'تحليل نشاط المستخدمين'
+      description: 'User activity analysis'
     },
     {
       id: 'projects',
-      title: 'تقرير المشاريع',
+      title: 'Projects report',
       icon: <FaProjectDiagram className="w-6 h-6" />,
-      description: 'تحليل المشاريع والأداء'
+      description: 'Project performance analysis'
     },
     {
       id: 'revenue',
-      title: 'تقرير الإيرادات',
+      title: 'Revenue report',
       icon: <FaDollarSign className="w-6 h-6" />,
-      description: 'تحليل الإيرادات والنمو'
+      description: 'Revenue and growth analysis'
     }
   ];
 
   return (
     <>
       <Head>
-        <title>التقارير والإحصائيات - Mahara</title>
+        <title>Reports & Analytics - Mahara</title>
       </Head>
 
       <DashboardLayout requiredRole="admin">
@@ -120,10 +120,10 @@ export default function AdminReports() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                التقارير والإحصائيات
+                Reports & analytics
               </h1>
               <p className="text-gray-600">
-                تحليلات شاملة وتقارير مفصلة
+                Detailed insights and performance reports
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -132,14 +132,14 @@ export default function AdminReports() {
                 onChange={(e) => setSelectedPeriod(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="week">أسبوع</option>
-                <option value="month">شهر</option>
-                <option value="quarter">ربع سنة</option>
-                <option value="year">سنة</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="quarter">Quarter</option>
+                <option value="year">Year</option>
               </select>
               <button className="flex items-center gap-2 px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold">
                 <FaDownload />
-                تصدير
+                Export
               </button>
             </div>
           </div>
@@ -171,12 +171,12 @@ export default function AdminReports() {
               <div className="flex items-center gap-3 mb-4">
                 <FaUsers className="w-10 h-10 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-90">إجمالي المستخدمين</p>
+                  <p className="text-sm opacity-90">Total users</p>
                   <p className="text-3xl font-bold">{reportData.users.total.toLocaleString()}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="opacity-90">مستخدمون جدد: {reportData.users.new}</span>
+                <span className="opacity-90">New users: {reportData.users.new}</span>
                 <span className="font-semibold bg-white bg-opacity-20 px-2 py-1 rounded">{reportData.users.growth}</span>
               </div>
             </div>
@@ -185,12 +185,12 @@ export default function AdminReports() {
               <div className="flex items-center gap-3 mb-4">
                 <FaProjectDiagram className="w-10 h-10 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-90">إجمالي المشاريع</p>
+                  <p className="text-sm opacity-90">Total projects</p>
                   <p className="text-3xl font-bold">{reportData.projects.total.toLocaleString()}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="opacity-90">نشط: {reportData.projects.active}</span>
+                <span className="opacity-90">Active: {reportData.projects.active}</span>
                 <span className="font-semibold bg-white bg-opacity-20 px-2 py-1 rounded">{reportData.projects.growth}</span>
               </div>
             </div>
@@ -199,12 +199,12 @@ export default function AdminReports() {
               <div className="flex items-center gap-3 mb-4">
                 <FaDollarSign className="w-10 h-10 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-90">إجمالي الإيرادات</p>
+                  <p className="text-sm opacity-90">Total revenue</p>
                   <p className="text-3xl font-bold">${reportData.revenue.total.toLocaleString()}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="opacity-90">هذه الفترة: ${reportData.revenue.thisPeriod.toLocaleString()}</span>
+                <span className="opacity-90">This period: ${reportData.revenue.thisPeriod.toLocaleString()}</span>
                 <span className="font-semibold bg-white bg-opacity-20 px-2 py-1 rounded">{reportData.revenue.growth}</span>
               </div>
             </div>
@@ -216,7 +216,7 @@ export default function AdminReports() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">
-                  الاتجاهات الشهرية
+                  Monthly trends
                 </h2>
                 <FaChartLine className="w-6 h-6 text-gray-400" />
               </div>
@@ -225,7 +225,7 @@ export default function AdminReports() {
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
                 </div>
               ) : monthlyData.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">لا توجد بيانات</p>
+                <p className="text-gray-500 text-center py-8">No data</p>
               ) : (
                 <div className="space-y-4">
                   {monthlyData.map((data, index) => {
@@ -235,7 +235,7 @@ export default function AdminReports() {
                         <div className="w-16 text-sm font-semibold text-gray-700">{data.month}</div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-600">الإيرادات</span>
+                            <span className="text-xs text-gray-600">Revenue</span>
                             <span className="text-xs font-semibold text-gray-900">${data.revenue.toLocaleString()}</span>
                           </div>
                           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -256,7 +256,7 @@ export default function AdminReports() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">
-                  أفضل الفئات
+                  Top categories
                 </h2>
                 <FaChartPie className="w-6 h-6 text-gray-400" />
               </div>
@@ -265,14 +265,14 @@ export default function AdminReports() {
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
                 </div>
               ) : topCategories.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">لا توجد فئات</p>
+                <p className="text-gray-500 text-center py-8">No categories</p>
               ) : (
                 <div className="space-y-4">
                   {topCategories.map((category, index) => (
                     <div key={index} className="flex items-center justify-between pb-3 border-b border-gray-200 last:border-0">
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 mb-1">{category.name}</h3>
-                        <p className="text-xs text-gray-600">{category.projects} مشاريع</p>
+                        <p className="text-xs text-gray-600">{category.projects} projects</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-gray-900">${category.revenue.toLocaleString()}</p>
@@ -287,20 +287,20 @@ export default function AdminReports() {
           {/* Export Options */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              خيارات التصدير
+              Export options
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaDownload />
-                تصدير PDF
+                Export PDF
               </button>
               <button className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaDownload />
-                تصدير Excel
+                Export Excel
               </button>
               <button className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
                 <FaDownload />
-                تصدير CSV
+                Export CSV
               </button>
             </div>
           </div>
