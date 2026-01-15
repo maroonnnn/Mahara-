@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { 
   FaWallet, 
@@ -22,12 +23,6 @@ export default function FreelancerWallet() {
     total: 0
   });
   const [transactions, setTransactions] = useState([]);
-  const [stats, setStats] = useState({
-    totalEarnings: 0,
-    thisMonth: 0,
-    projectsCompleted: 0,
-    averagePerProject: 0
-  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -116,58 +111,6 @@ export default function FreelancerWallet() {
         
         setTransactions(mappedTransactions);
         
-        // Calculate stats
-        const completedEarnings = mappedTransactions.filter(
-          (t) => t.type === 'earning' && t.status === 'completed' && t.amount > 0
-        );
-
-        const totalEarnings = completedEarnings.reduce((sum, t) => sum + t.amount, 0);
-        
-        const now = new Date();
-        const thisMonth = completedEarnings
-          .filter((t) => {
-            const transactionDate = t.createdAt instanceof Date ? t.createdAt : new Date();
-            return (
-              transactionDate.getMonth() === now.getMonth() &&
-              transactionDate.getFullYear() === now.getFullYear()
-            );
-          })
-          .reduce((sum, t) => sum + t.amount, 0);
-        
-        const projectsCompleted = new Set(completedEarnings.map((t) => t.projectId).filter(Boolean)).size || completedEarnings.length;
-
-        // Fallbacks: some backends don't return detailed transactions, but they do return wallet totals.
-        const walletTotalEarnings =
-          parseFloat(
-            walletSnapshot.total_earnings ||
-              walletSnapshot.totalEarnings ||
-              walletSnapshot.earnings_total ||
-              walletSnapshot.earningsTotal ||
-              0
-          ) || 0;
-        const walletThisMonth =
-          parseFloat(
-            walletSnapshot.this_month ||
-              walletSnapshot.thisMonth ||
-              walletSnapshot.month_earnings ||
-              walletSnapshot.monthEarnings ||
-              0
-          ) || 0;
-        const walletProjectsCompleted =
-          parseInt(walletSnapshot.projects_completed || walletSnapshot.projectsCompleted || 0, 10) || 0;
-
-        const finalTotalEarnings =
-          totalEarnings > 0 ? totalEarnings : walletTotalEarnings > 0 ? walletTotalEarnings : computedBalanceTotal;
-        const finalThisMonth = thisMonth > 0 ? thisMonth : walletThisMonth;
-        const finalProjectsCompleted =
-          projectsCompleted > 0 ? projectsCompleted : walletProjectsCompleted;
-
-        setStats({
-          totalEarnings: finalTotalEarnings,
-          thisMonth: finalThisMonth,
-          projectsCompleted: finalProjectsCompleted,
-          averagePerProject: finalProjectsCompleted > 0 ? finalTotalEarnings / finalProjectsCompleted : 0
-        });
       } catch (error) {
         console.error('Error loading transactions:', error);
         setTransactions([]);
@@ -262,30 +205,13 @@ export default function FreelancerWallet() {
               <FaArrowDown />
               Withdraw
             </button>
-            <button className="flex-1 min-w-[200px] px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2">
+            <Link
+              href="/freelancer/reports"
+              className="flex-1 min-w-[200px] px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
+            >
               <FaChartLine />
               View reports
-            </button>
-          </div>
-        </div>
-
-        {/* Earnings Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">Total earnings</p>
-            <p className="text-2xl font-bold text-gray-900">${stats.totalEarnings.toLocaleString()}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">This month</p>
-            <p className="text-2xl font-bold text-green-600">${stats.thisMonth.toLocaleString()}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">Projects completed</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.projectsCompleted}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p className="text-sm text-gray-500 mb-2">Average per project</p>
-            <p className="text-2xl font-bold text-gray-900">${stats.averagePerProject.toFixed(2)}</p>
+            </Link>
           </div>
         </div>
 
